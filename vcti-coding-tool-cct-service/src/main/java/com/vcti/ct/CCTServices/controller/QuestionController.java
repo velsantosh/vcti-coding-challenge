@@ -42,7 +42,7 @@ public class QuestionController {
 	}
 
 	@PutMapping("/question/{id}")
-	public String updateUser(@RequestBody QuestionBase newQues, @PathVariable String id) {
-		return questionDataService.updateQuestion(newQues, id);
+	public void updateUser(@RequestBody QuestionBase newQues, @PathVariable String id) {
+		questionDataService.updateQuestion(newQues, id);
 	}
 }

@@ -108,10 +108,10 @@ public class CassandraConfig extends AbstractCassandraConfiguration implements C
 				+ "(qId text PRIMARY KEY, statement text, options text, correct_option text)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + subjectiveqTable
-				+ "(qId text PRIMARY KEY, statement text, methodname text, paramid_list text)");
+				+ "(qId text PRIMARY KEY, statement text, methodname text)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + paramTable
-				+ "(id text PRIMARY KEY, q_id text, name text, type text, testcaseid text)");
+				+ "(id text PRIMARY KEY, qId text, name text, type text, testcaseid text)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + outputTable
 				+ "(id text PRIMARY KEY, output text)");

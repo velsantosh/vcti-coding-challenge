@@ -1,8 +1,14 @@
 package com.vcti.ct.CCTServices.dao.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,10 +17,12 @@ import org.springframework.stereotype.Service;
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
 import com.vcti.ct.CCTServices.model.ObjQuestion;
+import com.vcti.ct.CCTServices.model.Param;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
 import com.vcti.ct.CCTServices.model.SubjQuestion;
 import com.vcti.ct.CCTServices.repository.ObjQuestionRepository;
+import com.vcti.ct.CCTServices.repository.ParamRepository;
 import com.vcti.ct.CCTServices.repository.QuestionRepository;
 import com.vcti.ct.CCTServices.repository.SubjQuestionRepository;
 
@@ -27,6 +35,8 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	ObjQuestionRepository objQRepository;
 	@Autowired
 	SubjQuestionRepository subjQRepository;
+	@Autowired
+	ParamRepository paramRepository;
 
 	@Override
 	public Question addQuestion(QuestionBase newQ) {
@@ -38,14 +48,38 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			objQRepository.save(objQ);
 		} else {
 			System.out.println("Adding Subjective Question...");
-			SubjQuestion subQ = new SubjQuestion(newQ.getId(), newQ.getStatement(), newQ.getMethodName(),
-					newQ.getParamIdList());
+			SubjQuestion subQ = new SubjQuestion(newQ.getId(), newQ.getStatement(), newQ.getMethodName());
 			subjQRepository.save(subQ);
+			// Adding in Parameter Table
+			addInParamTable(newQ);
 		}
 		Question question = new Question(newQ.getId(), newQ.getLanguage(), newQ.getType(), newQ.getExperience(),
 				newQ.getCreatedUserid());
 		questionRepository.save(question);
 		return null;
+	}
+
+	/**
+	 * Adding question request to param table
+	 * 
+	 * @param newQ : Question Base Object
+	 */
+	private void addInParamTable(QuestionBase newQ) {
+		Map<String, Map<String, Param>> tcMap = newQ.getTestCaseMap();
+		if (tcMap != null && !tcMap.isEmpty()) {
+			System.out.println("Test Cases are :" + tcMap.size());
+			for (Entry<String, Map<String, Param>> entry : tcMap.entrySet()) {
+				Map<String, Param> paramMap = entry.getValue();
+
+				for (Entry<String, Param> paramEntry : paramMap.entrySet()) {
+					// @NonNull String id, @NonNull String q_id, @NonNull String name, @NonNull
+					// String type,@NonNull String testcaseid
+					Param paramObj = new Param(UUID.randomUUID().toString(), newQ.getId(),
+							paramEntry.getValue().getName(), paramEntry.getValue().getType(), entry.getKey());
+					paramRepository.save(paramObj);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -59,6 +93,11 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 				objQRepository.deleteById(qId);
 			} else {
 				subjQRepository.deleteById(qId);
+				//Fetch param ID
+				List<Param> paramList = paramRepository.findByqId(qId);
+				for (Param param:paramList) {
+					paramRepository.deleteById(param.getId());
+				}
 			}
 		}
 		return "{ \"success\" : " + (result ? "true" : "false") + " }";
@@ -72,7 +111,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			Question ques = question.get();
 			// Question Base Table
 			populateQBaseTable(qBase, ques);
-			updateObjOrSubQtable(ques, qBase);
+			updateObjOrSubQtable(qBase, ques);
 		} else {
 			System.out.println("No Question found");
 		}
@@ -91,7 +130,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			populateQBaseTable(qBase, question);
 
 			// Update Questions Obj or Subj
-			updateObjOrSubQtable(question, qBase);
+			updateObjOrSubQtable(qBase, question);
 
 			questionList.add(qBase);
 		}
@@ -99,7 +138,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	}
 
-	private void updateObjOrSubQtable(Question question, QuestionBase qBase) {
+	private void updateObjOrSubQtable(QuestionBase qBase, Question question) {
 		if (question.getType().equals(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
 			fetchObjQRepoParameters(question.getId(), qBase);
 		} else {
@@ -113,8 +152,42 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			SubjQuestion subjQ = subjQues.get();
 			// Subjective Question Table
 			populateSubjQTable(qBase, subjQ);
+			// Param Table
+			populateParamTable(qBase);
 		}
 
+	}
+
+	private void populateParamTable(QuestionBase qBase) {
+		List<Param> paramList = paramRepository.findByqId(qBase.getId());
+		Map<String, Map<String, Param>> tcMap = new HashMap<String, Map<String, Param>>();
+		for (Param parm : paramList) {
+			Map<String, Param> paramMap = new HashMap<String, Param>();
+			int count = 1;
+
+			// entry doen't exist then add
+			if (tcMap.get(parm.getTestcaseid()) == null) {
+				paramMap.put(count + "", parm);
+				tcMap.put(parm.getTestcaseid(), paramMap);
+			} else {
+				Map<String, Param> tcExist = tcMap.get(parm.getTestcaseid());
+				Set<String> tcKeySet = tcExist.keySet();
+				int maxKey = findMaxKey(tcKeySet);
+				tcExist.put(maxKey + 1 + "", parm);
+			}
+
+		}
+		qBase.setTestCaseMap(tcMap);
+	}
+
+	private int findMaxKey(Set<String> tcKeySet) {
+		List<Integer> list = new ArrayList<Integer>();
+		for (String key : tcKeySet) {
+			list.add(Integer.parseInt(key));
+		}
+		Collections.sort(list);
+		int size = list.size();
+		return list.get(size - 1);
 	}
 
 	private void fetchObjQRepoParameters(String id, QuestionBase qBase) {
@@ -130,8 +203,6 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	private void populateSubjQTable(QuestionBase qBase, SubjQuestion subjQ) {
 		qBase.setStatement(subjQ.getStatement());
 		qBase.setMethodName(subjQ.getMethodName());
-		qBase.setParamIdList(subjQ.getParamIdList());
-
 	}
 
 	private void populateObjQTable(QuestionBase qBase, ObjQuestion objQ) {
@@ -150,7 +221,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	}
 
 	@Override
-	public String updateQuestion(QuestionBase newQues, String qId) {
+	public void updateQuestion(QuestionBase newQues, String qId) {
 		Optional<Question> optionalQuestion = questionRepository.findById(qId);
 		if (optionalQuestion.isPresent()) {
 			Question modifQ = optionalQuestion.get();
@@ -170,21 +241,27 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 					objQRepository.save(objQ);
 				}
 
-			} else {
+			} else {// Subjective Question
 				Optional<SubjQuestion> subjQues = subjQRepository.findById(qId);
 				if (subjQues.isPresent()) {
 					SubjQuestion subjQ = subjQues.get();
 					subjQ.setStatement(newQues.getStatement());
 					subjQ.setMethodName(newQues.getMethodName());
-					subjQ.setParamIdList(newQues.getParamIdList());
 					subjQRepository.save(subjQ);
 				}
+				// Param Table
 
+				List<Param> paramList = paramRepository.findByqId(qId);
+
+				for (Param param:paramList) {
+					paramRepository.deleteById(param.getId());
+				}
+
+				if (paramList.size() > 0) {
+					addInParamTable(newQues);
+
+				}
 			}
-
 		}
-
-		return null;
 	}
-
 }

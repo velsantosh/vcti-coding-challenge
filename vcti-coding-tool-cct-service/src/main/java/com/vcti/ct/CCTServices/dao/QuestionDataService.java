@@ -10,7 +10,7 @@ public interface QuestionDataService {
 
 	String deleteQuestion(String qId);
 
-	String updateQuestion(QuestionBase newQues, String qId);
+	void updateQuestion(QuestionBase newQues, String qId);
 
 	QuestionBase getQuestion(String qId);
 
