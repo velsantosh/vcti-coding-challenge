@@ -1,6 +1,6 @@
 package com.vcti.ct.CCTServices.model;
 
-import java.util.Map;
+import java.sql.Blob;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 
@@ -28,7 +28,7 @@ public class QuestionBase {
 	private @NonNull String options;
 	private @NonNull String correct_option;
 	private @NonNull String methodName;
-	private Map<String, Map<String, Param>> testCaseMap;
+	private @NonNull Blob junitObj;
 
 	public QuestionBase() {
 		super();
@@ -37,7 +37,7 @@ public class QuestionBase {
 
 	public QuestionBase(@NonNull String id, @NonNull String language, @NonNull String type, @NonNull String experience,
 			@NonNull String createdUserid, @NonNull String statement, @NonNull String options,
-			@NonNull String correct_option, @NonNull String methodName, Map<String, Map<String, Param>> testCaseMap) {
+			@NonNull String correct_option, @NonNull String methodName, Blob junitObj) {
 		super();
 		this.id = id;
 		this.language = language;
@@ -48,7 +48,7 @@ public class QuestionBase {
 		this.options = options;
 		this.correct_option = correct_option;
 		this.methodName = methodName;
-		this.testCaseMap = testCaseMap;
+		this.junitObj = junitObj;
 	}
 
 	public String getId() {
@@ -123,12 +123,12 @@ public class QuestionBase {
 		this.methodName = methodName;
 	}
 
-	public Map<String, Map<String, Param>> getTestCaseMap() {
-		return testCaseMap;
+	public Blob getJunitObj() {
+		return junitObj;
 	}
 
-	public void setTestCaseMap(Map<String, Map<String, Param>> testCaseMap) {
-		this.testCaseMap = testCaseMap;
+	public void setJunitObj(Blob junitObj) {
+		this.junitObj = junitObj;
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.vcti.ct.CCTServices.config;
+package com.vcti.ct.SRVServices.config;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,15 +32,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 	@Value("${spring.data.cassandra.password}")
 	private String password;
 
-	@Value("${spring.data.cassandra.question-table}")
-	private String questionTable;
+	@Value("${spring.data.cassandra.scheduler-table}")
+	private String schedulerTable;
 
-	@Value("${spring.data.cassandra.objectiveq-table}")
-	private String objectiveqTable;
+	@Value("${spring.data.cassandra.obj-result-table}")
+	private String objResultTable;
 
-	@Value("${spring.data.cassandra.subjectiveq-table}")
-	private String subjectiveqTable;
+	@Value("${spring.data.cassandra.subj-result-table}")
+	private String subjResultTable;
 
+	
 	public String getUserName() {
 		return userName;
 	}
@@ -95,14 +96,14 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 	private List<String> getListOfCreateQuery() {
 		List<String> createQueryList = new ArrayList<String>();
 		// Question Table
-		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + questionTable
-				+ "(id text PRIMARY KEY, language text, type text, experience text, createdUserid text)");
+		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + schedulerTable
+				+ "(id text PRIMARY KEY,qid text, assigneduid text, assigneruid text)");
 
-		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + objectiveqTable
-				+ "(qId text PRIMARY KEY, statement text, options text, correct_option text)");
+		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + objResultTable
+				+ "(userid text, qId text, selectedoption text, PRIMARY KEY (userid, qId))");
 
-		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + subjectiveqTable
-				+ "(qId text PRIMARY KEY, statement text, methodname text, junit blob)");
+		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + subjResultTable
+				+ "(userid text, qId text, program blob, consolidatedoutput text, PRIMARY KEY (userid, qId))");
 
 		return createQueryList;
 	}

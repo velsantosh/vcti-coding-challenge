@@ -1,6 +1,6 @@
 package com.vcti.ct.CCTServices.model;
 
-import java.util.Map;
+import java.sql.Blob;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
@@ -19,12 +19,15 @@ public class SubjQuestion {
 	private @NonNull String qId;
 	private @NonNull String statement;
 	private @NonNull String methodName;
+	private Blob junit;
 
-	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName) {
+	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName,
+			@NonNull Blob junit) {
 		super();
 		this.qId = qId;
 		this.statement = statement;
 		this.methodName = methodName;
+		this.junit = junit;
 	}
 
 	public String getqId() {
@@ -49,6 +52,14 @@ public class SubjQuestion {
 
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
+	}
+
+	public Blob getJunit() {
+		return junit;
+	}
+
+	public void setJunit(Blob junit) {
+		this.junit = junit;
 	}
 
 }
