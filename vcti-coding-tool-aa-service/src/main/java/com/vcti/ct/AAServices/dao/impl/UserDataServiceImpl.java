@@ -66,6 +66,7 @@ public class UserDataServiceImpl implements UserDataService {
 			user.setName(newUser.getName());
 			user.setUserName(newUser.getUserName());
 			user.setPassword(newUser.getPassword());
+			user.setExperience(newUser.getExperience());
 			// Fetch User Role Id from Role table
 			Role role = roleRepository.findDistinctByRoleName(newUser.getRole_id()).get(0);
 			user.setRole_id(role.getId());
@@ -86,10 +87,10 @@ public class UserDataServiceImpl implements UserDataService {
 			System.out.println("No Unique User found with the provided User Name");
 			return null;
 		}
-//		user.setId(newUser.getId());
 		user.setName(newUser.getName());
 		user.setUserName(newUser.getUserName());
 		user.setPassword(newUser.getPassword());
+		user.setExperience(newUser.getExperience());
 		// Fetch User Role Id from Role table
 		Role role = roleRepository.findDistinctByRoleName(newUser.getRole_id()).get(0);
 		user.setRole_id(role.getId());

@@ -13,29 +13,18 @@ import lombok.Setter;
 @Setter
 @Table
 public class User {
- 
+
 	private @NonNull String id;
 	private @NonNull String name;
 	@PrimaryKey
 	private @NonNull String userName;
 	private @NonNull String password;
 	private @NonNull String role_id;
+	private @NonNull Integer experience;
 
 	public User() {
 		super();
 	}
-
-	/*
-	 * public User(@NonNull String id, @NonNull String name, @NonNull String
-	 * userName, @NonNull String password) { super(); this.id = id; this.name =
-	 * name; this.userName = userName; this.password = password; }
-	 * 
-	 * public User(@NonNull String id, @NonNull String name, @NonNull String
-	 * userName, @NonNull String password,
-	 * 
-	 * @NonNull String role_id) { super(); this.id = id; this.name = name;
-	 * this.userName = userName; this.password = password; this.role_id = role_id; }
-	 */
 
 	public String getId() {
 		return id;
@@ -75,6 +64,14 @@ public class User {
 
 	public void setRole_id(String role_id) {
 		this.role_id = role_id;
+	}
+
+	public Integer getExperience() {
+		return experience;
+	}
+
+	public void setExperience(Integer experience) {
+		this.experience = experience;
 	}
 
 }
