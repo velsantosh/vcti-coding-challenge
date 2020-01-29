@@ -4,9 +4,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.vcti.ct</groupId>
-	<artifactId>velankani-coding-tool-srv-service</artifactId>
+	<artifactId>vcti-coding-tool-srv-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>srvService</name>
+	<name>srvservice</name>
 	<description>Velankani coding tool project for SRV Service</description>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -81,6 +81,10 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-sleuth-zipkin</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

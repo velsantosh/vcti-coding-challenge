@@ -4,9 +4,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.vcti.ct</groupId>
-	<artifactId>velankani-coding-tool-cct-service</artifactId>
+	<artifactId>vcti-coding-tool-cct-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>cctService</name>
+	<name>cctservice</name>
 	<description>Velankani coding tool project for CCT Service</description>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
