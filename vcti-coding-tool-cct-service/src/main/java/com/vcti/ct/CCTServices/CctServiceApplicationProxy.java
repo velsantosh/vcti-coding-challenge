@@ -4,8 +4,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.openfeign.FeignClient;
 
 
-@FeignClient(name="apiGateway")
-@RibbonClient(name ="cctService" )
+@FeignClient(name="apigateway")
+@RibbonClient(name ="cctservice" )
 public interface CctServiceApplicationProxy {
 
 }

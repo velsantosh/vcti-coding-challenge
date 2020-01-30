@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Bean;
 
 import brave.sampler.Sampler;
 
-@SpringBootApplication
-@EnableFeignClients("com.hackathon.cctService")
 @EnableZuulProxy
 @EnableDiscoveryClient
+@EnableFeignClients("com.vcti.ct.CCTServices")
+@SpringBootApplication
 public class CctServiceApplication {
 
 	public static void main(String[] args) {
