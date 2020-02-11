@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.vcti.ct.SRVServices.dao.SRVDataService;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
+import com.vcti.ct.SRVServices.model.QuestionCustom;
+import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.repository.ObjResultRepository;
@@ -175,6 +177,12 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public List<SubjQuestionResult> getSubjQResultByQId(String qId) {
 		return subjResultRepository.findByKeyQid(qId);
+	}
+
+	@Override
+	public List<QuestionSchedView> getQuestionsByUserId(String userId) {
+		List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneduid(userId);
+		return questionIdList;
 	}
 
 }

@@ -19,8 +19,8 @@ public interface UserRepository extends CrudRepository<User, String> {
 	List<User> findByUserName(String uName);
 	
 	@Query(allowFiltering = true)
-	void deleteById(String uName);
+	void deleteByUserName(String uName);
 	
 	@Query(allowFiltering = true)
-	boolean existsById (String uName);
+	boolean existsByUserName (String uName);
 }

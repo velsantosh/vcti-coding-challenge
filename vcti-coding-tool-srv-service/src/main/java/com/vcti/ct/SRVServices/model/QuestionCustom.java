@@ -1,7 +1,4 @@
-package com.vcti.ct.CCTServices.model;
-
-import java.nio.ByteBuffer;
-import java.sql.Blob;
+package com.vcti.ct.SRVServices.model;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 
@@ -18,37 +15,28 @@ import lombok.Setter;
 @Setter
 
 @JsonInclude(value = Include.NON_EMPTY, content = Include.NON_NULL)
-public class QuestionBase {
+public class QuestionCustom {
 	@PrimaryKey
 	private @NonNull String id;
-	private @NonNull String language;
 	private @NonNull String type;
-	private @NonNull String experience;
-	private @NonNull String createdUserid;
 	private @NonNull String statement;
-	private @NonNull String options;
-	private @NonNull String correct_option;
-	private @NonNull String methodName;
-	private @NonNull ByteBuffer junitObj;
+	private String options;
+	private String correct_option;
+	private String methodName;
 
-	public QuestionBase() {
+	public QuestionCustom() {
 		super();
 	}
 
-	public QuestionBase(@NonNull String id, @NonNull String language, @NonNull String type, @NonNull String experience,
-			@NonNull String createdUserid, @NonNull String statement, @NonNull String options,
-			@NonNull String correct_option, @NonNull String methodName, @NonNull ByteBuffer junitObj) {
+	public QuestionCustom(String id, String type, String statement, String options, String correct_option,
+			String methodName) {
 		super();
 		this.id = id;
-		this.language = language;
 		this.type = type;
-		this.experience = experience;
-		this.createdUserid = createdUserid;
 		this.statement = statement;
 		this.options = options;
 		this.correct_option = correct_option;
 		this.methodName = methodName;
-		this.junitObj = junitObj;
 	}
 
 	public String getId() {
@@ -59,36 +47,12 @@ public class QuestionBase {
 		this.id = id;
 	}
 
-	public String getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(String language) {
-		this.language = language;
-	}
-
 	public String getType() {
 		return type;
 	}
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public String getExperience() {
-		return experience;
-	}
-
-	public void setExperience(String experience) {
-		this.experience = experience;
-	}
-
-	public String getCreatedUserid() {
-		return createdUserid;
-	}
-
-	public void setCreatedUserid(String createdUserid) {
-		this.createdUserid = createdUserid;
 	}
 
 	public String getStatement() {
@@ -122,13 +86,4 @@ public class QuestionBase {
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
 	}
-
-	public ByteBuffer getJunitObj() {
-		return junitObj;
-	}
-
-	public void setJunitObj(@NonNull ByteBuffer junitObj) {
-		this.junitObj = junitObj;
-	}
-
 }

@@ -50,8 +50,8 @@ public class UserDataServiceImpl implements UserDataService {
 
 	@Override
 	public String deleteUser(String userName) {
-		Boolean result = userRepository.existsById(userName);
-		userRepository.deleteById(userName);
+		Boolean result = userRepository.existsByUserName(userName);
+		userRepository.deleteByUserName(userName);
 		return "{ \"success\" : " + (result ? "true" : "false") + " }";
 	}
 

@@ -1,4 +1,4 @@
-package com.vcti.ct.CCTServices.model;
+package com.vcti.ct.SRVServices.model;
 
 import java.nio.ByteBuffer;
 import java.sql.Blob;

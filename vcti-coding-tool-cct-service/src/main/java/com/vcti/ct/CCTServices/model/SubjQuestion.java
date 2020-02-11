@@ -1,5 +1,6 @@
 package com.vcti.ct.CCTServices.model;
 
+import java.nio.ByteBuffer;
 import java.sql.Blob;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
@@ -19,10 +20,10 @@ public class SubjQuestion {
 	private @NonNull String qId;
 	private @NonNull String statement;
 	private @NonNull String methodName;
-	private Blob junit;
+	private ByteBuffer junit;
 
 	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName,
-			@NonNull Blob junit) {
+			ByteBuffer junit) {
 		super();
 		this.qId = qId;
 		this.statement = statement;
@@ -54,11 +55,11 @@ public class SubjQuestion {
 		this.methodName = methodName;
 	}
 
-	public Blob getJunit() {
+	public ByteBuffer getJunit() {
 		return junit;
 	}
 
-	public void setJunit(Blob junit) {
+	public void setJunit(ByteBuffer junit) {
 		this.junit = junit;
 	}
 

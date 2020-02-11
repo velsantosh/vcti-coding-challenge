@@ -1,5 +1,6 @@
 package com.vcti.ct.SRVServices.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,11 +9,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.vcti.ct.SRVServices.dao.SRVDataService;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
+import com.vcti.ct.SRVServices.model.QuestionBase;
+import com.vcti.ct.SRVServices.model.QuestionCustom;
+import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
+
+import lombok.NonNull;
 
 @RestController
 public class SRVController {
@@ -45,6 +52,31 @@ public class SRVController {
 	@PostMapping(value = "/schQues")
 	public List<QuestionScheduler> getQuestions(@RequestBody QuestionScheduler schQues) {
 		return srvDataService.getQuestions(schQues);
+	}
+
+	// Get Q List on User
+	@GetMapping("/schQuesByUid/{userId}")
+	public List<QuestionCustom> getQuestionsByUserId(@PathVariable String userId) {
+		List<QuestionSchedView> quesIdList = srvDataService.getQuestionsByUserId(userId);
+		return getQuestionListFromCCTService(quesIdList);
+	}
+
+	private List<QuestionCustom> getQuestionListFromCCTService(List<QuestionSchedView> quesIdList) {
+		List<QuestionCustom> questionList = new ArrayList<QuestionCustom>();
+		for (QuestionSchedView qId : quesIdList) {
+			String id = qId.getQid();
+			// TODO move this to application.properties as connection point to CCT Service
+			final String uri = "http://localhost:8082/question/" + id;
+
+			RestTemplate restTemplate = new RestTemplate();
+			QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
+			QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
+					result.getOptions(), result.getCorrect_option(), result.getMethodName());
+			System.out.println(customObj);
+			questionList.add(customObj);
+		}
+
+		return questionList;
 	}
 
 	// Objective Q Result URI

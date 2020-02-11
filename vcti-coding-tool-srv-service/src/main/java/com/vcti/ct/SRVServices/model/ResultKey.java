@@ -10,6 +10,11 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 
 @PrimaryKeyClass
 public class ResultKey implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6098233497424425674L;
+
 	@PrimaryKeyColumn(name = "userid", type = PARTITIONED)
 	private String userId;
 

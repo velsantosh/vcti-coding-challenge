@@ -3,6 +3,8 @@ package com.vcti.ct.SRVServices.dao;
 import java.util.List;
 
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
+import com.vcti.ct.SRVServices.model.QuestionCustom;
+import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 
@@ -43,4 +45,6 @@ public interface SRVDataService {
 	List<SubjQuestionResult> getSubjQResultByUserId(String userId);
 	
 	List<SubjQuestionResult> getSubjQResultByQId(String qId);
+
+	List<QuestionSchedView> getQuestionsByUserId(String userId);
 }
