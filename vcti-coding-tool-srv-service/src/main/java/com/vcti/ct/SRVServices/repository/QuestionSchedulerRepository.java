@@ -11,6 +11,11 @@ import com.vcti.ct.SRVServices.model.QuestionScheduler;
 public interface QuestionSchedulerRepository extends CrudRepository<QuestionScheduler, String> {
 	@AllowFiltering
 	List<QuestionScheduler> findByQid(String qid);
+
+	@AllowFiltering
+	List<QuestionScheduler> findAllByQid(List<String> qid);
+
 	@AllowFiltering
 	List<QuestionSchedView> findByAssigneduid(String assigneduid);
+
 }

@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.vcti.ct.SRVServices.dao.SRVDataService;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
-import com.vcti.ct.SRVServices.model.QuestionCustom;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
+import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.repository.ObjResultRepository;
 import com.vcti.ct.SRVServices.repository.QuestionSchedulerRepository;
@@ -37,13 +37,57 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	@Override
 	public boolean unAssignUser(QuestionScheduler unAssignQ) {
-
 		deleteQEntry(getQList(unAssignQ));
+		return true;
+	}
+
+	@Override
+	public Boolean bulkAssignUser(QuestionSchedulerCustom assignBulkQ) {
+		List<QuestionScheduler> assignQObjList = new ArrayList<QuestionScheduler>();
+		QuestionScheduler assignQ;
+		List<String> qIdList = assignBulkQ.getQidList();
+		if (qIdList == null) {
+			System.out.println("No Question Id specified.");
+			return false;
+		}
+		List<String> assignedUserIdList = assignBulkQ.getAssigneduidList();
+		for (String qId : qIdList) {
+			for (String userId : assignedUserIdList) {
+				assignQ = new QuestionScheduler(UUID.randomUUID().toString(), qId, userId,
+						assignBulkQ.getAssigneruid());
+				assignQObjList.add(assignQ);
+			}
+		}
+
+		questionScheduleRepository.saveAll(assignQObjList);
+		return true;
+	}
+
+	@Override
+	public Boolean bulkUnAssignUser(QuestionSchedulerCustom unAssignBulkQ) {
+		List<QuestionScheduler> unAssignQObjList = new ArrayList<QuestionScheduler>();
+		QuestionScheduler unAssignQ = new QuestionScheduler();
+		List<String> qIdList = unAssignBulkQ.getQidList();
+		List<String> assignedUserIdList = unAssignBulkQ.getAssigneduidList();
+		for (String qId : qIdList) {
+			for (String userId : assignedUserIdList) {
+				unAssignQ = new QuestionScheduler("", qId, userId, unAssignBulkQ.getAssigneruid());
+				unAssignQObjList.add(unAssignQ);
+			}
+		}
+		deleteQEntry(getQList(qIdList, unAssignQObjList));
+
 		return true;
 	}
 
 	private List<QuestionScheduler> getQList(QuestionScheduler schQues) {
 		List<QuestionScheduler> quesList = questionScheduleRepository.findByQid(schQues.getQid());
+
+		return getMatchingCriteriaList(quesList, schQues);
+	}
+
+	private List<QuestionScheduler> getMatchingCriteriaList(List<QuestionScheduler> quesList,
+			QuestionScheduler schQues) {
 		List<QuestionScheduler> criteriaMatchedList = new ArrayList<QuestionScheduler>();
 		for (QuestionScheduler ques : quesList) {
 			// when no assigner user and assigned user is provided
@@ -52,17 +96,31 @@ public class SRVDataServiceImpl implements SRVDataService {
 				continue;
 			}
 			if (schQues.getAssigneruid() != null && schQues.getAssigneruid().equals(ques.getAssigneruid())) {
-				criteriaMatchedList.add(ques);
+				if (schQues.getAssigneduid() != null && schQues.getAssigneduid().equals(ques.getAssigneduid()))
+					criteriaMatchedList.add(ques);
 			}
-			if (schQues.getAssigneduid() != null && schQues.getAssigneduid().equals(ques.getAssigneduid())) {
-				criteriaMatchedList.add(ques);
-			}
+
 		}
 		return criteriaMatchedList;
 	}
 
+	private List<QuestionScheduler> getQList(List<String> qIdList, List<QuestionScheduler> schQuesList) {
+		// TODO - Check why below DB call doesn't work ?
+		// List<QuestionScheduler> quesList =
+		// questionScheduleRepository.findAllByQid(qIdList);
+		List<QuestionScheduler> quesList = new ArrayList<QuestionScheduler>();
+		for (String qId : qIdList) {
+			quesList.addAll(questionScheduleRepository.findByQid(qId));
+		}
+		List<QuestionScheduler> matchingCritList = new ArrayList<QuestionScheduler>();
+		for (QuestionScheduler schQues : schQuesList) {
+			matchingCritList.addAll(getMatchingCriteriaList(quesList, schQues));
+		}
+		return matchingCritList;
+	}
+
 	private void deleteQEntry(List<QuestionScheduler> quesList) {
-		quesList.forEach(ques -> questionScheduleRepository.deleteById(ques.getId()));
+		questionScheduleRepository.deleteAll(quesList);
 	}
 
 	@Override

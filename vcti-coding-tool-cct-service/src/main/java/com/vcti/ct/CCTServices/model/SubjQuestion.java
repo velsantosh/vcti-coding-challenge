@@ -1,8 +1,6 @@
 package com.vcti.ct.CCTServices.model;
 
 import java.nio.ByteBuffer;
-import java.sql.Blob;
-
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 

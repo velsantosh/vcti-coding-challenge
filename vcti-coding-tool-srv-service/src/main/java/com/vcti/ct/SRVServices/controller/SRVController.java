@@ -17,9 +17,8 @@ import com.vcti.ct.SRVServices.model.QuestionBase;
 import com.vcti.ct.SRVServices.model.QuestionCustom;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
+import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
-
-import lombok.NonNull;
 
 @RestController
 public class SRVController {
@@ -34,9 +33,19 @@ public class SRVController {
 		return srvDataService.assignUser(assignQ);
 	}
 
+	@PostMapping("/bulkAssignUser")
+	public Boolean bulkAssignUser(@RequestBody QuestionSchedulerCustom assignBulkQ) {
+		return srvDataService.bulkAssignUser(assignBulkQ);
+	}
+
 	@PostMapping("/unAssignUser")
 	public Boolean unAssignUser(@RequestBody QuestionScheduler unAssignQ) {
 		return srvDataService.unAssignUser(unAssignQ);
+	}
+
+	@PostMapping("/bulkUnAssignUser")
+	public Boolean bulkUnAssignUser(@RequestBody QuestionSchedulerCustom unAssignBulkQ) {
+		return srvDataService.bulkUnAssignUser(unAssignBulkQ);
 	}
 
 	@GetMapping("/schQues")
