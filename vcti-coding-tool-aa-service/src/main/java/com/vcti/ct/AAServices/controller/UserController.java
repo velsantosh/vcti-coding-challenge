@@ -19,7 +19,7 @@ import com.vcti.ct.AAServices.model.User;
 
 @RestController
 public class UserController {
-	
+
 	private final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
 	@Autowired
@@ -48,13 +48,13 @@ public class UserController {
 		LOG.debug("Calling getUserByUserName method");
 		return userDataService.getUserByUserName(uName);
 	}
-	
+
 	@PutMapping("/user/{id}")
 	public Optional<User> updateUser(@RequestBody User newUser, @PathVariable String id) {
 		LOG.debug("Calling updateUser method");
 		return userDataService.updateUser(newUser, id);
 	}
-	
+
 	@PutMapping("/user/uname/{uName}")
 	public User updateUserUsingUserName(@RequestBody User newUser, @PathVariable String uName) {
 		LOG.debug("Calling updateUserUsingUserName method");
@@ -91,4 +91,9 @@ public class UserController {
 		return userDataService.validateLogin(userName, password);
 	}
 
+	@GetMapping("/usersByRole/{role}")
+	public List<User> getUsersByRole(@PathVariable String role) {
+		LOG.debug("Calling getUsersByRole method");
+		return userDataService.getUsersByRole(role);
+	}
 }

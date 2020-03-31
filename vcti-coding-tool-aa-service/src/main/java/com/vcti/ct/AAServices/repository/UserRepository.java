@@ -11,16 +11,19 @@ import com.vcti.ct.AAServices.model.User;
 public interface UserRepository extends CrudRepository<User, String> {
 	@Query(allowFiltering = true)
 	List<User> findByUserNameAndPassword(String userName, String password);
-	
+
 	@Query(allowFiltering = true)
 	Optional<User> findById(String id);
-	
+
 	@Query(allowFiltering = true)
 	List<User> findByUserName(String uName);
-	
+
+	@Query(allowFiltering = true)
+	List<User> findByRoleId(String roleId);
+
 	@Query(allowFiltering = true)
 	void deleteByUserName(String uName);
-	
+
 	@Query(allowFiltering = true)
-	boolean existsByUserName (String uName);
+	boolean existsByUserName(String uName);
 }

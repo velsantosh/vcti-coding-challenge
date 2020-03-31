@@ -38,8 +38,8 @@ public class UserDataServiceImpl implements UserDataService {
 	@Override
 	public User addUser(User newUser) {
 		// Fetch User Role Id from Role table
-		Role role = roleRepository.findDistinctByRoleName(newUser.getRole_id()).get(0);
-		newUser.setRole_id(role.getId());
+		Role role = roleRepository.findDistinctByRoleName(newUser.getRoleId()).get(0);
+		newUser.setRoleId(role.getId());
 		if (newUser.getId() == null) {
 			String id = String.valueOf(new Random().nextInt());
 			newUser.setId(id);
@@ -68,8 +68,8 @@ public class UserDataServiceImpl implements UserDataService {
 			user.setPassword(newUser.getPassword());
 			user.setExperience(newUser.getExperience());
 			// Fetch User Role Id from Role table
-			Role role = roleRepository.findDistinctByRoleName(newUser.getRole_id()).get(0);
-			user.setRole_id(role.getId());
+			Role role = roleRepository.findDistinctByRoleName(newUser.getRoleId()).get(0);
+			user.setRoleId(role.getId());
 			userRepository.save(user);
 		}
 		return optionalUser;
@@ -92,8 +92,8 @@ public class UserDataServiceImpl implements UserDataService {
 		user.setPassword(newUser.getPassword());
 		user.setExperience(newUser.getExperience());
 		// Fetch User Role Id from Role table
-		Role role = roleRepository.findDistinctByRoleName(newUser.getRole_id()).get(0);
-		user.setRole_id(role.getId());
+		Role role = roleRepository.findDistinctByRoleName(newUser.getRoleId()).get(0);
+		user.setRoleId(role.getId());
 		userRepository.save(user);
 		return user;
 
@@ -137,9 +137,9 @@ public class UserDataServiceImpl implements UserDataService {
 	}
 
 	private void setRoleName(User user) {
-		Optional<Role> role = getRole(user.getRole_id());
+		Optional<Role> role = getRole(user.getRoleId());
 		if (role.isPresent()) {
-			user.setRole_id(role.get().getRoleName());
+			user.setRoleId(role.get().getRoleName());
 		}
 	}
 
@@ -150,7 +150,7 @@ public class UserDataServiceImpl implements UserDataService {
 		Optional<User> user = userRepository.findById(userId);
 		String roleId = null;
 		if (user.isPresent()) {
-			roleId = user.get().getRole_id();
+			roleId = user.get().getRoleId();
 		}
 		// Fetch Permission Id Set for roleId from RolePerMapping table
 		Set<String> permIdSet = getPermissionIdSet(roleId);
@@ -190,7 +190,7 @@ public class UserDataServiceImpl implements UserDataService {
 			System.out.println("User Name not found in the User Table");
 			return null;
 		}
-		String roleId = userList.get(0).getRole_id();
+		String roleId = userList.get(0).getRoleId();
 		// Fetch Permission Id Set for roleId from RolePerMapping table
 		Set<String> permIdSet = getPermissionIdSet(roleId);
 
@@ -213,6 +213,17 @@ public class UserDataServiceImpl implements UserDataService {
 	public boolean validateLogin(String userId, String password) {
 		List<User> user = userRepository.findByUserNameAndPassword(userId, password);
 		return user != null && user.size() > 0;
+	}
+
+	@Override
+	public List<User> getUsersByRole(String role) {
+		Role roleObj = roleRepository.findDistinctByRoleName(role).get(0);
+		if (roleObj == null) {
+			System.out.println("No Role found");
+			return null;
+		}
+		List<User> userList = userRepository.findByRoleId(roleObj.getId());
+		return userList;
 	}
 
 }

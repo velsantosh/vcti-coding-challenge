@@ -19,7 +19,7 @@ public class User {
 	@PrimaryKey
 	private @NonNull String userName;
 	private @NonNull String password;
-	private @NonNull String role_id;
+	private @NonNull String roleId;
 	private @NonNull Integer experience;
 
 	public User() {
@@ -58,12 +58,12 @@ public class User {
 		this.password = password;
 	}
 
-	public String getRole_id() {
-		return role_id;
+	public String getRoleId() {
+		return roleId;
 	}
 
-	public void setRole_id(String role_id) {
-		this.role_id = role_id;
+	public void setRoleId(String roleId) {
+		this.roleId = roleId;
 	}
 
 	public Integer getExperience() {
