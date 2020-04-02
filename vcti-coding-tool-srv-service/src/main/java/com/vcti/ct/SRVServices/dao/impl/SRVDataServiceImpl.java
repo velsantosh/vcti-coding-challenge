@@ -150,6 +150,12 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	@Override
+	public boolean addObjQResultList(List<ObjQuestionResult> objQResList) {
+		objResultRepository.saveAll(objQResList);
+		return true;
+	}
+
+	@Override
 	public boolean removeObjQResult(ObjQuestionResult objQRes) {
 		getObjQResult(objQRes).forEach(objQ -> objResultRepository.deleteById(objQ.getKey().toString()));
 		return true;
@@ -193,6 +199,12 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public boolean addSubjQResult(SubjQuestionResult subjQRes) {
 		subjResultRepository.save(subjQRes);
+		return true;
+	}
+
+	@Override
+	public boolean addSubjQResultList(List<SubjQuestionResult> subjQResList) {
+		subjResultRepository.saveAll(subjQResList);
 		return true;
 	}
 

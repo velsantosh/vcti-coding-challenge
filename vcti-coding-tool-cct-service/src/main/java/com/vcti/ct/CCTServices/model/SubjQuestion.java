@@ -20,8 +20,7 @@ public class SubjQuestion {
 	private @NonNull String methodName;
 	private ByteBuffer junit;
 
-	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName,
-			ByteBuffer junit) {
+	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName, ByteBuffer junit) {
 		super();
 		this.qId = qId;
 		this.statement = statement;

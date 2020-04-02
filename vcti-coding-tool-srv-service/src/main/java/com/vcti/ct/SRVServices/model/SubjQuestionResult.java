@@ -1,6 +1,6 @@
 package com.vcti.ct.SRVServices.model;
 
-import java.sql.Blob;
+import java.nio.ByteBuffer;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
@@ -17,10 +17,10 @@ import lombok.Setter;
 public class SubjQuestionResult {
 	@PrimaryKey
 	private ResultKey key;
-	private @NonNull Blob program;
+	private @NonNull ByteBuffer program;
 	private @NonNull String consolidatedoutput;
 
-	public SubjQuestionResult(final ResultKey key, @NonNull Blob program, @NonNull String consolidatedoutput) {
+	public SubjQuestionResult(final ResultKey key, @NonNull ByteBuffer program, @NonNull String consolidatedoutput) {
 		super();
 		this.key = key;
 		this.program = program;
@@ -35,11 +35,11 @@ public class SubjQuestionResult {
 		this.key = key;
 	}
 
-	public Blob getProgram() {
+	public @NonNull ByteBuffer getProgram() {
 		return program;
 	}
 
-	public void setProgram(Blob program) {
+	public void setProgram(@NonNull ByteBuffer program) {
 		this.program = program;
 	}
 

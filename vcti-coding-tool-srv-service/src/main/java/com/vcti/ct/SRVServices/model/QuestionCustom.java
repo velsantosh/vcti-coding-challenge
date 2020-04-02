@@ -1,5 +1,7 @@
 package com.vcti.ct.SRVServices.model;
 
+import java.util.List;
+
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,7 +22,7 @@ public class QuestionCustom {
 	private @NonNull String id;
 	private @NonNull String type;
 	private @NonNull String statement;
-	private String options;
+	private List<String> options;
 	private String correct_option;
 	private String methodName;
 
@@ -28,7 +30,7 @@ public class QuestionCustom {
 		super();
 	}
 
-	public QuestionCustom(String id, String type, String statement, String options, String correct_option,
+	public QuestionCustom(String id, String type, String statement, List<String> options, String correct_option,
 			String methodName) {
 		super();
 		this.id = id;
@@ -63,11 +65,11 @@ public class QuestionCustom {
 		this.statement = statement;
 	}
 
-	public String getOptions() {
+	public List<String> getOptions() {
 		return options;
 	}
 
-	public void setOptions(String options) {
+	public void setOptions(List<String> options) {
 		this.options = options;
 	}
 

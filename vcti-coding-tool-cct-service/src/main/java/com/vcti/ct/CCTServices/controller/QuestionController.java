@@ -1,6 +1,7 @@
 package com.vcti.ct.CCTServices.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
+import com.vcti.ct.CCTServices.model.ValidateObjQuestions;
 
 @RestController
 public class QuestionController {
@@ -36,13 +38,23 @@ public class QuestionController {
 		return questionDataService.getQuestion(id);
 	}
 
+	@GetMapping("/questionsByType/{type}")
+	public List<QuestionBase> getQuestionsByType(@PathVariable String type) {
+		return questionDataService.getQuestionsByType(type);
+	}
+
 	@DeleteMapping(value = "/question/{id}", produces = "application/json; charset=utf-8")
 	public String deleteQuetion(@PathVariable String id) {
 		return questionDataService.deleteQuestion(id);
 	}
 
 	@PutMapping("/question/{id}")
-	public void updateUser(@RequestBody QuestionBase newQues, @PathVariable String id) {
+	public void updateQuestion(@RequestBody QuestionBase newQues, @PathVariable String id) {
 		questionDataService.updateQuestion(newQues, id);
+	}
+
+	@PostMapping("/validateObjQues")
+	public Map<String, Boolean> validateObjQues(@RequestBody ValidateObjQuestions validateObjQ) {
+		return questionDataService.validateObjQues(validateObjQ.getQuestionOptionMap());
 	}
 }

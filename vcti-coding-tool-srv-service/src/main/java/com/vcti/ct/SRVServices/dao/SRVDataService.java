@@ -52,4 +52,8 @@ public interface SRVDataService {
 
 	List<QuestionSchedView> getQuestionsByUserId(String userId);
 
+	boolean addObjQResultList(List<ObjQuestionResult> objQResList);
+
+	boolean addSubjQResultList(List<SubjQuestionResult> subjQResList);
+
 }

@@ -1,7 +1,7 @@
 package com.vcti.ct.CCTServices.model;
 
 import java.nio.ByteBuffer;
-import java.sql.Blob;
+import java.util.List;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 
@@ -26,8 +26,8 @@ public class QuestionBase {
 	private @NonNull String experience;
 	private @NonNull String createdUserid;
 	private @NonNull String statement;
-	private @NonNull String options;
-	private @NonNull String correct_option;
+	private @NonNull List<String> options;
+	private @NonNull String correctOption;
 	private @NonNull String methodName;
 	private @NonNull ByteBuffer junitObj;
 
@@ -36,8 +36,8 @@ public class QuestionBase {
 	}
 
 	public QuestionBase(@NonNull String id, @NonNull String language, @NonNull String type, @NonNull String experience,
-			@NonNull String createdUserid, @NonNull String statement, @NonNull String options,
-			@NonNull String correct_option, @NonNull String methodName, @NonNull ByteBuffer junitObj) {
+			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
+			@NonNull String correctOption, @NonNull String methodName, @NonNull ByteBuffer junitObj) {
 		super();
 		this.id = id;
 		this.language = language;
@@ -46,7 +46,7 @@ public class QuestionBase {
 		this.createdUserid = createdUserid;
 		this.statement = statement;
 		this.options = options;
-		this.correct_option = correct_option;
+		this.correctOption = correctOption;
 		this.methodName = methodName;
 		this.junitObj = junitObj;
 	}
@@ -99,20 +99,20 @@ public class QuestionBase {
 		this.statement = statement;
 	}
 
-	public String getOptions() {
+	public List<String> getOptions() {
 		return options;
 	}
 
-	public void setOptions(String options) {
+	public void setOptions(List<String> options) {
 		this.options = options;
 	}
 
-	public String getCorrect_option() {
-		return correct_option;
+	public String getCorrectOption() {
+		return correctOption;
 	}
 
-	public void setCorrect_option(String correct_option) {
-		this.correct_option = correct_option;
+	public void setCorrect_option(String correctOption) {
+		this.correctOption = correctOption;
 	}
 
 	public String getMethodName() {

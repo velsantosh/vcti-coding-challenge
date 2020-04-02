@@ -65,7 +65,13 @@ public class SRVController {
 
 	// Get Q List on User
 	@GetMapping("/schQuesByUid/{userId}")
-	public List<QuestionCustom> getQuestionsByUserId(@PathVariable String userId) {
+	public List<QuestionCustom> getAllSchQuestionsByUserId(@PathVariable String userId) {
+		List<QuestionSchedView> quesIdList = srvDataService.getQuestionsByUserId(userId);
+		return getQuestionListFromCCTService(quesIdList);
+	}
+
+	@GetMapping("/schObjQuesByUid/{userId}")
+	public List<QuestionCustom> getSchObjQuestionsByUserId(@PathVariable String userId) {
 		List<QuestionSchedView> quesIdList = srvDataService.getQuestionsByUserId(userId);
 		return getQuestionListFromCCTService(quesIdList);
 	}
@@ -81,7 +87,7 @@ public class SRVController {
 			QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
 			QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
 					result.getOptions(), result.getCorrect_option(), result.getMethodName());
-			System.out.println(customObj);
+
 			questionList.add(customObj);
 		}
 
@@ -92,6 +98,11 @@ public class SRVController {
 	@PostMapping(value = "/addObjRes")
 	public boolean addObjResult(@RequestBody ObjQuestionResult objQRes) {
 		return srvDataService.addObjQResult(objQRes);
+	}
+
+	@PostMapping(value = "/addObjResList")
+	public boolean addObjResultList(@RequestBody List<ObjQuestionResult> objQResList) {
+		return srvDataService.addObjQResultList(objQResList);
 	}
 
 	@PostMapping(value = "/removeObjRes")
@@ -123,6 +134,11 @@ public class SRVController {
 	@PostMapping(value = "/addSubjRes")
 	public boolean addSubjResult(@RequestBody SubjQuestionResult subjQRes) {
 		return srvDataService.addSubjQResult(subjQRes);
+	}
+
+	@PostMapping(value = "/addSubQResList")
+	public boolean addSubjResultList(@RequestBody List<SubjQuestionResult> subjQResList) {
+		return srvDataService.addSubjQResultList(subjQResList);
 	}
 
 	@PostMapping(value = "/removeSubjRes")

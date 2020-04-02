@@ -40,6 +40,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
 	@Value("${spring.data.cassandra.subjectiveq-table}")
 	private String subjectiveqTable;
+	
+	@Value("${spring.data.cassandra.options-table}")
+	private String optionsTable;
 
 	public String getUserName() {
 		return userName;
@@ -103,6 +106,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + subjectiveqTable
 				+ "(qId text PRIMARY KEY, statement text, methodname text, junit blob)");
+		
+		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + optionsTable
+				+ "(id text PRIMARY KEY, qId text, options text)");
 
 		return createQueryList;
 	}
