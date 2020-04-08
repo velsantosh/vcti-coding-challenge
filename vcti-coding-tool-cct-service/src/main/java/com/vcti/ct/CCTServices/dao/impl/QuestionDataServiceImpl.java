@@ -1,5 +1,6 @@
 package com.vcti.ct.CCTServices.dao.impl;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.vcti.ct.CCTServices.config.CCTConstants;
+import com.vcti.ct.CCTServices.config.CCTUtils;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
 import com.vcti.ct.CCTServices.model.ObjQuestion;
 import com.vcti.ct.CCTServices.model.Options;
@@ -252,4 +254,68 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		}
 		return resultMap;
 	}
+
+	@Override
+	public Map<String, String> validateSubjQues(Map<String, String> questionOptionMap) {
+		Map<String, String> resultMap = new HashMap<String, String>();
+		for (String qId : questionOptionMap.keySet()) {
+			String prog = questionOptionMap.get(qId);
+			// Save program to a Java File
+			String path = CCTUtils.writeProgInFile(prog, "ExampleClass");
+			// compilationStatus can be compilation failure or Junit results
+			Map<String, String> compilationStatus = CCTUtils.compileJavaProgram("ExampleClass");
+
+			if (compilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+				// Call Junit Stub which will call runJavaProgram
+				String junitProg = fetchJunitFromSubjQTable(qId);
+				if (junitProg == null) {
+					System.out.println("No record found in Question table for id");
+					resultMap.put(qId, "No record found in Question table for id");
+					return resultMap;
+				} else {
+					// Write Junit Prog on File
+					String testClassPath = CCTUtils.writeProgInFile(junitProg, "ExampleClassTest");
+
+					Map<String, String> testCompilationStatus = CCTUtils.compileJavaProgram("ExampleClassTest");
+					if (testCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+						// Since Junit compilation is also successful, then run the Junit
+						Map<String, String> runJunitStatus = CCTUtils.runJavaProgram("ExampleClassTest");
+						if (runJunitStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+							// Junit Run program is successful
+							resultMap.put(qId, runJunitStatus.get(CCTConstants.status.SUCCESS.name()));
+						} else {
+							resultMap.put(qId, runJunitStatus.get(CCTConstants.status.FAIL.name()));
+						}
+
+					} else {
+						System.out.println("Junit compilation is failing " + testCompilationStatus);
+						resultMap.put(qId, testCompilationStatus.get(CCTConstants.status.FAIL.name()));
+					}
+				}
+
+			} else {
+				// Compilation failed for Java Program
+				resultMap.put(qId, compilationStatus.get(CCTConstants.status.FAIL.name()));
+			}
+		}
+		return resultMap;
+	}
+
+	private String fetchJunitFromSubjQTable(String qId) {
+		Optional<SubjQuestion> subjQues = subjQRepository.findById(qId);
+		if (subjQues.isPresent()) {
+			String converted = null;
+			SubjQuestion subjQ = subjQues.get();
+			ByteBuffer junitBuff = subjQ.getJunit();
+			System.out.println("Buffer is : " + junitBuff);
+			if (junitBuff != null) {
+				converted = new String(junitBuff.array());
+			}
+
+			return converted;
+		}
+		System.out.println("No record found in Question table for id:" + qId);
+		return null;
+	}
+
 }

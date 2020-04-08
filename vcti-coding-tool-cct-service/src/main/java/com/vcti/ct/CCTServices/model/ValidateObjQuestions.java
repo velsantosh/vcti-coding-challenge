@@ -12,6 +12,9 @@ import lombok.Setter;
 @Setter
 public class ValidateObjQuestions {
 	private @NonNull String userId;
+	/**
+	 * questionOptionMap for storing key as qId and value as selected Option
+	 */
 	private Map<String, String> questionOptionMap;
 
 	public String getUserId() {

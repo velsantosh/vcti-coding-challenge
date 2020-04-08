@@ -16,6 +16,7 @@ import com.vcti.ct.CCTServices.dao.QuestionDataService;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
 import com.vcti.ct.CCTServices.model.ValidateObjQuestions;
+import com.vcti.ct.CCTServices.model.ValidateSubjQuestions;
 
 @RestController
 public class QuestionController {
@@ -56,5 +57,10 @@ public class QuestionController {
 	@PostMapping("/validateObjQues")
 	public Map<String, Boolean> validateObjQues(@RequestBody ValidateObjQuestions validateObjQ) {
 		return questionDataService.validateObjQues(validateObjQ.getQuestionOptionMap());
+	}
+
+	@PostMapping("/validateSubjQues")
+	public Map<String, String> validateSubjQues(@RequestBody ValidateSubjQuestions validateSubjQ) {
+		return questionDataService.validateSubjQues(validateSubjQ.getQuestionProgramMap());
 	}
 }

@@ -21,4 +21,6 @@ public interface QuestionDataService {
 
 	List<QuestionBase> getQuestionsByType(String type);
 
+	Map<String, String> validateSubjQues(Map<String, String> questionOptionMap);
+
 }

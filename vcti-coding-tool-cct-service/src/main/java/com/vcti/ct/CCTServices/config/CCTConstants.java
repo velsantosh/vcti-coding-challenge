@@ -4,4 +4,8 @@ public interface CCTConstants {
 	static enum questionTypeEnum {
 		OBJECTIVE, SUBJECTIVE
 	};
+
+	static enum status {
+		SUCCESS, FAIL
+	};
 }
