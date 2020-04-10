@@ -1,6 +1,8 @@
 package com.vcti.ct.CCTServices.dao.impl;
 
 import java.nio.ByteBuffer;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +17,13 @@ import org.springframework.stereotype.Service;
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
+import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.ObjQuestion;
 import com.vcti.ct.CCTServices.model.Options;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
 import com.vcti.ct.CCTServices.model.SubjQuestion;
+import com.vcti.ct.CCTServices.model.ValidateSubjQuestions;
 import com.vcti.ct.CCTServices.repository.ObjQuestionRepository;
 import com.vcti.ct.CCTServices.repository.OptionsRepository;
 import com.vcti.ct.CCTServices.repository.QuestionRepository;
@@ -241,64 +245,84 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	}
 
 	@Override
-	public Map<String, Boolean> validateObjQues(Map<String, String> testObj) {
-		// Result Map will store Qid as key and value as Status of selected option
-		// whether correct or not
-		Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
-		Iterable<ObjQuestion> objQList = objQRepository.findAllById(testObj.keySet());
+	public List<QuesResponse> validateObjQues(List<QuesResponse> list) {
+		// resultList will store ObjQResponse object with qId and Status of selected
+		// option
+		List<QuesResponse> resultList = new ArrayList<QuesResponse>();
+		Map<String, String> qIdOptionMap = new HashMap<String, String>();
+		for (QuesResponse responseObj : list) {
+			qIdOptionMap.put(responseObj.getqId(), responseObj.getUserInput());
+		}
+		Iterable<ObjQuestion> objQList = objQRepository.findAllById(qIdOptionMap.keySet());
 		for (ObjQuestion objQFromDb : objQList) {
-			if (testObj.containsKey(objQFromDb.getqId())) {
-				resultMap.put(objQFromDb.getqId(),
-						objQFromDb.getCorrect_option().equals(testObj.get(objQFromDb.getqId())));
+			if (qIdOptionMap.keySet().contains(objQFromDb.getqId())) {
+				QuesResponse responseObj = new QuesResponse();
+				responseObj.setqId(objQFromDb.getqId());
+				responseObj.setUserInput(
+						Boolean.toString(objQFromDb.getCorrect_option().equals(qIdOptionMap.get(objQFromDb.getqId()))));
+				resultList.add(responseObj);
 			}
 		}
-		return resultMap;
+		return resultList;
 	}
 
 	@Override
-	public Map<String, String> validateSubjQues(Map<String, String> questionOptionMap) {
-		Map<String, String> resultMap = new HashMap<String, String>();
-		for (String qId : questionOptionMap.keySet()) {
-			String prog = questionOptionMap.get(qId);
-			// Save program to a Java File
-			String path = CCTUtils.writeProgInFile(prog, "ExampleClass");
-			// compilationStatus can be compilation failure or Junit results
-			Map<String, String> compilationStatus = CCTUtils.compileJavaProgram("ExampleClass");
-
-			if (compilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
-				// Call Junit Stub which will call runJavaProgram
-				String junitProg = fetchJunitFromSubjQTable(qId);
-				if (junitProg == null) {
-					System.out.println("No record found in Question table for id");
-					resultMap.put(qId, "No record found in Question table for id");
-					return resultMap;
-				} else {
-					// Write Junit Prog on File
-					String testClassPath = CCTUtils.writeProgInFile(junitProg, "ExampleClassTest");
-
-					Map<String, String> testCompilationStatus = CCTUtils.compileJavaProgram("ExampleClassTest");
-					if (testCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
-						// Since Junit compilation is also successful, then run the Junit
-						Map<String, String> runJunitStatus = CCTUtils.runJavaProgram("ExampleClassTest");
-						if (runJunitStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
-							// Junit Run program is successful
-							resultMap.put(qId, runJunitStatus.get(CCTConstants.status.SUCCESS.name()));
-						} else {
-							resultMap.put(qId, runJunitStatus.get(CCTConstants.status.FAIL.name()));
-						}
-
-					} else {
-						System.out.println("Junit compilation is failing " + testCompilationStatus);
-						resultMap.put(qId, testCompilationStatus.get(CCTConstants.status.FAIL.name()));
-					}
-				}
-
-			} else {
-				// Compilation failed for Java Program
-				resultMap.put(qId, compilationStatus.get(CCTConstants.status.FAIL.name()));
-			}
+	public QuesResponse validateSubjQues(ValidateSubjQuestions subjQuesObj) {
+		QuesResponse responseObj = new QuesResponse();
+		// Get complete Program
+		String prog = subjQuesObj.getQuesResponseObj().getUserInput();
+		if (subjQuesObj.getClassName() == null) {
+			subjQuesObj.setClassName("ExampleClass");
 		}
-		return resultMap;
+		SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		String currentTime = sdf.format(timestamp);
+		String userDir = subjQuesObj.getUserId() + currentTime;
+		// Save program to a Java File
+		String path = CCTUtils.writeProgInFile(prog, subjQuesObj.getClassName(), userDir);
+		// compilationStatus can be compilation failure or Junit results
+		Map<String, String> compilationStatus = CCTUtils.compileJavaProgram(path);
+
+		if (compilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+			// Call Junit Stub which will call runJavaProgram
+			String junitProg = fetchJunitFromSubjQTable(subjQuesObj.getQuesResponseObj().getqId());
+
+			if (junitProg == null) {
+				System.out.println("No record found in Question table for id");
+				responseObj.setqId(subjQuesObj.getQuesResponseObj().getqId());
+				responseObj.setUserInput("No record found in Question table for id");
+				return responseObj;
+			} else {
+				String junitName = subjQuesObj.getClassName() + "Test";
+				// Write Junit Prog on File
+				String testClassPath = CCTUtils.writeProgInFile(junitProg, junitName, userDir);
+				// Compile Junit Program
+				Map<String, String> testCompilationStatus = CCTUtils.compileJavaProgram(testClassPath);
+				if (testCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+					// Since Junit compilation is also successful, then run the Junit
+					Map<String, String> runJunitStatus = CCTUtils.runJavaProgram(junitName);
+					if (runJunitStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+						// Junit Run program is successful
+						responseObj.setqId(subjQuesObj.getQuesResponseObj().getqId());
+						responseObj.setUserInput(runJunitStatus.get(CCTConstants.status.SUCCESS.name()));
+					} else {
+						responseObj.setqId(subjQuesObj.getQuesResponseObj().getqId());
+						responseObj.setUserInput(runJunitStatus.get(CCTConstants.status.FAIL.name()));
+					}
+
+				} else {
+					System.out.println("Junit compilation is failing " + testCompilationStatus);
+					responseObj.setqId(subjQuesObj.getQuesResponseObj().getqId());
+					responseObj.setUserInput(testCompilationStatus.get(CCTConstants.status.FAIL.name()));
+				}
+			}
+
+		} else {
+			// Compilation failed for Java Program
+			responseObj.setqId(subjQuesObj.getQuesResponseObj().getqId());
+			responseObj.setUserInput(compilationStatus.get(CCTConstants.status.FAIL.name()));
+		}
+		return responseObj;
 	}
 
 	private String fetchJunitFromSubjQTable(String qId) {

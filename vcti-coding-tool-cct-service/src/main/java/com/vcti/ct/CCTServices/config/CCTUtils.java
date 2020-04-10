@@ -1,23 +1,30 @@
 package com.vcti.ct.CCTServices.config;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CCTUtils {
 
-	public static String writeProgInFile(String prog, String fileName) {
+	public static String writeProgInFile(String prog, String fileName, String userDir) {
 
-		String currentDirectory = System.getProperty("user.dir");
-		System.out.println("Current Directory is :" + currentDirectory);
-		String path = "C:\\takeTest\\" + fileName + ".java";
+		String path = "C:\\takeTest\\" + userDir + "\\";
+		Path pathDir = Paths.get(path);
+
 		try {
+			if (!Files.exists(pathDir)) {
+				Files.createDirectories(pathDir);
+				System.out.println("Directory created");
+			} else {
+				System.out.println("Directory already exists");
+			}
+			path = path + fileName + ".java";
 			// Java 7
 			Files.write(Paths.get(path), prog.getBytes());
 		} catch (IOException e) {
@@ -27,18 +34,14 @@ public class CCTUtils {
 
 	}
 
-	public static Map<String, String> compileJavaProgram(String fileName) {
+	public static Map<String, String> compileJavaProgram(String path) {
 
-		String separator = File.separator;
-		separator = System.getProperty("file.separator");
 		Map<String, String> compilationStatus = null;
-		String currentDirectory = System.getProperty("user.dir");
-		System.out.println("Current Directory is :" + currentDirectory);
 		System.out.println("***JAVA COMPILE PROGRAM*******");
 		try {
 			compilationStatus = runProcess(
-					"javac -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest;\" C:\\takeTest\\"
-							+ fileName + ".java");
+					"javac -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest;\" "
+							+ path);
 			System.out.println("***Compilation Completed*******");
 
 		} catch (Exception e) {
@@ -50,8 +53,6 @@ public class CCTUtils {
 	public static Map<String, String> runJavaProgram(String fileName) {
 
 		System.out.println("***JAVA RUN PROGRAM*******");
-		String currentDir = System.getProperty("user.dir");
-		System.out.println("Current Directory is :" + currentDir);
 		Map<String, String> runStatusMap = null;
 		try {
 			runStatusMap = runProcess(

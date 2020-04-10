@@ -1,7 +1,6 @@
 package com.vcti.ct.CCTServices.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
+import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
 import com.vcti.ct.CCTServices.model.ValidateObjQuestions;
@@ -55,12 +55,12 @@ public class QuestionController {
 	}
 
 	@PostMapping("/validateObjQues")
-	public Map<String, Boolean> validateObjQues(@RequestBody ValidateObjQuestions validateObjQ) {
-		return questionDataService.validateObjQues(validateObjQ.getQuestionOptionMap());
+	public List<QuesResponse> validateObjQues(@RequestBody ValidateObjQuestions validateObjQ) {
+		return questionDataService.validateObjQues(validateObjQ.getResponseList());
 	}
 
 	@PostMapping("/validateSubjQues")
-	public Map<String, String> validateSubjQues(@RequestBody ValidateSubjQuestions validateSubjQ) {
-		return questionDataService.validateSubjQues(validateSubjQ.getQuestionProgramMap());
+	public QuesResponse validateSubjQues(@RequestBody ValidateSubjQuestions validateSubjQ) {
+		return questionDataService.validateSubjQues(validateSubjQ);
 	}
 }

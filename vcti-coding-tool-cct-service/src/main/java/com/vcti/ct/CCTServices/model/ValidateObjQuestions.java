@@ -1,6 +1,6 @@
 package com.vcti.ct.CCTServices.model;
 
-import java.util.Map;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,24 +12,20 @@ import lombok.Setter;
 @Setter
 public class ValidateObjQuestions {
 	private @NonNull String userId;
-	/**
-	 * questionOptionMap for storing key as qId and value as selected Option
-	 */
-	private Map<String, String> questionOptionMap;
+
+	/* List of ObjQResponse */
+	List<QuesResponse> responseList;
 
 	public String getUserId() {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public List<QuesResponse> getResponseList() {
+		return responseList;
 	}
 
-	public Map<String, String> getQuestionOptionMap() {
-		return questionOptionMap;
+	public void setResponseList(List<QuesResponse> responseList) {
+		this.responseList = responseList;
 	}
 
-	public void setQuestionOptionMap(Map<String, String> questionOptionMap) {
-		this.questionOptionMap = questionOptionMap;
-	}
 }
