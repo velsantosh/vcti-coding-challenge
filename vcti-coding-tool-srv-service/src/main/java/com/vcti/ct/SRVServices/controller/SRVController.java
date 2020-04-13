@@ -20,6 +20,10 @@ import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+@CrossOrigin(origins = { "http://localhost:3000" })
+
 @RestController
 public class SRVController {
 

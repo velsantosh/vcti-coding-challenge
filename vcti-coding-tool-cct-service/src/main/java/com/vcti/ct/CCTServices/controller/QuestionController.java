@@ -18,6 +18,10 @@ import com.vcti.ct.CCTServices.model.QuestionBase;
 import com.vcti.ct.CCTServices.model.ValidateObjQuestions;
 import com.vcti.ct.CCTServices.model.ValidateSubjQuestions;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+@CrossOrigin(origins = { "http://localhost:3000" })
+
 @RestController
 public class QuestionController {
 
