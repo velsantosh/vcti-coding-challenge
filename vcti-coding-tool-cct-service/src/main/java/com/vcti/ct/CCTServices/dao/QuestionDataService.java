@@ -1,10 +1,11 @@
 package com.vcti.ct.CCTServices.dao;
 
 import java.util.List;
-import java.util.Map;
 
+import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
+import com.vcti.ct.CCTServices.model.ValidateSubjQuestions;
 
 public interface QuestionDataService {
 	Question addQuestion(QuestionBase newQ);
@@ -17,10 +18,10 @@ public interface QuestionDataService {
 
 	List<QuestionBase> getQuestions();
 
-	Map<String, Boolean> validateObjQues(Map<String, String> testObj);
+	List<QuesResponse> validateObjQues(List<QuesResponse> list);
 
 	List<QuestionBase> getQuestionsByType(String type);
 
-	Map<String, String> validateSubjQues(Map<String, String> questionOptionMap);
+	QuesResponse validateSubjQues(ValidateSubjQuestions validateSubjQ);
 
 }
