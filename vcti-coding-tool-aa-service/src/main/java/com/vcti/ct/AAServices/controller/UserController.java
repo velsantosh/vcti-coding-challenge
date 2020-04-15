@@ -31,7 +31,7 @@ public class UserController {
 
 	@GetMapping(value = "/healthcheck", produces = "application/json; charset=utf-8")
 	public String getHealthCheck() {
-		LOG.debug("Calling getHealthCheck method");
+		LOG.debug("Calling getHealthCheck method ");
 		return "{ \"isWorking\" : true }";
 	}
 
