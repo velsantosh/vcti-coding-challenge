@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
+import com.vcti.ct.CCTServices.exceptions.InvalidQuestionIdException;
+import com.vcti.ct.CCTServices.exceptions.QuestionAlreadyExistsException;
+import com.vcti.ct.CCTServices.exceptions.QuestionNotFoundExcetion;
 import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.ObjQuestion;
 import com.vcti.ct.CCTServices.model.Options;
@@ -57,17 +60,21 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			updateSubjQuestionTable(newQ);
 		}
 		// Update Questions Table
-		updateQuestionBaseTable(newQ);
-		return null;
+		return updateQuestionBaseTable(newQ);
 	}
 
-	private void updateQuestionBaseTable(QuestionBase newQ) {
+	private Question updateQuestionBaseTable(QuestionBase newQ) {
 		Question question = new Question(newQ.getId(), newQ.getLanguage(), newQ.getType(), newQ.getExperience(),
 				newQ.getCreatedUserid());
 		questionRepository.save(question);
+		return question;
 	}
 
 	private void updateSubjQuestionTable(QuestionBase newQ) {
+		Optional<SubjQuestion> questions = subjQRepository.findById(newQ.getId());
+		if(questions.isPresent()) {
+			throw new QuestionAlreadyExistsException("Question Already Exists");
+		}
 		SubjQuestion subQ = new SubjQuestion(newQ.getId(), newQ.getStatement(), newQ.getMethodName(),
 				newQ.getJunitObj());
 		subjQRepository.save(subQ);
@@ -79,6 +86,10 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	}
 
 	private void updateOptionsTable(QuestionBase newQ) {
+		List<Options> question = optionsRepository.findByqId(newQ.getId());
+		if(null != question) {
+			throw new QuestionAlreadyExistsException("Question Already Exists");
+		}
 		List<String> optionsList = newQ.getOptions();
 		List<Options> optionObjList = new ArrayList<Options>();
 		Options optionObj = null;
@@ -246,6 +257,10 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@Override
 	public List<QuesResponse> validateObjQues(List<QuesResponse> list) {
+		
+		if(null == list || list.size() == 0) {
+			throw new QuestionNotFoundExcetion("Question Not Found");
+		}
 		// resultList will store ObjQResponse object with qId and Status of selected
 		// option
 		List<QuesResponse> resultList = new ArrayList<QuesResponse>();
@@ -254,7 +269,9 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			qIdOptionMap.put(responseObj.getqId(), responseObj.getUserInput());
 		}
 		Iterable<ObjQuestion> objQList = objQRepository.findAllById(qIdOptionMap.keySet());
+		int responseSize = 0;
 		for (ObjQuestion objQFromDb : objQList) {
+			responseSize++;
 			if (qIdOptionMap.keySet().contains(objQFromDb.getqId())) {
 				QuesResponse responseObj = new QuesResponse();
 				responseObj.setqId(objQFromDb.getqId());
@@ -262,6 +279,9 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 						Boolean.toString(objQFromDb.getCorrect_option().equals(qIdOptionMap.get(objQFromDb.getqId()))));
 				resultList.add(responseObj);
 			}
+		}
+		if(list.size() != responseSize) {
+			throw new InvalidQuestionIdException("Invalid Question Id");
 		}
 		return resultList;
 	}
