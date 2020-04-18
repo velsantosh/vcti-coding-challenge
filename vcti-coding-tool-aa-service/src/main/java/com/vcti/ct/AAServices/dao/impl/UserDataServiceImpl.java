@@ -41,17 +41,17 @@ public class UserDataServiceImpl implements UserDataService {
 		Role role = roleRepository.findDistinctByRoleName(newUser.getRoleId()).get(0);
 		newUser.setRoleId(role.getId());
 		if (newUser.getId() == null) {
-			String id = String.valueOf(new Random().nextInt());
-			newUser.setId(id);
+//			String id = String.valueOf(new Random().nextInt());
+			newUser.setId(newUser.getUserId());
 		}
 		userRepository.save(newUser);
 		return newUser;
 	}
 
 	@Override
-	public String deleteUser(String userName) {
-		Boolean result = userRepository.existsByUserName(userName);
-		userRepository.deleteByUserName(userName);
+	public String deleteUser(String userId) {
+		Boolean result = userRepository.existsByUserId(userId);
+		userRepository.deleteByUserId(userId);
 		return "{ \"success\" : " + (result ? "true" : "false") + " }";
 	}
 
@@ -62,9 +62,9 @@ public class UserDataServiceImpl implements UserDataService {
 
 		if (optionalUser.isPresent()) {
 			User user = optionalUser.get();
-			user.setId(newUser.getId());
+			user.setId(id);
 			user.setName(newUser.getName());
-			user.setUserName(newUser.getUserName());
+			user.setUserId(newUser.getUserId());
 			user.setPassword(newUser.getPassword());
 			user.setExperience(newUser.getExperience());
 			// Fetch User Role Id from Role table
@@ -77,18 +77,19 @@ public class UserDataServiceImpl implements UserDataService {
 	}
 
 	@Override
-	public User updateUserUsingUserName(User newUser, String uName) {
+	public User updateUserUsingUserId(User newUser, String uId) {
 
-		List<User> userList = userRepository.findByUserName(uName);
+		List<User> userList = userRepository.findByUserId(uId);
 		User user;
 		if (userList.size() == 1) {
 			user = userList.get(0);
 		} else {
-			System.out.println("No Unique User found with the provided User Name");
+			System.out.println("No Unique User found with the provided User Id");
 			return null;
 		}
 		user.setName(newUser.getName());
-		user.setUserName(newUser.getUserName());
+		user.setId(uId);
+		user.setUserId(uId);
 		user.setPassword(newUser.getPassword());
 		user.setExperience(newUser.getExperience());
 		// Fetch User Role Id from Role table
@@ -108,13 +109,13 @@ public class UserDataServiceImpl implements UserDataService {
 	}
 
 	@Override
-	public User getUserByUserName(String uName) {
-		List<User> user = userRepository.findByUserName(uName);
+	public User getUserByUserId(String uName) {
+		List<User> user = userRepository.findByUserId(uName);
 		if (user.size() == 1) {
 			setRoleName(user.get(0));
 			return user.get(0);
 		} else {
-			System.out.println("No Unique User found with the provided User Name");
+			System.out.println("No Unique User found with the provided User Id");
 			return null;
 		}
 
@@ -182,10 +183,10 @@ public class UserDataServiceImpl implements UserDataService {
 	}
 
 	@Override
-	public List<String> getPermissionsByUserName(String userName) {
+	public List<String> getPermissionsByUserId(String userId) {
 		List<String> permList = null;
 		// Fetch Role Id from the user table
-		List<User> userList = userRepository.findByUserName(userName);
+		List<User> userList = userRepository.findByUserId(userId);
 		if (userList == null || userList.size() <= 0) {
 			System.out.println("User Name not found in the User Table");
 			return null;
@@ -211,7 +212,7 @@ public class UserDataServiceImpl implements UserDataService {
 
 	@Override
 	public boolean validateLogin(String userId, String password) {
-		List<User> user = userRepository.findByUserNameAndPassword(userId, password);
+		List<User> user = userRepository.findByUserIdAndPassword(userId, password);
 		return user != null && user.size() > 0;
 	}
 

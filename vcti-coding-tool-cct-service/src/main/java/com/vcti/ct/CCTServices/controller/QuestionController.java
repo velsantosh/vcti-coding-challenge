@@ -24,6 +24,11 @@ public class QuestionController {
 	@Autowired
 	private QuestionDataService questionDataService;
 
+	@GetMapping(value = "/healthcheck", produces = "application/json; charset=utf-8")
+	public String getHealthCheck() {
+		return "{ \"isWorking\" : true }";
+	}
+	
 	@PostMapping("/question")
 	public Question addQuestion(@RequestBody QuestionBase newQ) {
 		return questionDataService.addQuestion(newQ);

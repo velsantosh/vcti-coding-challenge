@@ -5,8 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import ch.qos.logback.core.status.Status;
-
 /**
  * @author sandeepkumar.yadav
  *

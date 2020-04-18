@@ -18,6 +18,7 @@ public class SubjQuestion {
 	private @NonNull String qId;
 	private @NonNull String statement;
 	private @NonNull String methodName;
+	private @NonNull Integer expectedTime;
 	private ByteBuffer junit;
 
 	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName, ByteBuffer junit) {
@@ -58,6 +59,15 @@ public class SubjQuestion {
 
 	public void setJunit(ByteBuffer junit) {
 		this.junit = junit;
+	}
+
+
+	public Integer getExpectedTime() {
+		return expectedTime;
+	}
+
+	public void setExpectedTime(Integer expectedTime) {
+		this.expectedTime = expectedTime;
 	}
 
 }

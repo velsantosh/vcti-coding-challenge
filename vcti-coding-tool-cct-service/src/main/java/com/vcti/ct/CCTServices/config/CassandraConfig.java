@@ -99,13 +99,13 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 		List<String> createQueryList = new ArrayList<String>();
 		// Question Table
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + questionTable
-				+ "(id text PRIMARY KEY, language text, type text, experience text, createdUserid text)");
+				+ "(id text PRIMARY KEY, language text, type text, experience text, createdUserid text, title text)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + objectiveqTable
 				+ "(qId text PRIMARY KEY, statement text, options text, correct_option text)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + subjectiveqTable
-				+ "(qId text PRIMARY KEY, statement text, methodname text, junit blob)");
+				+ "(qId text PRIMARY KEY, statement text, methodname text, junit blob, expectedTime text)");
 		
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + optionsTable
 				+ "(id text PRIMARY KEY, qId text, options text)");

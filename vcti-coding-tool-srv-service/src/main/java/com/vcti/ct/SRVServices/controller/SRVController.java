@@ -28,6 +28,11 @@ public class SRVController {
 
 	// Scheduler URI
 
+	@GetMapping(value = "/healthcheck", produces = "application/json; charset=utf-8")
+	public String getHealthCheck() {
+		return "{ \"isWorking\" : true }";
+	}
+	
 	@PostMapping("/assignUser")
 	public Boolean assignUser(@RequestBody QuestionScheduler assignQ) {
 		return srvDataService.assignUser(assignQ);

@@ -8,9 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.cassandra.core.CassandraAdminTemplate;
+import org.springframework.data.cassandra.core.CassandraOperations;
+import org.springframework.data.cassandra.core.CassandraTemplate;
+import org.springframework.data.cassandra.core.cql.CqlOperations;
+import org.springframework.data.cassandra.core.cql.CqlTemplate;
+import org.springframework.data.cassandra.core.mapping.CassandraType;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +27,9 @@ import com.vcti.ct.CCTServices.dao.QuestionDataService;
 import com.vcti.ct.CCTServices.exceptions.InvalidQuestionIdException;
 import com.vcti.ct.CCTServices.exceptions.QuestionAlreadyExistsException;
 import com.vcti.ct.CCTServices.exceptions.QuestionNotFoundExcetion;
-import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.ObjQuestion;
 import com.vcti.ct.CCTServices.model.Options;
+import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
 import com.vcti.ct.CCTServices.model.SubjQuestion;
@@ -44,12 +51,16 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	@Autowired
 	OptionsRepository optionsRepository;
 
+	@Autowired
+	CassandraOperations cassandraOperations;
+	
 	@Override
 	public Question addQuestion(QuestionBase newQ) {
 
 		if (newQ.getType().equals(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
 			System.out.println("Adding Objective Question...");
 			// Update Options Table
+			newQ.setId(getId("Obj"));
 			updateOptionsTable(newQ);
 			// Update ObjectiveQ Table
 			updateObjQuestionTable(newQ);
@@ -57,6 +68,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		} else {
 			System.out.println("Adding Subjective Question...");
 			// Update SubjectiveQ Table
+			newQ.setId(getId("Sub"));
 			updateSubjQuestionTable(newQ);
 		}
 		// Update Questions Table
@@ -70,7 +82,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		return question;
 	}
 
-	private void updateSubjQuestionTable(QuestionBase newQ) {
+	private void updateSubjQuestionTable(QuestionBase newQ) throws QuestionAlreadyExistsException {
 		Optional<SubjQuestion> questions = subjQRepository.findById(newQ.getId());
 		if(questions.isPresent()) {
 			throw new QuestionAlreadyExistsException("Question Already Exists");
@@ -87,7 +99,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	private void updateOptionsTable(QuestionBase newQ) {
 		List<Options> question = optionsRepository.findByqId(newQ.getId());
-		if(null != question) {
+		if(null != question && !question.isEmpty()) {
 			throw new QuestionAlreadyExistsException("Question Already Exists");
 		}
 		List<String> optionsList = newQ.getOptions();
@@ -362,4 +374,23 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		return null;
 	}
 
+	@Override
+	public Boolean[] executeQuery(List<String> queries) {
+		Boolean result[] = new Boolean[queries.size()];
+		int index = 0;
+		for(String query : queries) {
+			try {
+				result[index] = cassandraOperations.getCqlOperations().execute(query.trim());
+			} catch(Exception ex) {
+				result[index] = false;
+			}
+			index++;
+		}
+		return result;
+	}
+
+	private String getId(String questionType) {
+		String id = questionType + ":" + new Random().nextInt(100000) + ":" + System.currentTimeMillis();
+		return id;
+	}
 }

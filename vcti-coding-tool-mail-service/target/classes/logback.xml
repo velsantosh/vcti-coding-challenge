@@ -2,9 +2,9 @@
 	<property name="LOG_DIR" value="c:/logs" />
 	
 	<!-- appender and rolling policy -->
-	<appender name="CCT_APPENDER"
+	<appender name="MAIL_APPENDER"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOG_DIR}/aaService.log</file>
+		<file>${LOG_DIR}/cctService.log</file>
 		<encoder
 			class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} -%msg%n</Pattern>
@@ -21,11 +21,11 @@
 		</rollingPolicy>
 	</appender>
 
-	<logger name="com.vcti.ct" level="debug" additivity="false">
-		<appender-ref ref="CCT_APPENDER" />
+	<logger name="com.vcti.mail" level="debug" additivity="false">
+		<appender-ref ref="MAIL_APPENDER" />
 	</logger>
 
 	<root level="info">
-		<appender-ref ref="CCT_APPENDER" />
+		<appender-ref ref="MAIL_APPENDER" />
 	</root>
 </configuration>

@@ -24,4 +24,8 @@ public interface QuestionDataService {
 
 	QuesResponse validateSubjQues(ValidateSubjQuestions validateSubjQ);
 
+	default Boolean[] executeQuery(List<String> list) {
+		return new Boolean[] { false };
+	}
+
 }

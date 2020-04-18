@@ -14,17 +14,17 @@ public interface UserDataService {
 
 	Optional<User> getUser(String id);
 
-	User getUserByUserName(String uName);
+	User getUserByUserId(String uName);
 
 	List<User> getUsers();
 
 	List<String> getPermissionsById(String userId);
 
-	List<String> getPermissionsByUserName(String userName);
+	List<String> getPermissionsByUserId(String userName);
 
 	boolean validateLogin(String userId, String password);
 
-	User updateUserUsingUserName(User newUser, String uName);
+	User updateUserUsingUserId(User newUser, String uName);
 
 	List<User> getUsersByRole(String role);
 }

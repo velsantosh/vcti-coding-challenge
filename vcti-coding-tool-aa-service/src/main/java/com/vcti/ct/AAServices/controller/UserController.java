@@ -43,10 +43,10 @@ public class UserController {
 		return userDataService.getUser(id);
 	}
 
-	@GetMapping("/user/uname/{uName}")
-	public User getUserByUserName(@PathVariable String uName) {
-		LOG.debug("Calling getUserByUserName method");
-		return userDataService.getUserByUserName(uName);
+	@GetMapping("/user/userid/{uId}")
+	public User getUserByUserId(@PathVariable String uId) {
+		LOG.debug("Calling getUserByUserId method");
+		return userDataService.getUserByUserId(uId);
 	}
 
 	@PutMapping("/user/{id}")
@@ -55,10 +55,10 @@ public class UserController {
 		return userDataService.updateUser(newUser, id);
 	}
 
-	@PutMapping("/user/uname/{uName}")
-	public User updateUserUsingUserName(@RequestBody User newUser, @PathVariable String uName) {
-		LOG.debug("Calling updateUserUsingUserName method");
-		return userDataService.updateUserUsingUserName(newUser, uName);
+	@PutMapping("/user/userid/{uId}")
+	public User updateUserUsingUserId(@RequestBody User newUser, @PathVariable String uId) {
+		LOG.debug("Calling updateUserUsingUserId method");
+		return userDataService.updateUserUsingUserId(newUser, uId);
 	}
 
 	@DeleteMapping(value = "/user/{id}", produces = "application/json; charset=utf-8")
@@ -79,16 +79,16 @@ public class UserController {
 		return userDataService.getPermissionsById(id);
 	}
 
-	@GetMapping("/permByUserName/{userName}")
-	public List<String> getPermissionsByUserName(@PathVariable String userName) {
-		LOG.debug("Calling getPermissionsByUserName method");
-		return userDataService.getPermissionsByUserName(userName);
+	@GetMapping("/permByUserId/{userId}")
+	public List<String> getPermissionsByUserId(@PathVariable String userId) {
+		LOG.debug("Calling getPermissionsByUserId method");
+		return userDataService.getPermissionsByUserId(userId);
 	}
 
-	@GetMapping("/validateLogin/{userName}/{password}")
-	public boolean validateLogin(@PathVariable String userName, @PathVariable String password) {
+	@GetMapping("/validateLogin/{userId}/{password}")
+	public boolean validateLogin(@PathVariable String userId, @PathVariable String password) {
 		LOG.debug("Calling validateLogin method");
-		return userDataService.validateLogin(userName, password);
+		return userDataService.validateLogin(userId, password);
 	}
 
 	@GetMapping("/usersByRole/{role}")

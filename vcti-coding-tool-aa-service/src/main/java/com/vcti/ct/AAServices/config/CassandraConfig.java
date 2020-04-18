@@ -104,7 +104,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration implements A
 	private List<String> getListOfCreateQuery() {
 		List<String> createQueryList = new ArrayList<String>();
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + userTable
-				+ "(id text, name text, username text PRIMARY KEY, password text, roleid text, experience int)");
+				+ "(id text, name text, userid text PRIMARY KEY, password text, roleid text, experience int)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + roleTable
 				+ "(id text PRIMARY KEY, rolename text)");
@@ -126,7 +126,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration implements A
 
 		// Add one default admin user
 		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + userTable
-				+ "(id, name, username, password, roleid, experience) VALUES ('1','ADMIN','ADMIN','admin','1',0)");
+				+ "(id, name, userid, password, roleid, experience) VALUES ('1','ADMIN','ADMIN','admin','1',0)");
 
 		return insertQueryList;
 	}
