@@ -19,6 +19,7 @@ public class Question {
 	private @NonNull String type;
 	private @NonNull String experience;
 	private @NonNull String createdUserid;
+	private @NonNull String title;
 
 	public Question(@NonNull String id, @NonNull String language, @NonNull String type, @NonNull String experience,
 			@NonNull String createdUserid) {
@@ -70,4 +71,12 @@ public class Question {
 		this.createdUserid = createdUserid;
 	}
 
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
 }
