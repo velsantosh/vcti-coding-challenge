@@ -18,6 +18,10 @@ public class ObjQuestion {
 	private @NonNull String options;
 	private @NonNull String correct_option;
 
+	public ObjQuestion() {
+		
+	}
+	
 	public ObjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String options,
 			@NonNull String correct_option) {
 		super();

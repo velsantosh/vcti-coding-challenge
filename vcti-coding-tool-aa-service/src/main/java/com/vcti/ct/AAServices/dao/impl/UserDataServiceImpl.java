@@ -42,7 +42,7 @@ public class UserDataServiceImpl implements UserDataService {
 		newUser.setRoleId(role.getId());
 		if (newUser.getId() == null) {
 //			String id = String.valueOf(new Random().nextInt());
-			newUser.setId(newUser.getUserId());
+			newUser.setId(getId("User"));
 		}
 		userRepository.save(newUser);
 		return newUser;
@@ -227,4 +227,8 @@ public class UserDataServiceImpl implements UserDataService {
 		return userList;
 	}
 
+	private String getId(String questionType) {
+		String id = questionType + "X" + new Random().nextInt(100000) + "X" + System.currentTimeMillis();
+		return id;
+	}
 }

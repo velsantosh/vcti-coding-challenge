@@ -10,8 +10,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
 import org.springframework.data.cassandra.config.CassandraCqlClusterFactoryBean;
 import org.springframework.data.cassandra.config.SchemaAction;
+import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
+
+import com.datastax.driver.core.Session;
 
 @Configuration
 @EnableCassandraRepositories
@@ -44,6 +47,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 	@Value("${spring.data.cassandra.options-table}")
 	private String optionsTable;
 
+	@Value("${spring.data.cassandra.technology-table}")
+	private String technology;
+	
 	public String getUserName() {
 		return userName;
 	}
@@ -99,18 +105,27 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 		List<String> createQueryList = new ArrayList<String>();
 		// Question Table
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + questionTable
-				+ "(id text PRIMARY KEY, language text, type text, experience text, createdUserid text, title text)");
+				+ "(id text PRIMARY KEY, language text, type text, experience text, createdUserid text, title text, difficulty text, technologyId text)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + objectiveqTable
 				+ "(qId text PRIMARY KEY, statement text, options text, correct_option text)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + subjectiveqTable
-				+ "(qId text PRIMARY KEY, statement text, methodname text, junit blob, expectedTime text)");
+				+ "(qId text PRIMARY KEY, statement text, methodname text, junit blob, expectedTime text, junitText text)");
 		
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + optionsTable
 				+ "(id text PRIMARY KEY, qId text, options text)");
+		
+		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + technology
+				+ "(id text PRIMARY KEY, technology text, topic text)");
 
 		return createQueryList;
 	}
+	
+//	@Bean(name = {"cassandraTemplateBean"})
+//	public CassandraTemplate getCassandraTemplate() {
+//		Session session = getRequiredSession(); 
+//		return new CassandraTemplate(session);
+//	}
 
 }

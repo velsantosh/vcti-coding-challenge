@@ -1,10 +1,15 @@
 package com.vcti.ct.CCTServices.dao.impl;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,15 +17,20 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.cassandra.core.CassandraAdminTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.CassandraTemplate;
-import org.springframework.data.cassandra.core.cql.CqlOperations;
-import org.springframework.data.cassandra.core.cql.CqlTemplate;
-import org.springframework.data.cassandra.core.mapping.CassandraType;
+import org.springframework.data.cassandra.core.convert.CassandraConverter;
+import org.springframework.data.cassandra.core.cql.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.QueryOptions;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.exceptions.DriverException;
+import com.datastax.driver.core.policies.RetryPolicy;
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
@@ -33,11 +43,14 @@ import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
 import com.vcti.ct.CCTServices.model.SubjQuestion;
+import com.vcti.ct.CCTServices.model.Technology;
+import com.vcti.ct.CCTServices.model.TechnologyMap;
 import com.vcti.ct.CCTServices.model.ValidateSubjQuestions;
 import com.vcti.ct.CCTServices.repository.ObjQuestionRepository;
 import com.vcti.ct.CCTServices.repository.OptionsRepository;
 import com.vcti.ct.CCTServices.repository.QuestionRepository;
 import com.vcti.ct.CCTServices.repository.SubjQuestionRepository;
+import com.vcti.ct.CCTServices.repository.TechnologyRepository;
 
 @Component
 @Service
@@ -50,10 +63,11 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	SubjQuestionRepository subjQRepository;
 	@Autowired
 	OptionsRepository optionsRepository;
-
+	@Autowired
+	TechnologyRepository technologyRepository;
 	@Autowired
 	CassandraOperations cassandraOperations;
-	
+
 	@Override
 	public Question addQuestion(QuestionBase newQ) {
 
@@ -75,20 +89,61 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		return updateQuestionBaseTable(newQ);
 	}
 
+	@Override
+	public Question addObjQuestion(QuestionBase newQ) {
+
+		System.out.println("Adding Objective Question...");
+		// Update Options Table
+		newQ.setId(getId("Obj"));
+		newQ.setTechnologyId(getId("Tech"));
+		newQ.setType(CCTConstants.questionTypeEnum.OBJECTIVE.name());
+
+		// Update Options Table
+		updateOptionsTable(newQ);
+
+		// Update ObjectiveQ Table
+		updateObjQuestionTable(newQ);
+
+		// Update Technologies Table
+		updateTechnology(newQ);
+
+		// Update Questions Table
+		return updateQuestionBaseTable(newQ);
+	}
+
+	@Override
+	public Question addSubQuestion(QuestionBase newQ) {
+
+		System.out.println("Adding Subjective Question...");
+		// Update SubjectiveQ Table
+		newQ.setId(getId("Sub"));
+		newQ.setTechnologyId(getId("Tech"));
+		newQ.setType(CCTConstants.questionTypeEnum.SUBJECTIVE.name());
+
+		// Update Subjectiveq table
+		updateSubjQuestionTable(newQ);
+
+		// Update Technologies Table
+		updateTechnology(newQ);
+
+		// Update Questions Table
+		return updateQuestionBaseTable(newQ);
+	}
+
 	private Question updateQuestionBaseTable(QuestionBase newQ) {
-		Question question = new Question(newQ.getId(), newQ.getLanguage(), newQ.getType(), newQ.getExperience(),
-				newQ.getCreatedUserid());
+		Question question = new Question(newQ.getId(), newQ.getType(), newQ.getExperience(), newQ.getCreatedUserid(),
+				newQ.getTitle(), newQ.getDifficulty(), newQ.getTechnologyId());
 		questionRepository.save(question);
 		return question;
 	}
 
 	private void updateSubjQuestionTable(QuestionBase newQ) throws QuestionAlreadyExistsException {
 		Optional<SubjQuestion> questions = subjQRepository.findById(newQ.getId());
-		if(questions.isPresent()) {
+		if (questions.isPresent()) {
 			throw new QuestionAlreadyExistsException("Question Already Exists");
 		}
 		SubjQuestion subQ = new SubjQuestion(newQ.getId(), newQ.getStatement(), newQ.getMethodName(),
-				newQ.getJunitObj());
+				newQ.getJunitObj(), newQ.getExpectedTime(), newQ.getJunitText());
 		subjQRepository.save(subQ);
 	}
 
@@ -99,7 +154,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	private void updateOptionsTable(QuestionBase newQ) {
 		List<Options> question = optionsRepository.findByqId(newQ.getId());
-		if(null != question && !question.isEmpty()) {
+		if (null != question && !question.isEmpty()) {
 			throw new QuestionAlreadyExistsException("Question Already Exists");
 		}
 		List<String> optionsList = newQ.getOptions();
@@ -224,7 +279,6 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	private void populateQBaseTable(QuestionBase qBase, Question question) {
 		qBase.setId(question.getId());
-		qBase.setLanguage(question.getLanguage());
 		qBase.setType(question.getType());
 		qBase.setCreatedUserid(question.getCreatedUserid());
 
@@ -236,7 +290,6 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		if (optionalQuestion.isPresent()) {
 			Question modifQ = optionalQuestion.get();
 			// Q Base Table
-			modifQ.setLanguage(newQues.getLanguage());
 			modifQ.setType(newQues.getType());
 			modifQ.setCreatedUserid(newQues.getCreatedUserid());
 			questionRepository.save(modifQ);
@@ -269,8 +322,8 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@Override
 	public List<QuesResponse> validateObjQues(List<QuesResponse> list) {
-		
-		if(null == list || list.size() == 0) {
+
+		if (null == list || list.size() == 0) {
 			throw new QuestionNotFoundExcetion("Question Not Found");
 		}
 		// resultList will store ObjQResponse object with qId and Status of selected
@@ -292,7 +345,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 				resultList.add(responseObj);
 			}
 		}
-		if(list.size() != responseSize) {
+		if (list.size() != responseSize) {
 			throw new InvalidQuestionIdException("Invalid Question Id");
 		}
 		return resultList;
@@ -318,7 +371,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		if (compilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
 			// Call Junit Stub which will call runJavaProgram
 			String junitProg = fetchJunitFromSubjQTable(subjQuesObj.getQuesResponseObj().getqId());
-
+//			String junitProg = new String(readJunitFile());
 			if (junitProg == null) {
 				System.out.println("No record found in Question table for id");
 				responseObj.setqId(subjQuesObj.getQuesResponseObj().getqId());
@@ -357,6 +410,26 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		return responseObj;
 	}
 
+//	private byte[] readJunitFile() {
+//
+//		String path = "C:\\JUnit\\ExampleClassTest.java";
+//		StringBuilder builder = new StringBuilder();
+//		try {
+//			File file = new File(path);
+//			FileReader reader = new FileReader(file);
+//			BufferedReader br = new BufferedReader(reader);
+//			String fileData = br.readLine();
+//
+//			while (fileData != null) {
+//				builder.append(fileData);
+//				fileData = br.readLine();
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		return builder.toString().getBytes();
+//	}
+
 	private String fetchJunitFromSubjQTable(String qId) {
 		Optional<SubjQuestion> subjQues = subjQRepository.findById(qId);
 		if (subjQues.isPresent()) {
@@ -378,10 +451,10 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	public Boolean[] executeQuery(List<String> queries) {
 		Boolean result[] = new Boolean[queries.size()];
 		int index = 0;
-		for(String query : queries) {
+		for (String query : queries) {
 			try {
 				result[index] = cassandraOperations.getCqlOperations().execute(query.trim());
-			} catch(Exception ex) {
+			} catch (Exception ex) {
 				result[index] = false;
 			}
 			index++;
@@ -390,7 +463,210 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	}
 
 	private String getId(String questionType) {
-		String id = questionType + ":" + new Random().nextInt(100000) + ":" + System.currentTimeMillis();
+		String id = questionType + "X" + new Random().nextInt(100000) + "X" + System.currentTimeMillis();
 		return id;
+	}
+
+	@Override
+	public Technology updateTechnology(QuestionBase newQ) {
+		Technology technology = new Technology();
+		technology.setId(newQ.getTechnologyId());
+		technology.setTechnology(newQ.getTechnology());
+		technology.setTopic(newQ.getTopic());
+		return technologyRepository.save(technology);
+	}
+
+	@Override
+	public Technology addTechnology(Technology technology) {
+		technology.setId(getId("Tech"));
+		return technologyRepository.save(technology);
+	}
+
+	@Override
+	public List<Technology> getTechnology(String tname) {
+		return technologyRepository.findByTechnology(tname);
+	}
+
+	@Override
+	public List<TechnologyMap> getTechnologyByKey(String tname) {
+		List<Technology> techList = technologyRepository.findByTechnology(tname);
+		return convert(techList);
+	}
+
+	@Override
+	public List<TechnologyMap> getAllTechnology() {
+		Iterable<Technology> techList = technologyRepository.findAll();
+		return convert(techList);
+	}
+
+	private List<TechnologyMap> convert(Iterable<Technology> techList) {
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		for (Technology tech : techList) {
+			List<String> topics = map.get(tech.getTechnology());
+			if (topics == null) {
+				topics = new ArrayList<String>();
+			}
+			topics.add(tech.getTopic());
+			map.put(tech.getTechnology(), topics);
+		}
+		List<TechnologyMap> techLists = new ArrayList<TechnologyMap>();
+		Iterator<String> itr = map.keySet().iterator();
+		while (itr.hasNext()) {
+			TechnologyMap list = new TechnologyMap();
+			String key = itr.next();
+			list.setTechnology(key);
+			list.setTopics(map.get(key));
+			techLists.add(list);
+		}
+		return techLists;
+	}
+
+	@Override
+	public List<QuestionBase> getAllQuestionsByType(String type) {
+		type = type.toUpperCase();
+		List<QuestionBase> baseQuesList = new ArrayList<QuestionBase>();
+		if (null != type) {
+			List<Question> questions = findQuestionsByType(type);
+			if (type.equalsIgnoreCase(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
+				for (Question ques : questions) {
+					ObjQuestion objQuestion = findObjQuestionsByqid(ques.getId());
+					Technology technology = findTechnologyById(ques.getTechnologyId());
+					QuestionBase baseQues = mergeObjectiveQuestion(ques, objQuestion, technology);
+					baseQuesList.add(baseQues);
+				}
+			} else {
+				for (Question ques : questions) {
+					SubjQuestion subQuestion = findSubQuestionsByqid(ques.getId());
+					Technology technology = findTechnologyById(ques.getTechnologyId());
+					QuestionBase baseQues = mergeSubjectiveQuestion(ques, subQuestion, technology);
+					baseQuesList.add(baseQues);
+				}
+			}
+		}
+		return baseQuesList;
+	}
+
+	@Override
+	public List<QuestionBase> getAllQuestionsByTname(String tname) {
+		List<QuestionBase> baseQuesList = new ArrayList<QuestionBase>();
+		Iterable<Question> questions = questionRepository.findAll();
+		Iterator<Question> iterator = questions.iterator();
+		while (iterator.hasNext()) {
+			Question ques = iterator.next();
+			QuestionBase baseQues = null;
+			Technology technology = findTechnologyById(ques.getTechnologyId());
+			if (null != technology && null != technology.getTechnology() && technology.getTechnology().equalsIgnoreCase(tname)) {
+				if (ques.getType().equalsIgnoreCase(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
+					ObjQuestion objQuestion = findObjQuestionsByqid(ques.getId());
+					baseQues = mergeObjectiveQuestion(ques, objQuestion, technology);
+				} else {
+					SubjQuestion subQuestion = findSubQuestionsByqid(ques.getId());
+					baseQues = mergeSubjectiveQuestion(ques, subQuestion, technology);
+				}
+				baseQuesList.add(baseQues);
+			}
+		}
+		return baseQuesList;
+	}
+
+	@Override
+	public List<QuestionBase> getAllQuestionsByTypeAndTname(String type, String tname) {
+		type = type.toUpperCase();
+		List<QuestionBase> baseQuesList = new ArrayList<QuestionBase>();
+		if (null != type && null != tname) {
+			List<Question> questions = findQuestionsByType(type);
+			if (type.equalsIgnoreCase(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
+				for (Question ques : questions) {
+					ObjQuestion objQuestion = findObjQuestionsByqid(ques.getId());
+					Technology technology = findTechnologyById(ques.getTechnologyId());
+					if (null != technology.getTechnology() && technology.getTechnology().equalsIgnoreCase(tname)) {
+						QuestionBase baseQues = mergeObjectiveQuestion(ques, objQuestion, technology);
+						baseQuesList.add(baseQues);
+					}
+				}
+			} else {
+				for (Question ques : questions) {
+					SubjQuestion subQuestion = findSubQuestionsByqid(ques.getId());
+					Technology technology = findTechnologyById(ques.getTechnologyId());
+					if (null != technology.getTechnology() && technology.getTechnology().equalsIgnoreCase(tname)) {
+						QuestionBase baseQues = mergeSubjectiveQuestion(ques, subQuestion, technology);
+						baseQuesList.add(baseQues);
+					}
+				}
+			}
+		}
+		return baseQuesList;
+	}
+
+	private List<Question> findQuestionsByType(String typeName) {
+		List<Question> questions = questionRepository.findByType(typeName);
+		return questions;
+	}
+
+	private SubjQuestion findSubQuestionsByqid(String qId) {
+		Optional<SubjQuestion> subQuestions = null;
+		if (null != qId) {
+			subQuestions = subjQRepository.findById(qId);
+			if (null != subQuestions && subQuestions.isPresent())
+				return subQuestions.get();
+		}
+		return new SubjQuestion();
+	}
+
+	private ObjQuestion findObjQuestionsByqid(String qId) {
+		Optional<ObjQuestion> subQuestions = null;
+		if (null != qId) {
+			subQuestions = objQRepository.findById(qId);
+			if (null != subQuestions && subQuestions.isPresent())
+				return subQuestions.get();
+		}
+		return new ObjQuestion();
+	}
+
+	private Technology findTechnologyById(String id) {
+		Optional<Technology> technology = null;
+		if (null != id) {
+			technology = technologyRepository.findById(id);
+			if (null != technology && technology.isPresent())
+				return technology.get();
+		}
+		return new Technology();
+	}
+
+	private QuestionBase mergeSubjectiveQuestion(Question ques, SubjQuestion sub, Technology tech) {
+		QuestionBase base = mergeBaseQuestionWithTechnology(ques, tech);
+		base.setExpectedTime(sub.getExpectedTime());
+		base.setJunitObj(sub.getJunit());
+		base.setJunitText(sub.getJunitText());
+		base.setMethodName(sub.getMethodName());
+		base.setStatement(sub.getStatement());
+		return base;
+	}
+
+	private QuestionBase mergeObjectiveQuestion(Question ques, ObjQuestion obj, Technology tech) {
+		QuestionBase base = mergeBaseQuestionWithTechnology(ques, tech);
+		base.setCorrect_option(obj.getCorrect_option());
+		List<Options> options = optionsRepository.findByqId(obj.getqId());
+		List<String> objOptions = new ArrayList<String>();
+		for (Options opt : options) {
+			objOptions.add(opt.getOptions());
+		}
+		base.setOptions(objOptions);
+		base.setStatement(obj.getStatement());
+		return base;
+	}
+
+	private QuestionBase mergeBaseQuestionWithTechnology(Question ques, Technology tech) {
+		QuestionBase base = new QuestionBase();
+		base.setId(ques.getId());
+		base.setCreatedUserid(ques.getCreatedUserid());
+		base.setDifficulty(ques.getDifficulty());
+		base.setExperience(ques.getExperience());
+		base.setTechnologyId(ques.getTechnologyId());
+		base.setTitle(ques.getTitle());
+		base.setType(ques.getType());
+		base.setTechnology(tech.getTechnology());
+		base.setTopic(tech.getTopic());
+		return base;
 	}
 }

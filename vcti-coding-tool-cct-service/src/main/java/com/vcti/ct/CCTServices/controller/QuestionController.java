@@ -15,6 +15,8 @@ import com.vcti.ct.CCTServices.dao.QuestionDataService;
 import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
+import com.vcti.ct.CCTServices.model.Technology;
+import com.vcti.ct.CCTServices.model.TechnologyMap;
 import com.vcti.ct.CCTServices.model.ValidateObjQuestions;
 import com.vcti.ct.CCTServices.model.ValidateSubjQuestions;
 
@@ -33,10 +35,55 @@ public class QuestionController {
 	public Question addQuestion(@RequestBody QuestionBase newQ) {
 		return questionDataService.addQuestion(newQ);
 	}
+	
+	@PostMapping("/add/obj/question")
+	public Question addObjQuestion(@RequestBody QuestionBase newQ) {
+		return questionDataService.addObjQuestion(newQ);
+	}
+	
+	@PostMapping("/add/sub/question")
+	public Question addSubQuestion(@RequestBody QuestionBase newQ) {
+		return questionDataService.addSubQuestion(newQ);
+	}
 
+	@PostMapping("/add/technology")
+	public Technology addTechnology(@RequestBody Technology technology) {
+		return questionDataService.addTechnology(technology);
+	}
+	
+	@GetMapping("/technology/name/{tname}")
+	public List<Technology> getTechnologyByTname(@PathVariable String tname) {
+		return questionDataService.getTechnology(tname);
+	}
+	
+	@GetMapping("/technology/key/{tname}")
+	public List<TechnologyMap> getTechnologyByKey(@PathVariable String tname) {
+		return questionDataService.getTechnologyByKey(tname);
+	}
+	
+	@GetMapping("/technologies")
+	public List<TechnologyMap> getAllTechnology() {
+		return questionDataService.getAllTechnology();
+	}
+	
 	@GetMapping("/questions")
 	public List<QuestionBase> getQuestions() {
 		return questionDataService.getQuestions();
+	}
+	
+	@GetMapping("/questions/type/{type}/tech/{tname}")
+	public List<QuestionBase> getAllQuestionsByTypeAndTname(@PathVariable String type, @PathVariable String tname) {
+		return questionDataService.getAllQuestionsByTypeAndTname(type, tname);
+	}
+	
+	@GetMapping("/questions/type/{type}")
+	public List<QuestionBase> getAllQuestionsByType(@PathVariable String type) {
+		return questionDataService.getAllQuestionsByType(type);
+	}
+	
+	@GetMapping("/questions/tech/{tname}")
+	public List<QuestionBase> getAllQuestionsByTname(@PathVariable String tname) {
+		return questionDataService.getAllQuestionsByTname(tname);
 	}
 
 	@GetMapping("/question/{id}")

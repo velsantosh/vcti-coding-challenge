@@ -3,6 +3,8 @@ package com.vcti.ct.CCTServices.model;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,7 +23,6 @@ import lombok.Setter;
 public class QuestionBase {
 	@PrimaryKey
 	private @NonNull String id;
-	private @NonNull String language;
 	private @NonNull String type;
 	private @NonNull String experience;
 	private @NonNull String createdUserid;
@@ -29,18 +30,24 @@ public class QuestionBase {
 	private @NonNull List<String> options;
 	private @NonNull String correctOption;
 	private @NonNull String methodName;
-	private @NonNull ByteBuffer junitObj;
+	private ByteBuffer junitObj;
+	private @NonNull String title;
+	private @NonNull String difficulty;
+	private @NonNull String expectedTime;
+	private @NonNull String technologyId;
+	private @NonNull String technology;
+	private @NonNull String topic;
+	private String junitText;
 
 	public QuestionBase() {
 		super();
 	}
 
-	public QuestionBase(@NonNull String id, @NonNull String language, @NonNull String type, @NonNull String experience,
+	public QuestionBase(@NonNull String id, @NonNull String type, @NonNull String experience,
 			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
 			@NonNull String correctOption, @NonNull String methodName, @NonNull ByteBuffer junitObj) {
 		super();
 		this.id = id;
-		this.language = language;
 		this.type = type;
 		this.experience = experience;
 		this.createdUserid = createdUserid;
@@ -51,20 +58,36 @@ public class QuestionBase {
 		this.junitObj = junitObj;
 	}
 
+	public QuestionBase(@NonNull String id, @NonNull String type, @NonNull String experience,
+			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
+			@NonNull String correctOption, @NonNull String methodName, ByteBuffer junitObj,
+			@NonNull String title, @NonNull String difficulty, @NonNull String expectedTime, @NonNull String technologyId,
+			@NonNull String technology, @NonNull String topic, String junitText) {
+		super();
+		this.id = id;
+		this.type = type;
+		this.experience = experience;
+		this.createdUserid = createdUserid;
+		this.statement = statement;
+		this.options = options;
+		this.correctOption = correctOption;
+		this.methodName = methodName;
+		this.junitObj = junitObj;
+		this.title = title;
+		this.difficulty = difficulty;
+		this.expectedTime = expectedTime;
+		this.technologyId = technologyId;
+		this.technology = technology;
+		this.topic = topic;
+		this.junitText = junitText;
+	}
+
 	public String getId() {
 		return id;
 	}
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(String language) {
-		this.language = language;
 	}
 
 	public String getType() {
@@ -131,4 +154,59 @@ public class QuestionBase {
 		this.junitObj = junitObj;
 	}
 
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(String difficulty) {
+		this.difficulty = difficulty;
+	}
+
+	public String getExpectedTime() {
+		return expectedTime;
+	}
+
+	public void setExpectedTime(String expectedTime) {
+		this.expectedTime = expectedTime;
+	}
+
+	public String getTechnology() {
+		return technology;
+	}
+
+	public void setTechnology(String technology) {
+		this.technology = technology;
+	}
+
+	public String getTechnologyId() {
+		return technologyId;
+	}
+
+	public void setTechnologyId(String technologyId) {
+		this.technologyId = technologyId;
+	}
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
+	public String getJunitText() {
+		return junitText;
+	}
+
+	public void setJunitText(String junitText) {
+		this.junitText = junitText;
+	}
 }

@@ -15,20 +15,35 @@ import lombok.Setter;
 public class Question {
 	@PrimaryKey
 	private @NonNull String id;
-	private @NonNull String language;
 	private @NonNull String type;
 	private @NonNull String experience;
 	private @NonNull String createdUserid;
 	private @NonNull String title;
+	private @NonNull String difficulty;
+	private @NonNull String technologyId;
 
-	public Question(@NonNull String id, @NonNull String language, @NonNull String type, @NonNull String experience,
+	public Question() {
+		
+	}
+	public Question(@NonNull String id, @NonNull String type, @NonNull String experience,
 			@NonNull String createdUserid) {
 		super();
 		this.id = id;
-		this.language = language;
 		this.type = type;
 		this.experience = experience;
 		this.createdUserid = createdUserid;
+	}
+	
+	public Question(@NonNull String id, @NonNull String type, @NonNull String experience,
+			@NonNull String createdUserid, @NonNull String title, @NonNull String difficulty, @NonNull String technologyId) {
+		super();
+		this.id = id;
+		this.type = type;
+		this.experience = experience;
+		this.createdUserid = createdUserid;
+		this.title = title;
+		this.difficulty = difficulty;
+		this.technologyId = technologyId;
 	}
 
 	public String getId() {
@@ -37,14 +52,6 @@ public class Question {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(String language) {
-		this.language = language;
 	}
 
 	public String getType() {
@@ -79,4 +86,17 @@ public class Question {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+	public String getDifficulty() {
+		return difficulty;
+	}
+	public void setDifficulty(String difficulty) {
+		this.difficulty = difficulty;
+	}
+	public String getTechnologyId() {
+		return technologyId;
+	}
+	public void setTechnologyId(String technologyId) {
+		this.technologyId = technologyId;
+	}
+
 }

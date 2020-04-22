@@ -18,15 +18,30 @@ public class SubjQuestion {
 	private @NonNull String qId;
 	private @NonNull String statement;
 	private @NonNull String methodName;
-	private @NonNull Integer expectedTime;
+	private @NonNull String expectedTime;
 	private ByteBuffer junit;
+	private String junitText;
 
+	public SubjQuestion() {
+		
+	}
+	
 	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName, ByteBuffer junit) {
 		super();
 		this.qId = qId;
 		this.statement = statement;
 		this.methodName = methodName;
 		this.junit = junit;
+	}
+	
+	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName, ByteBuffer junit, @NonNull String expectedTime, String junitText) {
+		super();
+		this.qId = qId;
+		this.statement = statement;
+		this.methodName = methodName;
+		this.junit = junit;
+		this.expectedTime = expectedTime;
+		this.junitText = junitText;
 	}
 
 	public String getqId() {
@@ -62,12 +77,20 @@ public class SubjQuestion {
 	}
 
 
-	public Integer getExpectedTime() {
+	public String getExpectedTime() {
 		return expectedTime;
 	}
 
-	public void setExpectedTime(Integer expectedTime) {
+	public void setExpectedTime(String expectedTime) {
 		this.expectedTime = expectedTime;
 	}
 
+	public String getJunitText() {
+		return junitText;
+	}
+
+	public void setJunitText(String junitText) {
+		this.junitText = junitText;
+	}
+	
 }
