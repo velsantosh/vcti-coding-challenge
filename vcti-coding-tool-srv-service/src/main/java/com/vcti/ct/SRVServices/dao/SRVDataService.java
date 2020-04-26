@@ -6,6 +6,7 @@ import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
+import com.vcti.ct.SRVServices.model.ScheduleRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 
 public interface SRVDataService {
@@ -55,5 +56,9 @@ public interface SRVDataService {
 	boolean addObjQResultList(List<ObjQuestionResult> objQResList);
 
 	boolean addSubjQResultList(List<SubjQuestionResult> subjQResList);
+
+	ScheduleRequest scheduleRequest(ScheduleRequest scheduleInterview);
+
+	List<ScheduleRequest> getAllScheduledRequest();
 
 }

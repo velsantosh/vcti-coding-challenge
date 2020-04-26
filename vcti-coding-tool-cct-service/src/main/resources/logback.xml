@@ -1,5 +1,5 @@
 <configuration scan="true">
-	<property name="LOG_DIR" value="c:/logs" />
+	<property name="LOG_DIR" value="c:/logs/cct-service" />
 	
 	<!-- appender and rolling policy -->
 	<appender name="CCT_APPENDER"

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vcti.mail.model.UserDetails;
 import com.vcti.mail.service.MailService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 /**
  * This class contains a Mail API developed using Spring Boot
@@ -20,6 +21,7 @@ import com.vcti.mail.service.MailService;
  * @author Santosh Verma
  *
  */
+@CrossOrigin(origins = { "http://localhost:3000" })
 @RestController
 public class MailServiceController {
 

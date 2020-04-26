@@ -1,21 +1,38 @@
 package com.vcti.ct.SRVServices.dao.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vcti.ct.SRVServices.dao.SRVDataService;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
+import com.vcti.ct.SRVServices.model.ScheduleRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.repository.ObjResultRepository;
 import com.vcti.ct.SRVServices.repository.QuestionSchedulerRepository;
+import com.vcti.ct.SRVServices.repository.ScheduleRequestRepository;
 import com.vcti.ct.SRVServices.repository.SubjResultRepository;
 
 @Component
@@ -27,10 +44,15 @@ public class SRVDataServiceImpl implements SRVDataService {
 	ObjResultRepository objResultRepository;
 	@Autowired
 	SubjResultRepository subjResultRepository;
+	@Autowired
+	ScheduleRequestRepository scheduleRequestRepository;
+
+	@Value("${vcc.aa.service.host.port}")
+	private String aaServiceHostPort;
 
 	@Override
 	public boolean assignUser(QuestionScheduler assignQ) {
-		assignQ.setId(UUID.randomUUID().toString());
+		assignQ.setId(getId("SchQuest"));
 		questionScheduleRepository.save(assignQ);
 		return true;
 	}
@@ -53,7 +75,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		List<String> assignedUserIdList = assignBulkQ.getAssigneduidList();
 		for (String qId : qIdList) {
 			for (String userId : assignedUserIdList) {
-				assignQ = new QuestionScheduler(UUID.randomUUID().toString(), qId, userId,
+				assignQ = new QuestionScheduler(getId("SchQuest"), qId, userId,
 						assignBulkQ.getAssigneruid());
 				assignQObjList.add(assignQ);
 			}
@@ -255,4 +277,72 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return questionIdList;
 	}
 
+	@Override
+	public ScheduleRequest scheduleRequest(ScheduleRequest scheduleRequest) {
+		saveCandidateInUserTable(scheduleRequest);
+		scheduleRequest.setId(getId("SchReq"));
+		scheduleRequest.setRequestedDate(getCurrentDate());
+		ScheduleRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
+		return scheduledRequest;
+	}
+
+	private String getCurrentDate() {
+		Date d1 = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy - hh:mm:ss a");
+		sdf.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+		return d1.toString();
+	}
+
+	private String getId(String questionType) {
+		String id = questionType + "X" + new Random().nextInt(100000) + "X" + System.currentTimeMillis();
+		return id;
+	}
+
+	private String saveCandidateInUserTable(ScheduleRequest scheduleRequest) {
+		String userJson = makeJson(scheduleRequest);
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> request = new HttpEntity<String>(userJson, headers);
+		String url = aaServiceHostPort + "user";
+		ResponseEntity<String> resultJson = null;
+		try {
+			resultJson = restTemplate.postForEntity(url, request, String.class);
+			return resultJson.getBody();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return "";
+	}
+
+	private String generatePassword(String userId) {
+		String password = userId.substring(0, userId.indexOf("@") + 1) + "vspl";
+		return password;
+	}
+
+	private String makeJson(ScheduleRequest scheduleRequest) {
+		String userId = scheduleRequest.getCandidateEmailId();
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		map.put("name", scheduleRequest.getCandidateName());
+		map.put("userId", userId);
+		map.put("experience", scheduleRequest.getCandidateExperience());
+		map.put("password", generatePassword(userId));
+		map.put("roleId", "CANDIDATE");
+		try {
+			return new ObjectMapper().writeValueAsString(map);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	@Override
+	public List<ScheduleRequest> getAllScheduledRequest() {
+		Iterator<ScheduleRequest> itr = scheduleRequestRepository.findAll().iterator();
+		List<ScheduleRequest> allData = new ArrayList<ScheduleRequest>();
+		while(itr.hasNext()) {
+			allData.add(itr.next());
+		}
+		return allData;
+	}
 }

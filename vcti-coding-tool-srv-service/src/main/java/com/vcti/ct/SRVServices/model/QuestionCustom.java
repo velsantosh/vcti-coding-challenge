@@ -1,5 +1,6 @@
 package com.vcti.ct.SRVServices.model;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
@@ -25,6 +26,16 @@ public class QuestionCustom {
 	private List<String> options;
 	private String correct_option;
 	private String methodName;
+	private @NonNull String experience;
+	private @NonNull String createdUserid;
+	private @NonNull ByteBuffer junitObj;
+	private @NonNull String title;
+	private @NonNull String difficulty;
+	private @NonNull String expectedTime;
+	private @NonNull String technologyId;
+	private @NonNull String technology;
+	private @NonNull String topic;
+	private String junitText;
 
 	public QuestionCustom() {
 		super();
@@ -39,6 +50,30 @@ public class QuestionCustom {
 		this.options = options;
 		this.correct_option = correct_option;
 		this.methodName = methodName;
+	}
+	
+	public QuestionCustom(@NonNull String id, @NonNull String type, @NonNull String statement, List<String> options,
+			String correct_option, String methodName, @NonNull String experience, @NonNull String createdUserid,
+			@NonNull ByteBuffer junitObj, @NonNull String title, @NonNull String difficulty,
+			@NonNull String expectedTime, @NonNull String technologyId, @NonNull String technology,
+			@NonNull String topic, String junitText) {
+		super();
+		this.id = id;
+		this.type = type;
+		this.statement = statement;
+		this.options = options;
+		this.correct_option = correct_option;
+		this.methodName = methodName;
+		this.experience = experience;
+		this.createdUserid = createdUserid;
+		this.junitObj = junitObj;
+		this.title = title;
+		this.difficulty = difficulty;
+		this.expectedTime = expectedTime;
+		this.technologyId = technologyId;
+		this.technology = technology;
+		this.topic = topic;
+		this.junitText = junitText;
 	}
 
 	public String getId() {
@@ -87,5 +122,85 @@ public class QuestionCustom {
 
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
+	}
+
+	public String getExperience() {
+		return experience;
+	}
+
+	public void setExperience(String experience) {
+		this.experience = experience;
+	}
+
+	public String getCreatedUserid() {
+		return createdUserid;
+	}
+
+	public void setCreatedUserid(String createdUserid) {
+		this.createdUserid = createdUserid;
+	}
+
+	public ByteBuffer getJunitObj() {
+		return junitObj;
+	}
+
+	public void setJunitObj(ByteBuffer junitObj) {
+		this.junitObj = junitObj;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(String difficulty) {
+		this.difficulty = difficulty;
+	}
+
+	public String getExpectedTime() {
+		return expectedTime;
+	}
+
+	public void setExpectedTime(String expectedTime) {
+		this.expectedTime = expectedTime;
+	}
+
+	public String getTechnologyId() {
+		return technologyId;
+	}
+
+	public void setTechnologyId(String technologyId) {
+		this.technologyId = technologyId;
+	}
+
+	public String getTechnology() {
+		return technology;
+	}
+
+	public void setTechnology(String technology) {
+		this.technology = technology;
+	}
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
+	public String getJunitText() {
+		return junitText;
+	}
+
+	public void setJunitText(String junitText) {
+		this.junitText = junitText;
 	}
 }

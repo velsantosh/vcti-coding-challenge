@@ -7,11 +7,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
 import com.vcti.ct.CCTServices.model.DBQuery;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 
 /**
  * @author sandeepkumar.yadav
  *
  */
+@CrossOrigin(origins = { "http://localhost:3000" })
 @RestController
 public class DBController {
 

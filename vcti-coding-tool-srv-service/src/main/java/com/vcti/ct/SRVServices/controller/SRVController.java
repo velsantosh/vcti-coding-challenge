@@ -18,8 +18,11 @@ import com.vcti.ct.SRVServices.model.QuestionCustom;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
+import com.vcti.ct.SRVServices.model.ScheduleRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+@CrossOrigin(origins = { "http://localhost:3000" })
 @RestController
 public class SRVController {
 
@@ -32,7 +35,7 @@ public class SRVController {
 	public String getHealthCheck() {
 		return "{ \"isWorking\" : true }";
 	}
-	
+
 	@PostMapping("/assignUser")
 	public Boolean assignUser(@RequestBody QuestionScheduler assignQ) {
 		return srvDataService.assignUser(assignQ);
@@ -91,7 +94,10 @@ public class SRVController {
 			RestTemplate restTemplate = new RestTemplate();
 			QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
 			QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
-					result.getOptions(), result.getCorrect_option(), result.getMethodName());
+					result.getOptions(), result.getCorrect_option(), result.getMethodName(), result.getExperience(),
+					result.getCreatedUserid(), result.getJunitObj(), result.getTitle(), result.getDifficulty(),
+					result.getExpectedTime(), result.getTechnologyId(), result.getTechnology(), result.getTopic(),
+					result.getJunitText());
 
 			questionList.add(customObj);
 		}
@@ -169,5 +175,15 @@ public class SRVController {
 	@GetMapping("/subjResByQId/{qId}")
 	public List<SubjQuestionResult> getSubjQResultByQId(@PathVariable String qId) {
 		return srvDataService.getSubjQResultByQId(qId);
+	}
+
+	@PostMapping("/schedule/request")
+	public ScheduleRequest scheduleRequest(@RequestBody ScheduleRequest scheduleInterview) {
+		return srvDataService.scheduleRequest(scheduleInterview);
+	}
+
+	@GetMapping("/schedule/request")
+	public List<ScheduleRequest> getAllScheduledRequest() {
+		return srvDataService.getAllScheduledRequest();
 	}
 }

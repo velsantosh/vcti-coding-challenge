@@ -41,7 +41,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 	@Value("${spring.data.cassandra.subj-result-table}")
 	private String subjResultTable;
 
-	
+	@Value("${spring.data.cassandra.schedule-request-table}")
+	private String scheduleRequestTable;
+
 	public String getUserName() {
 		return userName;
 	}
@@ -105,7 +107,21 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + subjResultTable
 				+ "(userid text, qId text, program blob, consolidatedoutput text, PRIMARY KEY (userid, qId))");
 
+		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + scheduleRequestTable
+				+ "(id text, hiringManagerName text, hiringManagerId text, recruiterName text, recruiterId text, candidateName text, "
+				+ "candidateEmailId text, candidateMobileNo text, candidateExperience text, technology text, interviewDate timestamp, "
+				+ "requestedDate text, PRIMARY KEY (id), " + getCommonColumns() + ")");
+
 		return createQueryList;
+	}
+	
+	private String getCommonColumns() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("createdDate text, ");
+		sb.append("createdBy text, ");
+		sb.append("updatedDate text, ");
+		sb.append("updatedBy text ");
+		return sb.toString();
 	}
 
 }

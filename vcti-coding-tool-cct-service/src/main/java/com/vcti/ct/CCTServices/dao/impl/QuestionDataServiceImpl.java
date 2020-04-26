@@ -34,6 +34,7 @@ import com.datastax.driver.core.policies.RetryPolicy;
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
+import com.vcti.ct.CCTServices.exceptions.InvalidInputTypeExceptoin;
 import com.vcti.ct.CCTServices.exceptions.InvalidQuestionIdException;
 import com.vcti.ct.CCTServices.exceptions.QuestionAlreadyExistsException;
 import com.vcti.ct.CCTServices.exceptions.QuestionNotFoundExcetion;
@@ -259,6 +260,8 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		qBase.setStatement(subjQ.getStatement());
 		qBase.setMethodName(subjQ.getMethodName());
 		qBase.setJunitObj(subjQ.getJunit());
+		qBase.setExpectedTime(subjQ.getExpectedTime());
+		qBase.setJunitText(subjQ.getJunitText());
 	}
 
 	private void populateObjQTable(QuestionBase qBase, ObjQuestion objQ) {
@@ -281,6 +284,10 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		qBase.setId(question.getId());
 		qBase.setType(question.getType());
 		qBase.setCreatedUserid(question.getCreatedUserid());
+		qBase.setTitle(question.getTitle());
+		qBase.setDifficulty(question.getDifficulty());
+		qBase.setTechnologyId(question.getTechnologyId());
+		qBase.setExperience(question.getExperience());
 
 	}
 
@@ -523,9 +530,9 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@Override
 	public List<QuestionBase> getAllQuestionsByType(String type) {
-		type = type.toUpperCase();
 		List<QuestionBase> baseQuesList = new ArrayList<QuestionBase>();
 		if (null != type) {
+			type = type.toUpperCase();
 			List<Question> questions = findQuestionsByType(type);
 			if (type.equalsIgnoreCase(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
 				for (Question ques : questions) {
@@ -534,13 +541,15 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 					QuestionBase baseQues = mergeObjectiveQuestion(ques, objQuestion, technology);
 					baseQuesList.add(baseQues);
 				}
-			} else {
+			} else if (type.equalsIgnoreCase(CCTConstants.questionTypeEnum.SUBJECTIVE.name())) {
 				for (Question ques : questions) {
 					SubjQuestion subQuestion = findSubQuestionsByqid(ques.getId());
 					Technology technology = findTechnologyById(ques.getTechnologyId());
 					QuestionBase baseQues = mergeSubjectiveQuestion(ques, subQuestion, technology);
 					baseQuesList.add(baseQues);
 				}
+			} else {
+				throw new InvalidInputTypeExceptoin("Question Type is invalid");
 			}
 		}
 		return baseQuesList;
@@ -571,9 +580,9 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@Override
 	public List<QuestionBase> getAllQuestionsByTypeAndTname(String type, String tname) {
-		type = type.toUpperCase();
 		List<QuestionBase> baseQuesList = new ArrayList<QuestionBase>();
 		if (null != type && null != tname) {
+			type = type.toUpperCase();
 			List<Question> questions = findQuestionsByType(type);
 			if (type.equalsIgnoreCase(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
 				for (Question ques : questions) {
@@ -584,7 +593,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 						baseQuesList.add(baseQues);
 					}
 				}
-			} else {
+			} else if (type.equalsIgnoreCase(CCTConstants.questionTypeEnum.SUBJECTIVE.name())) {
 				for (Question ques : questions) {
 					SubjQuestion subQuestion = findSubQuestionsByqid(ques.getId());
 					Technology technology = findTechnologyById(ques.getTechnologyId());
@@ -593,6 +602,8 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 						baseQuesList.add(baseQues);
 					}
 				}
+			} else {
+				throw new InvalidInputTypeExceptoin("Question Type is invalid");
 			}
 		}
 		return baseQuesList;
