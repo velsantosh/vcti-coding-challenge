@@ -103,9 +103,19 @@ public class QuestionController {
 		return questionDataService.deleteQuestion(id);
 	}
 
+	@PutMapping("/update/sub/question/{id}")
+	public Question updateSubQuestion(@RequestBody QuestionBase newQues, @PathVariable String id) {
+		return questionDataService.updateSubQuestion(newQues, id);
+	}
+	
+	@PutMapping("/update/obj/question/{id}")
+	public Question updateObjQuestion(@RequestBody QuestionBase newQues, @PathVariable String id) {
+		return questionDataService.updateObjQuestion(newQues, id);
+	}
+	
 	@PutMapping("/question/{id}")
-	public void updateQuestion(@RequestBody QuestionBase newQues, @PathVariable String id) {
-		questionDataService.updateQuestion(newQues, id);
+	public Question updateQuestion(@RequestBody QuestionBase newQues, @PathVariable String id) {
+		return questionDataService.updateQuestions(newQues, id);
 	}
 
 	@PostMapping("/validateObjQues")

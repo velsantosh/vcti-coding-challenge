@@ -49,4 +49,10 @@ public interface QuestionDataService {
 
 	List<QuestionBase> getAllQuestionsByTname(String tname);
 
+	Question updateSubQuestion(QuestionBase newQues, String id);
+
+	Question updateObjQuestion(QuestionBase newQues, String id);
+
+	Question updateQuestions(QuestionBase newQues, String id);
+
 }

@@ -1,9 +1,5 @@
 package com.vcti.ct.CCTServices.dao.impl;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -14,23 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.cassandra.core.CassandraOperations;
-import org.springframework.data.cassandra.core.CassandraTemplate;
-import org.springframework.data.cassandra.core.convert.CassandraConverter;
-import org.springframework.data.cassandra.core.cql.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.ConsistencyLevel;
-import com.datastax.driver.core.QueryOptions;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.exceptions.DriverException;
-import com.datastax.driver.core.policies.RetryPolicy;
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
@@ -76,6 +61,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			System.out.println("Adding Objective Question...");
 			// Update Options Table
 			newQ.setId(getId("Obj"));
+			newQ.setTechnologyId(getId("Tech"));
 			updateOptionsTable(newQ);
 			// Update ObjectiveQ Table
 			updateObjQuestionTable(newQ);
@@ -84,6 +70,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			System.out.println("Adding Subjective Question...");
 			// Update SubjectiveQ Table
 			newQ.setId(getId("Sub"));
+			newQ.setTechnologyId(getId("Tech"));
 			updateSubjQuestionTable(newQ);
 		}
 		// Update Questions Table
@@ -139,17 +126,14 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	}
 
 	private void updateSubjQuestionTable(QuestionBase newQ) throws QuestionAlreadyExistsException {
-		Optional<SubjQuestion> questions = subjQRepository.findById(newQ.getId());
-		if (questions.isPresent()) {
-			throw new QuestionAlreadyExistsException("Question Already Exists");
-		}
 		SubjQuestion subQ = new SubjQuestion(newQ.getId(), newQ.getStatement(), newQ.getMethodName(),
 				newQ.getJunitObj(), newQ.getExpectedTime(), newQ.getJunitText());
 		subjQRepository.save(subQ);
 	}
 
 	private void updateObjQuestionTable(QuestionBase newQ) {
-		ObjQuestion objQ = new ObjQuestion(newQ.getId(), newQ.getStatement(), null, newQ.getCorrectOption());
+		ObjQuestion objQ = new ObjQuestion(newQ.getId(), newQ.getStatement(), newQ.getOptions().toString(),
+				newQ.getCorrectOption());
 		objQRepository.save(objQ);
 	}
 
@@ -162,7 +146,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		List<Options> optionObjList = new ArrayList<Options>();
 		Options optionObj = null;
 		for (String options : optionsList) {
-			optionObj = new Options(UUID.randomUUID().toString(), newQ.getId(), options);
+			optionObj = new Options(getId("Opt"), newQ.getId(), options);
 			optionObjList.add(optionObj);
 		}
 		optionsRepository.saveAll(optionObjList);
@@ -564,7 +548,8 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			Question ques = iterator.next();
 			QuestionBase baseQues = null;
 			Technology technology = findTechnologyById(ques.getTechnologyId());
-			if (null != technology && null != technology.getTechnology() && technology.getTechnology().equalsIgnoreCase(tname)) {
+			if (null != technology && null != technology.getTechnology()
+					&& technology.getTechnology().equalsIgnoreCase(tname)) {
 				if (ques.getType().equalsIgnoreCase(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
 					ObjQuestion objQuestion = findObjQuestionsByqid(ques.getId());
 					baseQues = mergeObjectiveQuestion(ques, objQuestion, technology);
@@ -679,5 +664,85 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		base.setTechnology(tech.getTechnology());
 		base.setTopic(tech.getTopic());
 		return base;
+	}
+
+	@Override
+	public Question updateSubQuestion(QuestionBase newQ, String id) {
+		System.out.println("Updating Subjective Question...");
+		// Update SubjectiveQ Table
+		newQ.setId(id);
+		newQ.setType(CCTConstants.questionTypeEnum.SUBJECTIVE.name());
+
+		// Update Subjectiveq table
+		updateSubjQuestionTable(newQ);
+
+		// Update Technologies Table
+		updateTechnology(newQ);
+
+		// Update Questions Table
+		return updateQuestionBaseTable(newQ);
+	}
+
+	@Override
+	public Question updateObjQuestion(QuestionBase newQ, String id) {
+		System.out.println("Updating Objective Question...");
+		// Update Options Table
+		newQ.setId(id);
+		newQ.setType(CCTConstants.questionTypeEnum.OBJECTIVE.name());
+
+		// Update/Edit Options Table
+		editOptionsTable(newQ);
+
+		// Update ObjectiveQ Table
+		updateObjQuestionTable(newQ);
+
+		// Update Technologies Table
+		updateTechnology(newQ);
+
+		// Update Questions Table
+		return updateQuestionBaseTable(newQ);
+	}
+
+	private void editOptionsTable(QuestionBase newQ) {
+		List<String> optionsList = newQ.getOptions();
+		List<Options> optionObjList = new ArrayList<Options>();
+		Options optionObj = null;
+		for (String options : optionsList) {
+			optionObj = new Options(getId("Opt"), newQ.getId(), options);
+			optionObjList.add(optionObj);
+		}
+		optionsRepository.saveAll(optionObjList);
+	}
+
+	@Override
+	public Question updateQuestions(QuestionBase newQues, String id) {
+		newQues.setId(id);
+		return updateQuestion(newQues);
+
+	}
+
+	private Question updateQuestion(QuestionBase newQ) {
+
+		if (newQ.getType().equals(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
+			System.out.println("Updating Objective Question...");
+			// Update Options Table
+			editOptionsTable(newQ);
+			// Update ObjectiveQ Table
+			updateObjQuestionTable(newQ);
+
+			// Update Technologies Table
+			updateTechnology(newQ);
+
+		} else {
+			System.out.println("Updating Subjective Question...");
+			// Update SubjectiveQ Table
+			updateSubjQuestionTable(newQ);
+			
+			// Update Technologies Table
+			updateTechnology(newQ);
+			
+		}
+		// Update Questions Table
+		return updateQuestionBaseTable(newQ);
 	}
 }
