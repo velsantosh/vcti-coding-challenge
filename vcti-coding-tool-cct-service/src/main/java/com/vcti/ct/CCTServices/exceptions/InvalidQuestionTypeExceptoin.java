@@ -4,13 +4,13 @@ package com.vcti.ct.CCTServices.exceptions;
  * @author sandeepkumar.yadav
  *
  */
-public class InvalidInputTypeExceptoin extends RuntimeException {
+public class InvalidQuestionTypeExceptoin extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
 	private String errorMsg;
 
-	public InvalidInputTypeExceptoin(String errorMsg) {
+	public InvalidQuestionTypeExceptoin(String errorMsg) {
 		super(errorMsg);
 		this.errorMsg = errorMsg;
 	}

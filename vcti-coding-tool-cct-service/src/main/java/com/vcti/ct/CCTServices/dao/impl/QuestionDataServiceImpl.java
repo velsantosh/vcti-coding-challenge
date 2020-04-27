@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
-import com.vcti.ct.CCTServices.exceptions.InvalidInputTypeExceptoin;
+import com.vcti.ct.CCTServices.exceptions.InvalidQuestionTypeExceptoin;
 import com.vcti.ct.CCTServices.exceptions.InvalidQuestionIdException;
 import com.vcti.ct.CCTServices.exceptions.QuestionAlreadyExistsException;
 import com.vcti.ct.CCTServices.exceptions.QuestionNotFoundExcetion;
@@ -57,7 +57,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	@Override
 	public Question addQuestion(QuestionBase newQ) {
 
-		if (newQ.getType().equals(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
+		if (newQ.getType().equalsIgnoreCase(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
 			System.out.println("Adding Objective Question...");
 			// Update Options Table
 			newQ.setId(getId("Obj"));
@@ -65,13 +65,21 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			updateOptionsTable(newQ);
 			// Update ObjectiveQ Table
 			updateObjQuestionTable(newQ);
+			
+			// Update Technologies Table
+			updateTechnology(newQ);
 
-		} else {
+		} else if (newQ.getType().equalsIgnoreCase(CCTConstants.questionTypeEnum.SUBJECTIVE.name())) {
 			System.out.println("Adding Subjective Question...");
 			// Update SubjectiveQ Table
 			newQ.setId(getId("Sub"));
 			newQ.setTechnologyId(getId("Tech"));
 			updateSubjQuestionTable(newQ);
+			
+			// Update Technologies Table
+			updateTechnology(newQ);
+		} else {
+			throw new InvalidQuestionTypeExceptoin("Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
 		}
 		// Update Questions Table
 		return updateQuestionBaseTable(newQ);
@@ -533,7 +541,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 					baseQuesList.add(baseQues);
 				}
 			} else {
-				throw new InvalidInputTypeExceptoin("Question Type is invalid");
+				throw new InvalidQuestionTypeExceptoin("Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
 			}
 		}
 		return baseQuesList;
@@ -588,7 +596,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 					}
 				}
 			} else {
-				throw new InvalidInputTypeExceptoin("Question Type is invalid");
+				throw new InvalidQuestionTypeExceptoin("Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
 			}
 		}
 		return baseQuesList;

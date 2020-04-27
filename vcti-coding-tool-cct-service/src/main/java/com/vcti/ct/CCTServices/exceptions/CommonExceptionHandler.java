@@ -40,8 +40,8 @@ public class CommonExceptionHandler {
 		return new ResponseEntity<CommonResponse>(response, HttpStatus.BAD_REQUEST);
 	}
 	
-	@ExceptionHandler(InvalidInputTypeExceptoin.class)
-	public final ResponseEntity<CommonResponse> invalidInputTypeException(InvalidInputTypeExceptoin ex) {
+	@ExceptionHandler(InvalidQuestionTypeExceptoin.class)
+	public final ResponseEntity<CommonResponse> invalidInputTypeException(InvalidQuestionTypeExceptoin ex) {
 		CommonResponse response = new CommonResponse();
 		response.setStatus(HttpStatus.NOT_FOUND);
 		response.setMessage(ex.getMessage());
