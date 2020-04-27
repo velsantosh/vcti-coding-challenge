@@ -217,6 +217,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			// Update Questions Obj or Subj
 			updateObjOrSubQtable(qBase, question);
 
+			updateTechnology(qBase, question);
 			questionList.add(qBase);
 		}
 		return questionList;
@@ -281,7 +282,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		qBase.setDifficulty(question.getDifficulty());
 		qBase.setTechnologyId(question.getTechnologyId());
 		qBase.setExperience(question.getExperience());
-
+		
 	}
 
 	@Override
@@ -762,6 +763,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			Optional<Technology> tech = technologyRepository.findById(ques.getTechnologyId());
 			if(tech.isPresent()) {
 				Technology tch = tech.get();
+				qBase.setTechnologyId(tch.getId());
 				qBase.setTechnology(tch.getTechnology());
 				qBase.setTopic(tch.getTopic());
 			}
