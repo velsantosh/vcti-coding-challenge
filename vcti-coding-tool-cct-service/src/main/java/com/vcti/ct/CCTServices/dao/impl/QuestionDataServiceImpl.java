@@ -187,6 +187,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			// Question Base Table
 			populateQBaseTable(qBase, ques);
 			updateObjOrSubQtable(qBase, ques);
+			updateTechnology(qBase, ques);
 		} else {
 			System.out.println("No Question found");
 		}
@@ -731,7 +732,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	private Question updateQuestion(QuestionBase newQ) {
 
-		if (newQ.getType().equals(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
+		if (newQ.getType().equalsIgnoreCase(CCTConstants.questionTypeEnum.OBJECTIVE.name())) {
 			System.out.println("Updating Objective Question...");
 			// Update Options Table
 			editOptionsTable(newQ);
@@ -741,7 +742,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			// Update Technologies Table
 			updateTechnology(newQ);
 
-		} else {
+		} else if (newQ.getType().equalsIgnoreCase(CCTConstants.questionTypeEnum.SUBJECTIVE.name())) {
 			System.out.println("Updating Subjective Question...");
 			// Update SubjectiveQ Table
 			updateSubjQuestionTable(newQ);
@@ -749,8 +750,21 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			// Update Technologies Table
 			updateTechnology(newQ);
 			
+		} else {
+			throw new InvalidQuestionTypeExceptoin("Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
 		}
 		// Update Questions Table
 		return updateQuestionBaseTable(newQ);
+	}
+	
+	private void updateTechnology(QuestionBase qBase, Question ques) {
+		if(null != ques.getTechnologyId()) {
+			Optional<Technology> tech = technologyRepository.findById(ques.getTechnologyId());
+			if(tech.isPresent()) {
+				Technology tch = tech.get();
+				qBase.setTechnology(tch.getTechnology());
+				qBase.setTopic(tch.getTopic());
+			}
+		}
 	}
 }
