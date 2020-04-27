@@ -65,7 +65,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			updateOptionsTable(newQ);
 			// Update ObjectiveQ Table
 			updateObjQuestionTable(newQ);
-			
+
 			// Update Technologies Table
 			updateTechnology(newQ);
 
@@ -75,11 +75,12 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			newQ.setId(getId("Sub"));
 			newQ.setTechnologyId(getId("Tech"));
 			updateSubjQuestionTable(newQ);
-			
+
 			// Update Technologies Table
 			updateTechnology(newQ);
 		} else {
-			throw new InvalidQuestionTypeExceptoin("Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
+			throw new InvalidQuestionTypeExceptoin(
+					"Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
 		}
 		// Update Questions Table
 		return updateQuestionBaseTable(newQ);
@@ -282,7 +283,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		qBase.setDifficulty(question.getDifficulty());
 		qBase.setTechnologyId(question.getTechnologyId());
 		qBase.setExperience(question.getExperience());
-		
+
 	}
 
 	@Override
@@ -543,7 +544,8 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 					baseQuesList.add(baseQues);
 				}
 			} else {
-				throw new InvalidQuestionTypeExceptoin("Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
+				throw new InvalidQuestionTypeExceptoin(
+						"Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
 			}
 		}
 		return baseQuesList;
@@ -598,7 +600,8 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 					}
 				}
 			} else {
-				throw new InvalidQuestionTypeExceptoin("Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
+				throw new InvalidQuestionTypeExceptoin(
+						"Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
 			}
 		}
 		return baseQuesList;
@@ -652,13 +655,15 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	private QuestionBase mergeObjectiveQuestion(Question ques, ObjQuestion obj, Technology tech) {
 		QuestionBase base = mergeBaseQuestionWithTechnology(ques, tech);
 		base.setCorrect_option(obj.getCorrect_option());
-		List<Options> options = optionsRepository.findByqId(obj.getqId());
-		List<String> objOptions = new ArrayList<String>();
-		for (Options opt : options) {
-			objOptions.add(opt.getOptions());
+		if (null != obj.getqId()) {
+			List<Options> options = optionsRepository.findByqId(obj.getqId());
+			List<String> objOptions = new ArrayList<String>();
+			for (Options opt : options) {
+				objOptions.add(opt.getOptions());
+			}
+			base.setOptions(objOptions);
+			base.setStatement(obj.getStatement());
 		}
-		base.setOptions(objOptions);
-		base.setStatement(obj.getStatement());
 		return base;
 	}
 
@@ -747,21 +752,22 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			System.out.println("Updating Subjective Question...");
 			// Update SubjectiveQ Table
 			updateSubjQuestionTable(newQ);
-			
+
 			// Update Technologies Table
 			updateTechnology(newQ);
-			
+
 		} else {
-			throw new InvalidQuestionTypeExceptoin("Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
+			throw new InvalidQuestionTypeExceptoin(
+					"Invalid question type. Question type must be either SUBJECTIVE or OBJECTIVE.");
 		}
 		// Update Questions Table
 		return updateQuestionBaseTable(newQ);
 	}
-	
+
 	private void updateTechnology(QuestionBase qBase, Question ques) {
-		if(null != ques.getTechnologyId()) {
+		if (null != ques.getTechnologyId()) {
 			Optional<Technology> tech = technologyRepository.findById(ques.getTechnologyId());
-			if(tech.isPresent()) {
+			if (tech.isPresent()) {
 				Technology tch = tech.get();
 				qBase.setTechnologyId(tch.getId());
 				qBase.setTechnology(tch.getTechnology());
