@@ -441,8 +441,9 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			System.out.println("Buffer is : " + junitBuff);
 			if (junitBuff != null) {
 				converted = new String(junitBuff.array());
+			} else if(null != subjQ.getJunitText()){
+				converted = new String(subjQ.getJunitText().getBytes());
 			}
-
 			return converted;
 		}
 		System.out.println("No record found in Question table for id:" + qId);
