@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -21,6 +22,7 @@ import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.ScheduleRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 @CrossOrigin(origins = { "http://localhost:3000" })
 @RestController
@@ -178,12 +180,22 @@ public class SRVController {
 	}
 
 	@PostMapping("/schedule/request")
-	public ScheduleRequest scheduleRequest(@RequestBody ScheduleRequest scheduleInterview) {
-		return srvDataService.scheduleRequest(scheduleInterview);
+	public ScheduleRequest scheduleRequest(@RequestBody ScheduleRequest scheduleRequest) {
+		return srvDataService.scheduleRequest(scheduleRequest);
 	}
 
 	@GetMapping("/schedule/request")
 	public List<ScheduleRequest> getAllScheduledRequest() {
 		return srvDataService.getAllScheduledRequest();
+	}
+	
+	@PutMapping("/update/schedule/request/{id}")
+	public ScheduleRequest updateScheduleRequest(@RequestBody ScheduleRequest scheduleRequest, @PathVariable String id) {
+		return srvDataService.updateScheduleRequest(scheduleRequest, id);
+	}
+	
+	@DeleteMapping("/delete/schedule/request/{id}")
+	public ScheduleRequest deleteScheduleRequest(@PathVariable String id) {
+		return srvDataService.deleteScheduleRequest(id);
 	}
 }

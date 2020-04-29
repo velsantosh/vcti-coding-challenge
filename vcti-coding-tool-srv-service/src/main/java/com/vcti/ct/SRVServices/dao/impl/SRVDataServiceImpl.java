@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -24,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vcti.ct.SRVServices.dao.SRVDataService;
+import com.vcti.ct.SRVServices.exceptions.InvalidScheduleRequestIdException;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
@@ -344,5 +346,30 @@ public class SRVDataServiceImpl implements SRVDataService {
 			allData.add(itr.next());
 		}
 		return allData;
+	}
+
+	@Override
+	public ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest, String id) {
+		scheduleRequest.setId(id);
+		updateScheduleRequest(scheduleRequest);
+		return null;
+	}
+	
+	private ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest) {
+		saveCandidateInUserTable(scheduleRequest);
+		scheduleRequest.setUpdatedDate(getCurrentDate());
+		ScheduleRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
+		return scheduledRequest;
+	}
+
+	@Override
+	public ScheduleRequest deleteScheduleRequest(String id) {
+		Optional<ScheduleRequest> scheduleRequest = scheduleRequestRepository.findById(id);
+		if(scheduleRequest.isPresent()) {
+			scheduleRequestRepository.deleteById(id);
+			return scheduleRequest.get();
+		} else {
+			throw new InvalidScheduleRequestIdException("Invalid schedule request Id");
+		}
 	}
 }

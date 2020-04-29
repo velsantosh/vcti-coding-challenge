@@ -57,8 +57,12 @@ public interface SRVDataService {
 
 	boolean addSubjQResultList(List<SubjQuestionResult> subjQResList);
 
-	ScheduleRequest scheduleRequest(ScheduleRequest scheduleInterview);
+	ScheduleRequest scheduleRequest(ScheduleRequest scheduleRequest);
 
 	List<ScheduleRequest> getAllScheduledRequest();
+
+	ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest, String id);
+
+	ScheduleRequest deleteScheduleRequest(String id);
 
 }
