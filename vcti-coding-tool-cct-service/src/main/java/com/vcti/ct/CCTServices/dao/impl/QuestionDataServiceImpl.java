@@ -720,6 +720,12 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	}
 
 	private void editOptionsTable(QuestionBase newQ) {
+		if (null != newQ.getId()) {
+			List<Options> oldOptions = optionsRepository.findByqId(newQ.getId());
+			for (Options old : oldOptions) {
+				optionsRepository.deleteById(old.getId());
+			}
+		}
 		List<String> optionsList = newQ.getOptions();
 		List<Options> optionObjList = new ArrayList<Options>();
 		Options optionObj = null;

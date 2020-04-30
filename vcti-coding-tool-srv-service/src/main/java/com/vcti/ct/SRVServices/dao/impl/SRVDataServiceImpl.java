@@ -351,8 +351,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest, String id) {
 		scheduleRequest.setId(id);
-		updateScheduleRequest(scheduleRequest);
-		return null;
+		return updateScheduleRequest(scheduleRequest);
 	}
 	
 	private ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest) {
