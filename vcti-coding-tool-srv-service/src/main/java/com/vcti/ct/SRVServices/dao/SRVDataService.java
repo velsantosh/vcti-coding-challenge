@@ -1,13 +1,17 @@
 package com.vcti.ct.SRVServices.dao;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
+import com.vcti.ct.SRVServices.model.CandidateResult;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.ScheduleRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
+
+import net.sf.jasperreports.engine.JRException;
 
 public interface SRVDataService {
 
@@ -64,5 +68,8 @@ public interface SRVDataService {
 	ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest, String id);
 
 	ScheduleRequest deleteScheduleRequest(String id);
+	String getSubjObjResultReport(String format) throws JRException, FileNotFoundException;
+
+	List<CandidateResult> getCandidateReports();
 
 }
