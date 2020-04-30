@@ -372,6 +372,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 		if (compilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
 			// Call Junit Stub which will call runJavaProgram
+			responseObj.setCompilationsStatus(CCTConstants.status.SUCCESS.name());
 			String junitProg = fetchJunitFromSubjQTable(subjQuesObj.getQuesResponseObj().getqId());
 //			String junitProg = new String(readJunitFile());
 			if (junitProg == null) {
@@ -406,6 +407,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 		} else {
 			// Compilation failed for Java Program
+			responseObj.setCompilationsStatus(CCTConstants.status.FAIL.name());
 			responseObj.setqId(subjQuesObj.getQuesResponseObj().getqId());
 			responseObj.setUserInput(compilationStatus.get(CCTConstants.status.FAIL.name()));
 		}

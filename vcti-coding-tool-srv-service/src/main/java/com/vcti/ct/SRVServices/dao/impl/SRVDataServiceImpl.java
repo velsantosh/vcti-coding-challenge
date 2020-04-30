@@ -1,14 +1,22 @@
 package com.vcti.ct.SRVServices.dao.impl;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -20,22 +28,41 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vcti.ct.SRVServices.dao.SRVDataService;
 import com.vcti.ct.SRVServices.exceptions.InvalidScheduleRequestIdException;
+import com.vcti.ct.SRVServices.model.CandidateResult;
+import com.vcti.ct.SRVServices.model.ObjQuestion;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
+import com.vcti.ct.SRVServices.model.ObjectiveResultReport;
+import com.vcti.ct.SRVServices.model.QuesResponse;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.ScheduleRequest;
+import com.vcti.ct.SRVServices.model.SubjQuestion;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
+import com.vcti.ct.SRVServices.model.SubjectiveResultReport;
+import com.vcti.ct.SRVServices.model.ValidateSubjQuestions;
+import com.vcti.ct.SRVServices.repository.ObjQuestionRepository;
 import com.vcti.ct.SRVServices.repository.ObjResultRepository;
 import com.vcti.ct.SRVServices.repository.QuestionSchedulerRepository;
 import com.vcti.ct.SRVServices.repository.ScheduleRequestRepository;
+import com.vcti.ct.SRVServices.repository.SubjQuestionRepository;
 import com.vcti.ct.SRVServices.repository.SubjResultRepository;
+import com.vcti.ct.SRVServices.repository.UserRepository;
+
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 
 @Component
 @Service
@@ -48,6 +75,12 @@ public class SRVDataServiceImpl implements SRVDataService {
 	SubjResultRepository subjResultRepository;
 	@Autowired
 	ScheduleRequestRepository scheduleRequestRepository;
+	@Autowired
+	UserRepository userRepository;
+	@Autowired 
+    ObjQuestionRepository objQuestionRepository;
+	@Autowired
+    SubjQuestionRepository subjQuestionRepository;
 
 	@Value("${vcc.aa.service.host.port}")
 	private String aaServiceHostPort;
@@ -220,6 +253,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	// SubjQ result
+	/*
 	@Override
 	public boolean addSubjQResult(SubjQuestionResult subjQRes) {
 		subjResultRepository.save(subjQRes);
@@ -229,6 +263,47 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public boolean addSubjQResultList(List<SubjQuestionResult> subjQResList) {
 		subjResultRepository.saveAll(subjQResList);
+		return true;
+	}
+*/
+	@Override
+	public boolean addSubjQResult(SubjQuestionResult subjQRes) {
+		QuesResponse questionresponse=this.getCompilationsStatus(subjQRes);
+		subjQRes.setCompilationStatus(questionresponse.getCompilationsStatus());
+		subjResultRepository.save(subjQRes);
+		return true;
+	}
+      private QuesResponse getCompilationsStatus(SubjQuestionResult subjQRes) {
+  	  final String uri = "http://localhost:8082/validateSubjQues/";
+  	  ValidateSubjQuestions request=new ValidateSubjQuestions();
+  	  QuesResponse qr=new QuesResponse();
+  	  qr.setqId(subjQRes.getKey().getQid());
+  	  qr.setUserInput(subjQRes.getProgram().toString());
+  	  request.setUserId(subjQRes.getKey().getUserId());
+  	  request.setQuesResponseObj(qr);
+  	  request.setClassName(subjQRes.getClassName());
+  	  RestTemplate restTemplate = new RestTemplate();
+  	  QuesResponse  questionResponse= null;
+  	  try {
+  		questionResponse=restTemplate.postForObject(uri, request, QuesResponse.class);
+  	
+  	  }
+  		catch(Exception e)	  {
+  			System.out.println(e);
+  		}
+  	// QuesResponse  questionResponse=restTemplate.getForObject(uri,QuesResponse.class);
+  	 return questionResponse;
+    }
+	  @Override
+	public boolean addSubjQResultList(List<SubjQuestionResult> subjQResList) {
+		List<SubjQuestionResult> subQResultList=new ArrayList<SubjQuestionResult>();
+		for(int i=0;i<subjQResList.size();i++) {
+			SubjQuestionResult subjQRes=subjQResList.get(i);
+			QuesResponse questionresponse=this.getCompilationsStatus(subjQRes);
+			subjQRes.setCompilationStatus(questionresponse.getCompilationsStatus());
+			subQResultList.add(subjQRes);
+		}
+		subjResultRepository.saveAll(subQResultList);
 		return true;
 	}
 
@@ -370,5 +445,124 @@ public class SRVDataServiceImpl implements SRVDataService {
 		} else {
 			throw new InvalidScheduleRequestIdException("Invalid schedule request Id");
 		}
+	}
+
+
+	@Override
+	public String getSubjObjResultReport(String format) throws JRException, FileNotFoundException {
+		List<SubjectiveResultReport> subjReport=new ArrayList<SubjectiveResultReport>();
+		List<SubjQuestionResult> subjQResults=subjResultRepository.findByKeyUserId(format);
+		for(SubjQuestionResult subj:subjQResults) {
+			Optional<SubjQuestion> subjQuestion=subjQuestionRepository.findByqId(subj.getKey().getQid());
+			SubjectiveResultReport sReport=new SubjectiveResultReport();
+			sReport.setProgram(subjQuestion.get().getStatement());
+			sReport.setAnsSubmitted(subj.getProgram());
+			sReport.setConsolidatedOutput(subj.getConsolidatedoutput());
+			subjReport.add(sReport);
+		}
+		List<ObjQuestionResult> objresults=objResultRepository.findByKeyUserId(format);
+		List<ObjectiveResultReport> objReports=new ArrayList<ObjectiveResultReport>();
+		for(ObjQuestionResult objresult:objresults) {
+			ObjectiveResultReport objreport=new ObjectiveResultReport();
+			Optional<ObjQuestion> objquestion=objQuestionRepository.findByqId(objresult.getKey().getQid());
+			objreport.setProblem(objquestion.get().getStatement());
+			objreport.setOption(objquestion.get().getOptions());
+			objreport.setCorrectAnswer(objquestion.get().getCorrect_option());
+			objreport.setSlectedAnswer(objresult.getSelectedoption());
+			objReports.add(objreport);
+		}
+		String path = "C:\\mydownloads\\";
+		Path pathDir = Paths.get(path);
+
+		try {
+			if (!Files.exists(pathDir)) {
+				Files.createDirectories(pathDir);
+				System.out.println("Directory created");
+			} else {
+				System.out.println("Directory already exists");
+			}
+		}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		String destFileName=path;
+		File file=ResourceUtils.getFile("classpath:Report.jrxml");
+		JasperReport report = JasperCompileManager.compileReport(file.getAbsolutePath());
+		//JRBeanCollectionDataSource datasource=new JRBeanCollectionDataSource(list);
+		Map<String,Object> parameters=new HashMap<String,Object>();
+		parameters.put("datasource1", subjReport);
+		parameters.put("datasource2", objReports);
+		JasperPrint print=JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+		String formats="pdf";
+		if(formats.equalsIgnoreCase("pdf")) {
+			JasperExportManager.exportReportToPdfFile(print, destFileName+"\\candidate.pdf");
+		}
+		if(formats.equalsIgnoreCase("html")) {
+			JasperExportManager.exportReportToHtmlFile(print,destFileName+"\\employee.html" );
+		}
+		return "report generated in"+destFileName;
+		//return null;
+	}
+
+	private List<QuestionScheduler> getScheduled(){
+		List<QuestionScheduler> scheduled=(List<QuestionScheduler>) questionScheduleRepository.findAll();
+		return scheduled;
+	}
+	@Override
+	public List<CandidateResult> getCandidateReports() {
+		
+		List<CandidateResult> candidateResults=new ArrayList<CandidateResult>();
+		List<QuestionScheduler> scheduled=this.getScheduled();
+		
+		
+		Map<String,String> candidates=new HashMap<String,String>();
+		for(QuestionScheduler scheduledQ:scheduled) {
+			candidates.put(scheduledQ.getAssigneduid(),scheduledQ.getAssigneruid());
+		}
+		Set<Entry<String,String>> candidateEntry=candidates.entrySet();
+		for(Entry<String,String> candidate:candidateEntry) {
+			String status="Scheduled";
+			String testScheduler=userRepository.findById(candidate.getValue()).get().getName();
+			CandidateResult result=new CandidateResult();
+			int noOfObjQ=0;
+			int correctAns=0;
+			String candidatename=userRepository.findById(candidate.getKey()).get().getName();
+			List<ObjQuestionResult> objresults=objResultRepository.findByKeyUserId(candidate.getKey());
+			for(ObjQuestionResult objResult:objresults) {
+				
+				Optional<ObjQuestion> objquestion=objQuestionRepository.findByqId(objResult.getKey().getQid());
+				
+				noOfObjQ++;
+				if(objResult!=null && objResult.getSelectedoption()!=null) {
+				if(objResult.getSelectedoption().equals(objquestion.get().getCorrect_option())) {
+					correctAns++;
+				}
+				}
+			}
+			
+			String objResult= correctAns+" Correct Out Of "+noOfObjQ+" Objective Questions  # ";
+			String subjResult="";
+			List<SubjQuestionResult> subjResults=subjResultRepository.findByKeyUserId(candidate.getKey());
+			for(SubjQuestionResult subjresult:subjResults) {
+				subjResult=subjresult.getConsolidatedoutput();
+			}
+			if(!objresults.isEmpty() || !subjResults.isEmpty()) {
+				status="Submitted";
+			}
+			String subjper[]=subjResult.split(" ");
+			int nofTestcase=Integer.parseInt(subjper[subjper.length-1]);
+			int passedtest=Integer.parseInt(subjper[0]);
+			int percentage=(((correctAns*100)/noOfObjQ)+((passedtest*100)/nofTestcase))/2;
+			
+			String finalResult=objResult+" Subjective- "+subjResult;
+			result.setCandidateName(candidatename);
+			result.setTestScheduler(testScheduler);
+			result.setTestcaseReport(finalResult);
+			result.setStatus(status);
+			result.setTestCasePercentage(percentage);
+			candidateResults.add(result);
+		}
+		
+		return candidateResults;
 	}
 }

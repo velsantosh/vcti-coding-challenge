@@ -17,10 +17,28 @@ import lombok.Setter;
 public class SubjQuestionResult {
 	@PrimaryKey
 	private ResultKey key;
-	private @NonNull ByteBuffer program;
+	private @NonNull String program;
 	private @NonNull String consolidatedoutput;
+	private String compilationStatus;
+	private String className;
 
-	public SubjQuestionResult(final ResultKey key, @NonNull ByteBuffer program, @NonNull String consolidatedoutput) {
+	public String getCompilationStatus() {
+		return compilationStatus;
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
+	public void setCompilationStatus(String compilationStatus) {
+		this.compilationStatus = compilationStatus;
+	}
+
+	public SubjQuestionResult(final ResultKey key, @NonNull String program, @NonNull String consolidatedoutput) {
 		super();
 		this.key = key;
 		this.program = program;
@@ -35,11 +53,11 @@ public class SubjQuestionResult {
 		this.key = key;
 	}
 
-	public @NonNull ByteBuffer getProgram() {
+	public @NonNull String getProgram() {
 		return program;
 	}
 
-	public void setProgram(@NonNull ByteBuffer program) {
+	public void setProgram(@NonNull String program) {
 		this.program = program;
 	}
 

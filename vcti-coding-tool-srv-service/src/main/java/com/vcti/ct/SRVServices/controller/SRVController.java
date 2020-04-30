@@ -1,5 +1,6 @@
 package com.vcti.ct.SRVServices.controller;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.vcti.ct.SRVServices.dao.SRVDataService;
+import com.vcti.ct.SRVServices.model.CandidateResult;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.QuestionBase;
 import com.vcti.ct.SRVServices.model.QuestionCustom;
@@ -21,6 +23,9 @@ import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.ScheduleRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
+
+import net.sf.jasperreports.engine.JRException;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
@@ -197,5 +202,13 @@ public class SRVController {
 	@DeleteMapping("/delete/schedule/request/{id}")
 	public ScheduleRequest deleteScheduleRequest(@PathVariable String id) {
 		return srvDataService.deleteScheduleRequest(id);
+	}
+	@GetMapping("/subjResReport/{id}")
+	public String getSubjObjResultReport(@PathVariable String id) throws FileNotFoundException, JRException {
+		return srvDataService.getSubjObjResultReport(id);
+	}
+	@GetMapping("/candidateReport")
+	public List<CandidateResult> getCandidateReports(){
+		return srvDataService.getCandidateReports();
 	}
 }
