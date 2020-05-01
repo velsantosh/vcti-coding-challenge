@@ -38,11 +38,13 @@ public class SubjQuestionResult {
 		this.compilationStatus = compilationStatus;
 	}
 
-	public SubjQuestionResult(final ResultKey key, @NonNull String program, @NonNull String consolidatedoutput) {
+	public SubjQuestionResult(final ResultKey key, @NonNull String program, @NonNull String consolidatedoutput,String compilationStatus,String className) {
 		super();
 		this.key = key;
 		this.program = program;
 		this.consolidatedoutput = consolidatedoutput;
+		this.compilationStatus=compilationStatus;
+		this.className=className;
 	}
 
 	public ResultKey getKey() {
