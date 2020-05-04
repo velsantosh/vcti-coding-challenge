@@ -218,4 +218,10 @@ public class SRVController {
 		return srvDataService.candidateSendEmail();
 	}
 	
+	@GetMapping("/schQuesByassignerId/{assignerId}")
+	public List<QuestionCustom> getSchQuestionsByAssignerId(@PathVariable String assignerId) {
+		List<QuestionSchedView> quesIdList = srvDataService.getQuestionsByAssignerId(assignerId);
+		return getQuestionListFromCCTService(quesIdList);
+	}
+	
 }

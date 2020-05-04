@@ -704,4 +704,10 @@ public class SRVDataServiceImpl implements SRVDataService {
 		map.put("messageText", temp.trim());
 		return returnJson(map);
 	}
+	
+	@Override
+	public List<QuestionSchedView> getQuestionsByAssignerId(String assignerId) {
+		List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneruid(assignerId);
+		return questionIdList;
+	}
 }

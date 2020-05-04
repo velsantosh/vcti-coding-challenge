@@ -74,5 +74,7 @@ public interface SRVDataService {
 	List<CandidateResult> getCandidateReports();
 
 	List<String> candidateSendEmail();
+	
+	List<QuestionSchedView> getQuestionsByAssignerId(String assignerId);
 
 }
