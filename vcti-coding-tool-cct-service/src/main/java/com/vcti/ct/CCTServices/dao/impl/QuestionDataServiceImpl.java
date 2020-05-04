@@ -385,10 +385,10 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 				// Write Junit Prog on File
 				String testClassPath = CCTUtils.writeProgInFile(junitProg, junitName, userDir);
 				// Compile Junit Program
-				Map<String, String> testCompilationStatus = CCTUtils.compileJavaProgram(testClassPath);
+				Map<String, String> testCompilationStatus = CCTUtils.compileJavaProgram(testClassPath, userDir + "\\");
 				if (testCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
 					// Since Junit compilation is also successful, then run the Junit
-					Map<String, String> runJunitStatus = CCTUtils.runJavaProgram(junitName);
+					Map<String, String> runJunitStatus = CCTUtils.runJavaProgram(junitName, userDir);
 					if (runJunitStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
 						// Junit Run program is successful
 						responseObj.setqId(subjQuesObj.getQuesResponseObj().getqId());
@@ -443,7 +443,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			System.out.println("Buffer is : " + junitBuff);
 			if (junitBuff != null) {
 				converted = new String(junitBuff.array());
-			} else if(null != subjQ.getJunitText()){
+			} else if (null != subjQ.getJunitText()) {
 				converted = new String(subjQ.getJunitText().getBytes());
 			}
 			return converted;

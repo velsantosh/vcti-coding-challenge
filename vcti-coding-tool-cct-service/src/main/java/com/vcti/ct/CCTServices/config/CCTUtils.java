@@ -50,14 +50,30 @@ public class CCTUtils {
 		return compilationStatus;
 	}
 
-	public static Map<String, String> runJavaProgram(String fileName) {
+	public static Map<String, String> compileJavaProgram(String path, String cp) {
+
+		Map<String, String> compilationStatus = null;
+		System.out.println("***JAVA COMPILE PROGRAM*******");
+		try {
+			compilationStatus = runProcess(
+					"javac -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest\\"
+							+ cp + ";\" " + path);
+			System.out.println("***Compilation Completed*******");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return compilationStatus;
+	}
+
+	public static Map<String, String> runJavaProgram(String fileName, String path) {
 
 		System.out.println("***JAVA RUN PROGRAM*******");
 		Map<String, String> runStatusMap = null;
 		try {
 			runStatusMap = runProcess(
-					"java -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest;\" "
-							+ fileName);
+					"java -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest\\"
+							+ path + ";\" " + fileName);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,7 +108,6 @@ public class CCTUtils {
 		if (pro.exitValue() == 0) {
 			processStatusMap.put(CCTConstants.status.SUCCESS.name(), stdoutResponse);
 		} else {
-			stderrResponse = stderrResponse.substring( stderrResponse.lastIndexOf("\\")+1, stderrResponse.length()-1);
 			processStatusMap.put(CCTConstants.status.FAIL.name(), stderrResponse);
 		}
 		return processStatusMap;
