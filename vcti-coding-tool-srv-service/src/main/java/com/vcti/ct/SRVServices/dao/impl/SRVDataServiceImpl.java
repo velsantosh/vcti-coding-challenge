@@ -2,11 +2,14 @@ package com.vcti.ct.SRVServices.dao.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,6 +17,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.annotation.PostConstruct;
+
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -26,6 +32,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -47,6 +54,7 @@ import com.vcti.ct.SRVServices.model.ScheduleRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestion;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjectiveResultReport;
+import com.vcti.ct.SRVServices.model.User;
 import com.vcti.ct.SRVServices.model.ValidateSubjQuestions;
 import com.vcti.ct.SRVServices.repository.ObjQuestionRepository;
 import com.vcti.ct.SRVServices.repository.ObjResultRepository;
@@ -85,6 +93,32 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Value("${vcc.aa.service.host.port}")
 	private String aaServiceHostPort;
 
+	@Value("${vcc.email.service.host.port}")
+	private String emailServiceHostPort;
+	
+	@Value("${vcc.candidate.email.subject}")
+	private String emailSubject;
+	
+	@Value("${vcc.user.login.url}")
+	private String userLoginUrl;
+	
+	@Value("${vcc.schedule.request.cron.isEnabled}")
+	private Boolean isCronEnabled;
+	
+	@Value("${vcc.schedule.request.cron.time}")
+	private String scheduleRequestCronTime;
+	
+	private String emailMsg;
+	
+	@PostConstruct
+	public void init() {
+		try {
+			emailMsg = new String(Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:emailMsg.txt").toString())));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public boolean assignUser(QuestionScheduler assignQ) {
 		assignQ.setId(getId("SchQuest"));
@@ -393,8 +427,14 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	private String generatePassword(String userId) {
-		String password = userId.substring(0, userId.indexOf("@") + 1) + "vspl";
-		return password;
+		String values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		int passwordLength = 20;
+		Random random = new Random();
+		char[] pwd = new char[passwordLength];
+		for (int i = 0; i < passwordLength; i++) {
+			pwd[i] = values.charAt(random.nextInt(values.length()));
+		}
+		return new String(pwd) + "@V1s9p7l";
 	}
 
 	private String makeJson(ScheduleRequest scheduleRequest) {
@@ -405,6 +445,10 @@ public class SRVDataServiceImpl implements SRVDataService {
 		map.put("experience", scheduleRequest.getCandidateExperience());
 		map.put("password", generatePassword(userId));
 		map.put("roleId", "CANDIDATE");
+		return returnJson(map);
+	}
+
+	private String returnJson(Map<String, String> map) {
 		try {
 			return new ObjectMapper().writeValueAsString(map);
 		} catch (JsonProcessingException e) {
@@ -412,7 +456,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return "";
 	}
-
+	
 	@Override
 	public List<ScheduleRequest> getAllScheduledRequest() {
 		Iterator<ScheduleRequest> itr = scheduleRequestRepository.findAll().iterator();
@@ -564,5 +608,99 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		
 		return candidateResults;
+	}
+
+//	@Override
+//	public List<String> candidateSendEmail() {
+//		Iterator<ScheduleRequest> itr = scheduleRequestRepository.findAll().iterator();
+//		List<String> users = new ArrayList<String>();
+//		while(itr.hasNext()) {
+//			ScheduleRequest sr = itr.next();
+//			if(null != sr.getCandidateEmailId()) {
+//				List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneduid(sr.getCandidateEmailId());
+//				User user = null;
+//				if(null != questionIdList && !questionIdList.isEmpty()) {
+//					user = getCandidateDetailsFromUserTable(sr.getCandidateEmailId());
+//					if(null != user) {
+//						String email = sendEmail(user);
+//						users.add(email);
+//					}
+//				}
+//			}
+//		}
+//		return users;
+//	}
+	
+	@Override
+	public List<String> candidateSendEmail() {
+		Iterable<ScheduleRequest> itr = scheduleRequestRepository.findAll();
+		List<ScheduleRequest> schRequest = new ArrayList<ScheduleRequest>();
+		itr.forEach(data -> schRequest.add(data));
+		if(isCronEnabled) {
+			filterByScheduledDate(schRequest);
+		}
+		List<String> users = new ArrayList<String>();
+		for(ScheduleRequest sr : schRequest) {
+			if(null != sr.getCandidateEmailId()) {
+				List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneduid(sr.getCandidateEmailId());
+				User user = null;
+				if(null != questionIdList && !questionIdList.isEmpty()) {
+					user = getCandidateDetailsFromUserTable(sr.getCandidateEmailId());
+					if(null != user) {
+						String email = sendEmail(user);
+						users.add(email);
+					}
+				}
+			}
+		}
+		return users;
+	}
+	
+	private void filterByScheduledDate(List<ScheduleRequest> schRequest) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private User getCandidateDetailsFromUserTable(String userId) {
+		RestTemplate restTemplate = new RestTemplate();
+		String url = aaServiceHostPort + "user/userid/" + userId;
+		ResponseEntity<User> resultJson = null;
+		try {
+			resultJson = restTemplate.getForEntity(url, User.class);
+			return resultJson.getBody();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+	
+	private String sendEmail(User user) {
+		String json = prepareJson(user);
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> request = new HttpEntity<String>(json, headers);
+		String url = emailServiceHostPort + "send-mail";
+		try {
+			restTemplate.postForEntity(url, request, String.class);
+			return "Congratulations! Your mail has been send to the " + user.getUserId() + " successfully.";
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return json;
+	}
+	
+	private String prepareJson(User user) {
+		String temp = new String(emailMsg + " ");
+		temp = temp.replace("${name}", user.getName()).
+				replace("${url}", userLoginUrl).
+				replace("${userId}", user.getUserId()).
+				replace("${pass}", user.getPassword());
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("userName", user.getName());
+		map.put("mailSubject", emailSubject);
+		map.put("toEmailAddress", user.getUserId());
+		map.put("messageText", temp.trim());
+		return returnJson(map);
 	}
 }

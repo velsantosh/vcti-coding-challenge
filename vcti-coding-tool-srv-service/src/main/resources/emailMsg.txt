@@ -1,0 +1,16 @@
+Hi ${name},
+
+Click the below link to start the coding challenge.
+
+Test Link: ${url}
+
+UserId: ${userId}
+Password: ${pass}
+
+If above link won't work then please copy that link and paste in browser.
+
+
+Please do not reply. This is auto generated email.
+
+Thanks & Regards:
+Velankani Software Pvt Ltd.

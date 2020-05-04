@@ -10,6 +10,7 @@ import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.ScheduleRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
+import com.vcti.ct.SRVServices.model.User;
 
 import net.sf.jasperreports.engine.JRException;
 
@@ -71,5 +72,7 @@ public interface SRVDataService {
 	String getSubjObjResultReport(String format) throws JRException, FileNotFoundException;
 
 	List<CandidateResult> getCandidateReports();
+
+	List<String> candidateSendEmail();
 
 }
