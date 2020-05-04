@@ -604,6 +604,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 			result.setTestcaseReport(finalResult);
 			result.setStatus(status);
 			result.setTestCasePercentage(percentage);
+			result.setId(candidate.getKey());
 			candidateResults.add(result);
 		}
 		

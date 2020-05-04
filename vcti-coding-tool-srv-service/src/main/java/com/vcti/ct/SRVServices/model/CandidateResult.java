@@ -3,8 +3,14 @@ package com.vcti.ct.SRVServices.model;
 public class CandidateResult {
 
 	 private String candidateName;
-	 
-	 private String testcaseReport;
+	 private String id;
+	 public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	private String testcaseReport;
 	 private String testScheduler;
 	 private String status;
 	 private int testCasePercentage;
