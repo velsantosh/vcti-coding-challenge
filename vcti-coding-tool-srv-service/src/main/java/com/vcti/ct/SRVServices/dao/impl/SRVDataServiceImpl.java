@@ -302,10 +302,14 @@ public class SRVDataServiceImpl implements SRVDataService {
 */
 	@Override
 	public boolean addSubjQResult(SubjQuestionResult subjQRes) {
-		QuesResponse questionresponse=this.getCompilationsStatus(subjQRes);
-		subjQRes.setCompilationStatus(questionresponse.getCompilationsStatus());
-		subjResultRepository.save(subjQRes);
-		return true;
+		QuesResponse questionresponse = this.getCompilationsStatus(subjQRes);
+		if (null != questionresponse) {
+			subjQRes.setCompilationStatus(questionresponse.getCompilationsStatus());
+			subjResultRepository.save(subjQRes);
+			return (null != questionresponse.getCompilationsStatus()
+					&& questionresponse.getCompilationsStatus().equalsIgnoreCase("SUCCESS")) ? true : false;
+		}
+		return false;
 	}
       private QuesResponse getCompilationsStatus(SubjQuestionResult subjQRes) {
   	  final String uri = "http://localhost:8082/validateSubjQues/";
