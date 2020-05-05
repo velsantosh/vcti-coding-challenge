@@ -6,8 +6,8 @@
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
    http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
-              name="freport" pageWidth="2000" pageHeight="600"
-              columnWidth="700" leftMargin="20" rightMargin="20"
+              name="freport" pageWidth="1500" pageHeight="5000"
+              columnWidth="300" leftMargin="20" rightMargin="20"
               topMargin="20" bottomMargin="20">
 
 <style name="field" fontSize="11" />
@@ -30,10 +30,18 @@
 <parameter name="datasource2" class="java.util.List"/>
 
 <detail>
-    <band height="100">
-
+    <band height="2000">
+    
+         <staticText>
+					<reportElement mode="Opaque" x="50" y="30" width="300" height="30" />
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[Objective Question Summary]]></text>
+				</staticText>
+				
         <componentElement>
-            <reportElement x="0" y="0" width="500" height="100"/>
+            <reportElement x="30" y="40" width="400" height="200"/>
             <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
                         xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components
                                             http://jasperreports.sourceforge.net/xsd/components.xsd">
@@ -41,58 +49,59 @@
                 <datasetRun subDataset="dataset1">
                     <dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{datasource2})]]></dataSourceExpression>
                 </datasetRun>
-
-                <jr:listContents height="100" width="900">
+                  
+                <jr:listContents height="200" width="400">
+                
                 <staticText>
-					<reportElement mode="Opaque" x="0" y="0" width="100" height="32" />
+					<reportElement mode="Opaque" x="30" y="40" width="100" height="30" />
 					<textElement>
 						<font size="12"/>
 					</textElement>
-					<text><![CDATA[PROBLEM-]]></text>
+					<text><![CDATA[Question-]]></text>
 				</staticText>
                     <textField>
-                        <reportElement x="100" y="0" width="150" height="100" style="field" />
+                        <reportElement x="100" y="40" width="300" height="30" style="field" />
 
                         <textElement />
 
                         <textFieldExpression class="java.lang.String"><![CDATA[$F{problem}]]></textFieldExpression>
                     </textField>
                       <staticText>
-					<reportElement mode="Opaque" x="250" y="0" width="100" height="32" />
+					<reportElement mode="Opaque" x="30" y="70" width="100" height="30" />
 					<textElement>
 						<font size="12"/>
 					</textElement>
 					<text><![CDATA[OPTION-]]></text>
 				</staticText>
                     <textField>
-                        <reportElement x="350" y="0" width="100" height="100" style="field" />
+                        <reportElement x="100" y="70" width="100" height="30" style="field" />
 
                         <textElement />
 
                         <textFieldExpression class="java.lang.String"><![CDATA[$F{option}]]></textFieldExpression>
                     </textField>
                    <staticText>
-					<reportElement mode="Opaque" x="450" y="0" width="100" height="32" />
+					<reportElement mode="Opaque" x="30" y="100" width="100" height="30" />
 					<textElement>
 						<font size="12"/>
 					</textElement>
-					<text><![CDATA[SELECTEDANSWER-]]></text>
+					<text><![CDATA[AnswerSelected-]]></text>
 				</staticText>
                     <textField>
-                        <reportElement x="550" y="0" width="100" height="100" style="textRight" />
+                        <reportElement x="100" y="100" width="100" height="30" style="textRight" />
                         <textElement />
 
                         <textFieldExpression class="java.lang.String"><![CDATA[$F{slectedAnswer}]]></textFieldExpression>
                     </textField>
                     <staticText>
-					<reportElement mode="Opaque" x="660" y="0" width="100" height="32" />
+					<reportElement mode="Opaque" x="30" y="130" width="100" height="30" />
 					<textElement>
 						<font size="12"/>
 					</textElement>
-					<text><![CDATA[CORRECTANSWER-]]></text>
+					<text><![CDATA[CorrectAnswer-]]></text>
 				</staticText>
                    <textField>
-                        <reportElement x="760" y="0" width="100" height="100" style="textRight" />
+                        <reportElement x="100" y="130" width="100" height="30" style="textRight" />
                         <textElement />
 
                         <textFieldExpression class="java.lang.String"><![CDATA[$F{correctAnswer}]]></textFieldExpression>
@@ -101,9 +110,15 @@
                 </jr:listContents>
             </jr:list>
         </componentElement>
-
+                 <staticText>
+					<reportElement mode="Opaque" x="800" y="30" width="200" height="30" />
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[Subjective Question Summary]]></text>
+				</staticText>
         <componentElement>
-            <reportElement x="270" y="0" width="500" height="15"/>
+            <reportElement x="400" y="30" width="1000" height="500"/>
             <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
                         xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components
                                             http://jasperreports.sourceforge.net/xsd/components.xsd">
@@ -112,41 +127,41 @@
                     <dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{datasource1})]]></dataSourceExpression>
                 </datasetRun>
 
-                <jr:listContents height="100" width="2200">
+                <jr:listContents height="500" width="1000">
                 <staticText>
-					<reportElement mode="Opaque" x="900" y="0" width="50" height="32" />
+					<reportElement mode="Opaque" x="410" y="30" width="70" height="30" />
 					<textElement>
 						<font size="12"/>
 					</textElement>
-					<text><![CDATA[PROGRAM-]]></text>
+					<text><![CDATA[Problem-]]></text>
 				</staticText>
                     <textField>
-                        <reportElement x="960" y="0" width="200" height="100" style="field" />
+                        <reportElement x="480" y="30" width="300" height="30" style="field" />
                         <textFieldExpression class="java.lang.String"><![CDATA[$F{program}]]></textFieldExpression>
                     </textField>
                      <staticText>
-					<reportElement mode="Opaque" x="1170" y="0" width="100" height="32" />
+					<reportElement mode="Opaque" x="410" y="60" width="70" height="30" />
 					<textElement>
 						<font size="12"/>
 					</textElement>
-					<text><![CDATA[ANSSUBMITTED-]]></text>
+					<text><![CDATA[Solution-]]></text>
 				</staticText>
                     <textField>
-                        <reportElement x="1270" y="0" width="200" height="100" style="field" />
+                        <reportElement x="480" y="60" width="300" height="30" style="field" />
 
                         <textElement />
 
                         <textFieldExpression class="java.lang.String"><![CDATA[$F{ansSubmitted}]]></textFieldExpression>
                     </textField>
                      <staticText>
-					<reportElement mode="Opaque" x="1475" y="0" width="100" height="32" />
+					<reportElement mode="Opaque" x="410" y="90" width="50" height="30" />
 					<textElement>
 						<font size="12"/>
 					</textElement>
-					<text><![CDATA[CONSOUTPUT-]]></text>
+					<text><![CDATA[Testcase-]]></text>
 				</staticText>
                     <textField>
-                        <reportElement x="1580" y="0" width="100" height="100" style="textRight" />
+                        <reportElement x="480" y="90" width="100" height="30" style="textRight" />
                         <textElement />
 
                         <textFieldExpression class="java.lang.String"><![CDATA[$F{consolidatedOutput}]]></textFieldExpression>

@@ -69,7 +69,7 @@ public interface SRVDataService {
 	ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest, String id);
 
 	ScheduleRequest deleteScheduleRequest(String id);
-	String getSubjObjResultReport(String format) throws JRException, FileNotFoundException;
+	byte[] getSubjObjResultReport(String format);
 
 	List<CandidateResult> getCandidateReports();
 

@@ -205,7 +205,7 @@ public class SRVController {
 		return srvDataService.deleteScheduleRequest(id);
 	}
 	@GetMapping("/subjResReport/{id}")
-	public String getSubjObjResultReport(@PathVariable String id) throws FileNotFoundException, JRException {
+	public byte[] getSubjObjResultReport(@PathVariable String id) {
 		return srvDataService.getSubjObjResultReport(id);
 	}
 	@GetMapping("/candidateReport")

@@ -497,7 +497,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 
 	@Override
-	public String getSubjObjResultReport(String format) throws JRException, FileNotFoundException {
+	public byte[] getSubjObjResultReport(String format)  {
 		List<SubjectiveResultReport> subjReport=new ArrayList<SubjectiveResultReport>();
 		List<SubjQuestionResult> subjQResults=subjResultRepository.findByKeyUserId(format);
 		for(SubjQuestionResult subj:subjQResults) {
@@ -519,37 +519,21 @@ public class SRVDataServiceImpl implements SRVDataService {
 			objreport.setSlectedAnswer(objresult.getSelectedoption());
 			objReports.add(objreport);
 		}
-		String path = "C:\\mydownloads\\";
-		Path pathDir = Paths.get(path);
-
+		byte arr[]= {};
 		try {
-			if (!Files.exists(pathDir)) {
-				Files.createDirectories(pathDir);
-				System.out.println("Directory created");
-			} else {
-				System.out.println("Directory already exists");
-			}
+			File file=ResourceUtils.getFile("classpath:Report.jrxml");
+			JasperReport report = JasperCompileManager.compileReport(file.getAbsolutePath());
+			Map<String,Object> parameters=new HashMap<String,Object>();
+			parameters.put("datasource1", subjReport);
+			parameters.put("datasource2", objReports);
+			JasperPrint print=JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+		    arr=JasperExportManager.exportReportToPdf(print);
 		}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
-		String destFileName=path;
-		File file=ResourceUtils.getFile("classpath:Report.jrxml");
-		JasperReport report = JasperCompileManager.compileReport(file.getAbsolutePath());
-		//JRBeanCollectionDataSource datasource=new JRBeanCollectionDataSource(list);
-		Map<String,Object> parameters=new HashMap<String,Object>();
-		parameters.put("datasource1", subjReport);
-		parameters.put("datasource2", objReports);
-		JasperPrint print=JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-		String formats="pdf";
-		if(formats.equalsIgnoreCase("pdf")) {
-			JasperExportManager.exportReportToPdfFile(print, destFileName+"\\candidate.pdf");
+		catch(Exception e) {
+			e.printStackTrace();
 		}
-		if(formats.equalsIgnoreCase("html")) {
-			JasperExportManager.exportReportToHtmlFile(print,destFileName+"\\employee.html" );
-		}
-		return "report generated in"+destFileName;
-		//return null;
+		
+		return arr;
 	}
 
 	private List<QuestionScheduler> getScheduled(){
