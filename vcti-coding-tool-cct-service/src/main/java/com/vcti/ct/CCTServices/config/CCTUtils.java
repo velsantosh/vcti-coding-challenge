@@ -108,6 +108,7 @@ public class CCTUtils {
 		if (pro.exitValue() == 0) {
 			processStatusMap.put(CCTConstants.status.SUCCESS.name(), stdoutResponse);
 		} else {
+			stderrResponse = stderrResponse.substring(stderrResponse.lastIndexOf("\\")+1, stderrResponse.length());
 			processStatusMap.put(CCTConstants.status.FAIL.name(), stderrResponse);
 		}
 		return processStatusMap;
