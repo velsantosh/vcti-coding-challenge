@@ -41,7 +41,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 	@Value("${spring.data.cassandra.subj-result-table}")
 	private String subjResultTable;
 
-	@Value("${spring.data.cassandra.schedule-request-table}")
+	@Value("${spring.data.cassandra.scheduled-request-table}")
 	private String scheduleRequestTable;
 
 	public String getUserName() {
@@ -110,7 +110,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + scheduleRequestTable
 				+ "(id text, hiringManagerName text, hiringManagerId text, recruiterName text, recruiterId text, candidateName text, "
 				+ "candidateEmailId text, candidateMobileNo text, candidateExperience text, technology text, interviewDate timestamp, "
-				+ "requestedDate text, PRIMARY KEY (id), " + getCommonColumns() + ")");
+				+ "requestedDate text, requirementId text, PRIMARY KEY (id))");
 
 		return createQueryList;
 	}

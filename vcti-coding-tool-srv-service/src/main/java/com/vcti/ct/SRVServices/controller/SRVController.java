@@ -22,7 +22,7 @@ import com.vcti.ct.SRVServices.model.QuestionCustom;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
-import com.vcti.ct.SRVServices.model.ScheduleRequest;
+import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.User;
 
@@ -187,23 +187,23 @@ public class SRVController {
 	}
 
 	@PostMapping("/schedule/request")
-	public ScheduleRequest scheduleRequest(@RequestBody ScheduleRequest scheduleRequest) {
+	public List<ScheduledRequest> scheduleRequest(@RequestBody List<ScheduledRequest> scheduleRequest) {
 		return srvDataService.scheduleRequest(scheduleRequest);
 	}
 
 	@GetMapping("/schedule/request")
-	public List<ScheduleRequest> getAllScheduledRequest() {
+	public List<ScheduledRequest> getAllScheduledRequest() {
 		return srvDataService.getAllScheduledRequest();
 	}
 	
-	@PutMapping("/update/schedule/request/{id}")
-	public ScheduleRequest updateScheduleRequest(@RequestBody ScheduleRequest scheduleRequest, @PathVariable String id) {
-		return srvDataService.updateScheduleRequest(scheduleRequest, id);
+	@PutMapping("/reschedule/request")
+	public List<ScheduledRequest> updateScheduleRequest(@RequestBody List<ScheduledRequest> scheduleRequest) {
+		return srvDataService.rescheduleRequest(scheduleRequest);
 	}
 	
-	@DeleteMapping("/delete/schedule/request/{id}")
-	public ScheduleRequest deleteScheduleRequest(@PathVariable String id) {
-		return srvDataService.deleteScheduleRequest(id);
+	@DeleteMapping("/cancel/schedule/request")
+	public List<ScheduledRequest> deleteScheduleRequest(@RequestBody List<String> scheduleRequestIds) {
+		return srvDataService.cancelScheduleRequest(scheduleRequestIds);
 	}
 	@GetMapping("/subjResReport/{id}")
 	public byte[] getSubjObjResultReport(@PathVariable String id) {

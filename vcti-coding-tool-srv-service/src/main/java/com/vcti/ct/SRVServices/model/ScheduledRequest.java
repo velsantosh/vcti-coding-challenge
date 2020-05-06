@@ -16,8 +16,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table("schedule_request")
-public class ScheduleRequest extends BaseTable {
+@Table("scheduled_request")
+public class ScheduledRequest {
 	@PrimaryKey
 	private String id;
 	private String hiringManagerName;
@@ -31,13 +31,14 @@ public class ScheduleRequest extends BaseTable {
 	private String technology;
 	private Date interviewDate;
 	private String requestedDate;
-
-	public ScheduleRequest() {
+	private String requirementId;
+	public ScheduledRequest() {
 	}
 
-	public ScheduleRequest(String id, String hiringManagerName, String hiringManagerId, String recruiterName,
+	public ScheduledRequest(String id, String hiringManagerName, String hiringManagerId, String recruiterName,
 			String recruiterId, String candidateName, String candidateEmailId, String candidateMobileNo,
-			String candidateExperience, String technology, Date interviewDate, String requestedDate) {
+			String candidateExperience, String technology, Date interviewDate, String requestedDate,
+			String requirementId) {
 		super();
 		this.id = id;
 		this.hiringManagerName = hiringManagerName;
@@ -51,7 +52,9 @@ public class ScheduleRequest extends BaseTable {
 		this.technology = technology;
 		this.interviewDate = interviewDate;
 		this.requestedDate = requestedDate;
+		this.requirementId = requirementId;
 	}
+
 
 	public String getId() {
 		return id;
@@ -149,13 +152,22 @@ public class ScheduleRequest extends BaseTable {
 		this.requestedDate = requestedDate;
 	}
 
+	public String getRequirementId() {
+		return requirementId;
+	}
+
+	public void setRequirementId(String requirementId) {
+		this.requirementId = requirementId;
+	}
+
 	@Override
 	public String toString() {
 		return "ScheduleRequest [id=" + id + ", hiringManagerName=" + hiringManagerName + ", hiringManagerId="
 				+ hiringManagerId + ", recruiterName=" + recruiterName + ", recruiterId=" + recruiterId
 				+ ", candidateName=" + candidateName + ", candidateEmailId=" + candidateEmailId + ", candidateMobileNo="
 				+ candidateMobileNo + ", candidateExperience=" + candidateExperience + ", technology=" + technology
-				+ ", interviewDate=" + interviewDate + ", requestedDate=" + requestedDate + "]";
+				+ ", interviewDate=" + interviewDate + ", requestedDate=" + requestedDate + ", requirementId="
+				+ requirementId + "]";
 	}
 
 }

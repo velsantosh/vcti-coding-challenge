@@ -52,7 +52,7 @@ import com.vcti.ct.SRVServices.model.QuesResponse;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
-import com.vcti.ct.SRVServices.model.ScheduleRequest;
+import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestion;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjectiveResultReport;
@@ -401,12 +401,17 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	@Override
-	public ScheduleRequest scheduleRequest(ScheduleRequest scheduleRequest) {
-		saveCandidateInUserTable(scheduleRequest);
-		scheduleRequest.setId(getId("SchReq"));
-		scheduleRequest.setRequestedDate(getCurrentDate());
-		ScheduleRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
-		return scheduledRequest;
+	public List<ScheduledRequest> scheduleRequest(List<ScheduledRequest> scheduleRequests) {
+		List<ScheduledRequest> response = new ArrayList<ScheduledRequest>();
+		for(ScheduledRequest scheduleRequest: scheduleRequests) {
+			saveOrUpdateCandidateInUserTable(scheduleRequest);
+			scheduleRequest.setId(getId("SchReq"));
+			scheduleRequest.setRequestedDate(getCurrentDate());
+			ScheduledRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
+			response.add(scheduledRequest);
+		}
+		
+		return response;
 	}
 
 	private String getCurrentDate() {
@@ -421,7 +426,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return id;
 	}
 
-	private String saveCandidateInUserTable(ScheduleRequest scheduleRequest) {
+	private String saveOrUpdateCandidateInUserTable(ScheduledRequest scheduleRequest) {
 		String userJson = makeJson(scheduleRequest);
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
@@ -449,7 +454,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return new String(pwd) + "@V1s9p7l";
 	}
 
-	private String makeJson(ScheduleRequest scheduleRequest) {
+	private String makeJson(ScheduledRequest scheduleRequest) {
 		String userId = scheduleRequest.getCandidateEmailId();
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		map.put("name", scheduleRequest.getCandidateName());
@@ -470,9 +475,9 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 	
 	@Override
-	public List<ScheduleRequest> getAllScheduledRequest() {
-		Iterator<ScheduleRequest> itr = scheduleRequestRepository.findAll().iterator();
-		List<ScheduleRequest> allData = new ArrayList<ScheduleRequest>();
+	public List<ScheduledRequest> getAllScheduledRequest() {
+		Iterator<ScheduledRequest> itr = scheduleRequestRepository.findAll().iterator();
+		List<ScheduledRequest> allData = new ArrayList<ScheduledRequest>();
 		while(itr.hasNext()) {
 			allData.add(itr.next());
 		}
@@ -480,27 +485,35 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	@Override
-	public ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest, String id) {
-		scheduleRequest.setId(id);
-		return updateScheduleRequest(scheduleRequest);
+	public List<ScheduledRequest> rescheduleRequest(List<ScheduledRequest> scheduleRequestList) {
+		List<ScheduledRequest> response = new ArrayList<ScheduledRequest>();
+		for(ScheduledRequest schRequest : scheduleRequestList) {
+			saveOrUpdateCandidateInUserTable(schRequest);
+			response.add(rescheduleRequest(schRequest));
+		}
+		return response;
 	}
 	
-	private ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest) {
-		saveCandidateInUserTable(scheduleRequest);
-		scheduleRequest.setUpdatedDate(getCurrentDate());
-		ScheduleRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
+	private ScheduledRequest rescheduleRequest(ScheduledRequest scheduleRequest) {
+		saveOrUpdateCandidateInUserTable(scheduleRequest);
+		ScheduledRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
 		return scheduledRequest;
 	}
 
 	@Override
-	public ScheduleRequest deleteScheduleRequest(String id) {
-		Optional<ScheduleRequest> scheduleRequest = scheduleRequestRepository.findById(id);
-		if(scheduleRequest.isPresent()) {
-			scheduleRequestRepository.deleteById(id);
-			return scheduleRequest.get();
-		} else {
-			throw new InvalidScheduleRequestIdException("Invalid schedule request Id");
+	public List<ScheduledRequest> cancelScheduleRequest(List<String> ids) {
+		List<ScheduledRequest> response = new ArrayList<ScheduledRequest>();
+		for(String id : ids) {
+			Optional<ScheduledRequest> scheduleRequest = scheduleRequestRepository.findById(id);
+			if(scheduleRequest.isPresent()) {
+				deleteCandidateFromUserTable(scheduleRequest.get());
+				scheduleRequestRepository.deleteById(id);
+				response.add(scheduleRequest.get());
+			} else {
+				throw new InvalidScheduleRequestIdException("Invalid schedule request Id");
+			}
 		}
+		return response;
 	}
 
 
@@ -630,14 +643,14 @@ public class SRVDataServiceImpl implements SRVDataService {
 	
 	@Override
 	public List<String> candidateSendEmail() {
-		Iterable<ScheduleRequest> itr = scheduleRequestRepository.findAll();
-		List<ScheduleRequest> schRequest = new ArrayList<ScheduleRequest>();
+		Iterable<ScheduledRequest> itr = scheduleRequestRepository.findAll();
+		List<ScheduledRequest> schRequest = new ArrayList<ScheduledRequest>();
 		itr.forEach(data -> schRequest.add(data));
 		if(isCronEnabled) {
 			filterByScheduledDate(schRequest);
 		}
 		List<String> users = new ArrayList<String>();
-		for(ScheduleRequest sr : schRequest) {
+		for(ScheduledRequest sr : schRequest) {
 			if(null != sr.getCandidateEmailId()) {
 				List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneduid(sr.getCandidateEmailId());
 				User user = null;
@@ -653,7 +666,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return users;
 	}
 	
-	private void filterByScheduledDate(List<ScheduleRequest> schRequest) {
+	private void filterByScheduledDate(List<ScheduledRequest> schRequest) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -717,7 +730,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 				User user = getUserDetailsFromUserTable(intrwrId);
 				if (null != user) {
 				byte[] byteArray = getSubjObjResultReport(interviewer.getCandidateId());
-//					byte[] byteArray = getBytes();
 					user.setByteAttachemenets(byteArray);
 					String response = sendEmailWithDynamicAttachement(user, interviewer);
 					responseList.add(response);
@@ -768,19 +780,16 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return json;
 	}
 	
-	private byte[] getBytes() {
-
-		byte b[] = null;
+	private String deleteCandidateFromUserTable(ScheduledRequest scheduleRequest) {
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		String url = aaServiceHostPort + "/user/" + scheduleRequest.getCandidateEmailId();
 		try {
-			File file = new File("C:\\Velankani\\Mahesh.pdf");
-			FileInputStream reader = new FileInputStream(file);
-			b = new byte[(int)file.length()];
-			reader.read(b);
-			reader.close();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			restTemplate.delete(url);
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
-		return b;
+		return "";
 	}
 }

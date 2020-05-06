@@ -9,7 +9,7 @@ import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
-import com.vcti.ct.SRVServices.model.ScheduleRequest;
+import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.User;
 
@@ -63,13 +63,13 @@ public interface SRVDataService {
 
 	boolean addSubjQResultList(List<SubjQuestionResult> subjQResList);
 
-	ScheduleRequest scheduleRequest(ScheduleRequest scheduleRequest);
+	List<ScheduledRequest> scheduleRequest(List<ScheduledRequest> scheduleRequest);
 
-	List<ScheduleRequest> getAllScheduledRequest();
+	List<ScheduledRequest> getAllScheduledRequest();
 
-	ScheduleRequest updateScheduleRequest(ScheduleRequest scheduleRequest, String id);
+	List<ScheduledRequest> rescheduleRequest(List<ScheduledRequest> scheduleRequest);
 
-	ScheduleRequest deleteScheduleRequest(String id);
+	List<ScheduledRequest> cancelScheduleRequest(List<String> id);
 	byte[] getSubjObjResultReport(String format);
 
 	List<CandidateResult> getCandidateReports();
