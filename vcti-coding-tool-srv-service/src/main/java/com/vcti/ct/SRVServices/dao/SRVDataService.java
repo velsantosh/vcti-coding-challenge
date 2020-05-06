@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import com.vcti.ct.SRVServices.model.CandidateResult;
+import com.vcti.ct.SRVServices.model.Interviewer;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
@@ -76,5 +77,7 @@ public interface SRVDataService {
 	List<String> candidateSendEmail();
 	
 	List<QuestionSchedView> getQuestionsByAssignerId(String assignerId);
+
+	List<String> sendCandidateReport(Interviewer interviewer);
 
 }

@@ -218,6 +218,7 @@ public class UserDataServiceImpl implements UserDataService {
 
 	@Override
 	public List<User> getUsersByRole(String role) {
+		role = role.toUpperCase();
 		Role roleObj = roleRepository.findDistinctByRoleName(role).get(0);
 		if (roleObj == null) {
 			System.out.println("No Role found");

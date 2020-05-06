@@ -1,0 +1,9 @@
+Hi ${name},
+
+Please find the attached candidate's report.
+
+
+Please do not reply. This is auto generated email.
+
+Thanks & Regards:
+Velankani Software Pvt Ltd.

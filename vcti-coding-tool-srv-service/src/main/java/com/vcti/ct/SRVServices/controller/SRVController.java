@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.vcti.ct.SRVServices.dao.SRVDataService;
 import com.vcti.ct.SRVServices.model.CandidateResult;
+import com.vcti.ct.SRVServices.model.Interviewer;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.QuestionBase;
 import com.vcti.ct.SRVServices.model.QuestionCustom;
@@ -224,4 +225,8 @@ public class SRVController {
 		return getQuestionListFromCCTService(quesIdList);
 	}
 	
+	@PostMapping("/send/candidate/report")
+	public List<String> sendCandidateReport(@RequestBody Interviewer interviewer){
+		return srvDataService.sendCandidateReport(interviewer);
+	}
 }

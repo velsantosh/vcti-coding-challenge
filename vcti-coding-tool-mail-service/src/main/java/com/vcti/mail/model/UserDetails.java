@@ -14,7 +14,7 @@ public class UserDetails {
 	private String mailSubject;
 	private String toEmailAddress;
 	private String messageText;
-
+	private byte[] attachement;
 	public String getUserName() {
 		return userName;
 	}
@@ -45,6 +45,14 @@ public class UserDetails {
 
 	public void setMessageText(String messageText) {
 		this.messageText = messageText;
+	}
+
+	public byte[] getAttachement() {
+		return attachement;
+	}
+
+	public void setAttachement(byte[] attachement) {
+		this.attachement = attachement;
 	}
 
 }

@@ -22,7 +22,7 @@ public class User {
 	private @NonNull String password;
 	private @NonNull String roleId;
 	private @NonNull Integer experience;
-
+	private byte[] byteAttachemenets;
 	public User() {
 		super();
 	}
@@ -75,4 +75,11 @@ public class User {
 		this.experience = experience;
 	}
 
+	public byte[] getByteAttachemenets() {
+		return byteAttachemenets;
+	}
+
+	public void setByteAttachemenets(byte[] byteAttachemenets) {
+		this.byteAttachemenets = byteAttachemenets;
+	}
 }

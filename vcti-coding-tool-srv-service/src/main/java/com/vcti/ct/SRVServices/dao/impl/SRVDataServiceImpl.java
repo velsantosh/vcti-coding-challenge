@@ -1,6 +1,7 @@
 package com.vcti.ct.SRVServices.dao.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -43,6 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vcti.ct.SRVServices.dao.SRVDataService;
 import com.vcti.ct.SRVServices.exceptions.InvalidScheduleRequestIdException;
 import com.vcti.ct.SRVServices.model.CandidateResult;
+import com.vcti.ct.SRVServices.model.Interviewer;
 import com.vcti.ct.SRVServices.model.ObjQuestion;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.ObjectiveResultReport;
@@ -97,7 +99,10 @@ public class SRVDataServiceImpl implements SRVDataService {
 	private String emailServiceHostPort;
 	
 	@Value("${vcc.candidate.email.subject}")
-	private String emailSubject;
+	private String testLinkEmailSubject;
+	
+	@Value("${vcc.candidate.report.email.subject}")
+	private String reportEmailSubject;
 	
 	@Value("${vcc.user.login.url}")
 	private String userLoginUrl;
@@ -108,12 +113,15 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Value("${vcc.schedule.request.cron.time}")
 	private String scheduleRequestCronTime;
 	
-	private String emailMsg;
+	private String testLinkEmailMsg;
+	private String reportToInterviewerMsg;
 	
 	@PostConstruct
 	public void init() {
 		try {
-			emailMsg = new String(Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:emailMsg.txt").toString())));
+			testLinkEmailMsg = new String(Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:testLinkEmailMsg.txt").toString())));
+			reportToInterviewerMsg = new String(Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:reportToInterverMsg.txt").toString())));
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -634,7 +642,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 				List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneduid(sr.getCandidateEmailId());
 				User user = null;
 				if(null != questionIdList && !questionIdList.isEmpty()) {
-					user = getCandidateDetailsFromUserTable(sr.getCandidateEmailId());
+					user = getUserDetailsFromUserTable(sr.getCandidateEmailId());
 					if(null != user) {
 						String email = sendEmail(user);
 						users.add(email);
@@ -650,7 +658,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		
 	}
 
-	private User getCandidateDetailsFromUserTable(String userId) {
+	private User getUserDetailsFromUserTable(String userId) {
 		RestTemplate restTemplate = new RestTemplate();
 		String url = aaServiceHostPort + "user/userid/" + userId;
 		ResponseEntity<User> resultJson = null;
@@ -664,7 +672,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 	
 	private String sendEmail(User user) {
-		String json = prepareJson(user);
+		String json = prepareJsonForTestLink(user);
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -679,15 +687,15 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return json;
 	}
 	
-	private String prepareJson(User user) {
-		String temp = new String(emailMsg + " ");
+	private String prepareJsonForTestLink(User user) {
+		String temp = new String(testLinkEmailMsg + " ");
 		temp = temp.replace("${name}", user.getName()).
 				replace("${url}", userLoginUrl).
 				replace("${userId}", user.getUserId()).
 				replace("${pass}", user.getPassword());
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("userName", user.getName());
-		map.put("mailSubject", emailSubject);
+		map.put("mailSubject", testLinkEmailSubject);
 		map.put("toEmailAddress", user.getUserId());
 		map.put("messageText", temp.trim());
 		return returnJson(map);
@@ -697,5 +705,82 @@ public class SRVDataServiceImpl implements SRVDataService {
 	public List<QuestionSchedView> getQuestionsByAssignerId(String assignerId) {
 		List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneruid(assignerId);
 		return questionIdList;
+	}
+
+	@Override
+	public List<String> sendCandidateReport(Interviewer interviewer) {
+		List<String> interviewrIds = null;
+		List<String> responseList = new ArrayList<String>();
+		if (null != interviewer && null != interviewer.getToEmailIds()) {
+			interviewrIds = Arrays.asList(interviewer.getToEmailIds().split(";"));
+			for (String intrwrId : interviewrIds) {
+				User user = getUserDetailsFromUserTable(intrwrId);
+				if (null != user) {
+				byte[] byteArray = getSubjObjResultReport(interviewer.getCandidateId());
+//					byte[] byteArray = getBytes();
+					user.setByteAttachemenets(byteArray);
+					String response = sendEmailWithDynamicAttachement(user, interviewer);
+					responseList.add(response);
+				}
+			}
+		}
+		return responseList;
+	}
+	
+	private String prepareJsonForReport(User user, Interviewer interviewer) {
+		String msgBody = "";
+		String subject = "";
+		if(null != interviewer && null != interviewer.getBody()) {
+			msgBody = interviewer.getBody();
+		} else {
+			msgBody = new String(reportToInterviewerMsg + " ");
+			msgBody = msgBody.replace("${name}", user.getName());
+		}
+		
+		subject = (null != interviewer && null != interviewer.getSubject()) ? subject = interviewer.getSubject() : reportEmailSubject;
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("userName", user.getName());
+		map.put("mailSubject", subject);
+		map.put("toEmailAddress", user.getUserId());
+		map.put("messageText", msgBody.trim());
+		map.put("attachement", user.getByteAttachemenets());
+		try {
+			return new ObjectMapper().writeValueAsString(map);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	private String sendEmailWithDynamicAttachement(User user, Interviewer interviewer) {
+		String json = prepareJsonForReport(user, interviewer);
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> request = new HttpEntity<String>(json, headers);
+		String url = emailServiceHostPort + "send/mail/with/dynamic/attachment";
+		try {
+			restTemplate.postForEntity(url, request, String.class);
+			return "Congratulations! Your mail has been send to the " + user.getUserId() + " successfully.";
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return json;
+	}
+	
+	private byte[] getBytes() {
+
+		byte b[] = null;
+		try {
+			File file = new File("C:\\Velankani\\Mahesh.pdf");
+			FileInputStream reader = new FileInputStream(file);
+			b = new byte[(int)file.length()];
+			reader.read(b);
+			reader.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return b;
 	}
 }

@@ -1,15 +1,24 @@
 package com.vcti.mail.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.mail.util.ByteArrayDataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.vcti.mail.model.UserDetails;
 
@@ -86,5 +95,15 @@ public class MailService {
 
 		javaMailSender.send(message);
 	}
-
+	
+	public void sendEmailWithDynamicAttachment(UserDetails user) throws MailException, MessagingException {
+		MimeMessage message = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message, true);
+		helper.setTo(user.getToEmailAddress());
+		helper.setSubject(user.getMailSubject());
+		helper.setText(user.getMessageText());
+		ByteArrayDataSource bds = new ByteArrayDataSource(user.getAttachement(), "application/pdf");
+		helper.addAttachment("Report", bds);
+		javaMailSender.send(message);
+	}
 }
