@@ -26,6 +26,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +43,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vcti.ct.SRVServices.dao.SRVDataService;
+import com.vcti.ct.SRVServices.exceptions.DuplicateScheduleRequestException;
 import com.vcti.ct.SRVServices.exceptions.InvalidScheduleRequestIdException;
 import com.vcti.ct.SRVServices.model.CandidateResult;
 import com.vcti.ct.SRVServices.model.Interviewer;
@@ -403,14 +405,22 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public List<ScheduledRequest> scheduleRequest(List<ScheduledRequest> scheduleRequests) {
 		List<ScheduledRequest> response = new ArrayList<ScheduledRequest>();
-		for(ScheduledRequest scheduleRequest: scheduleRequests) {
-			saveOrUpdateCandidateInUserTable(scheduleRequest);
-			scheduleRequest.setId(getId("SchReq"));
-			scheduleRequest.setRequestedDate(getCurrentDate());
-			ScheduledRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
-			response.add(scheduledRequest);
+		for (ScheduledRequest scheduleRequest : scheduleRequests) {
+			String userId = scheduleRequest.getCandidateEmailId();
+			List<ScheduledRequest> oldRequest = scheduleRequestRepository.findByCandidateEmailId(userId);
+			boolean isAnyMatched = oldRequest.stream().anyMatch(
+					request -> request.getRequirementId().equalsIgnoreCase(scheduleRequest.getRequirementId()));
+			if (!isAnyMatched) {
+				saveOrUpdateCandidateInUserTable(scheduleRequest);
+				scheduleRequest.setId(getId("SchReq"));
+				scheduleRequest.setRequestedDate(getCurrentDate());
+				ScheduledRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
+				response.add(scheduledRequest);
+			} else {
+				throw new DuplicateScheduleRequestException("Schedule Request is already in process with this user: { "
+						+ userId + " } " + "and this requirementId: { " + scheduleRequest.getRequirementId() + " }");
+			}
 		}
-		
 		return response;
 	}
 
@@ -657,7 +667,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 				if(null != questionIdList && !questionIdList.isEmpty()) {
 					user = getUserDetailsFromUserTable(sr.getCandidateEmailId());
 					if(null != user) {
-						String email = sendEmail(user);
+						String email = sendEmailToCandidates(user);
 						users.add(email);
 					}
 				}
@@ -684,7 +694,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return null;
 	}
 	
-	private String sendEmail(User user) {
+	private String sendEmailToCandidates(User user) {
 		String json = prepareJsonForTestLink(user);
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
@@ -791,5 +801,22 @@ public class SRVDataServiceImpl implements SRVDataService {
 			ex.printStackTrace();
 		}
 		return "";
+	}
+
+	@Override
+	public List<String> sendEamilToCandidateForTestLink(List<String> candidateEmailList) {
+		List<String> users = new ArrayList<String>();
+		for (String userId : candidateEmailList) {
+			List<QuestionSchedView> scheduledUser = questionScheduleRepository.findByAssigneduid(userId);
+			User user = null;
+			if (null != scheduledUser && !scheduledUser.isEmpty()) {
+				user = getUserDetailsFromUserTable(userId);
+				if (null != user) {
+					String email = sendEmailToCandidates(user);
+					users.add(email);
+				}
+			}
+		}
+		return users;
 	}
 }

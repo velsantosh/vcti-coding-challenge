@@ -215,7 +215,7 @@ public class SRVController {
 	}
 	
 	@GetMapping("/candidate/send/email")
-	public List<String> candidateSendEmail(){
+	public List<String> sendEmailToAllScheduledCandidateForTestLink(){
 		return srvDataService.candidateSendEmail();
 	}
 	
@@ -228,5 +228,10 @@ public class SRVController {
 	@PostMapping("/send/candidate/report")
 	public List<String> sendCandidateReport(@RequestBody Interviewer interviewer){
 		return srvDataService.sendCandidateReport(interviewer);
+	}
+	
+	@GetMapping("/send/email/candidate/testlink")
+	public List<String> sendEamilToCandidateForTestLink(@RequestBody List<String> candidateEmailList){
+		return srvDataService.sendEamilToCandidateForTestLink(candidateEmailList);
 	}
 }

@@ -80,4 +80,6 @@ public interface SRVDataService {
 
 	List<String> sendCandidateReport(Interviewer interviewer);
 
+	List<String> sendEamilToCandidateForTestLink(List<String> candidateEmailList);
+
 }

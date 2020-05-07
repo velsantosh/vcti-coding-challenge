@@ -20,4 +20,13 @@ public class CommonExceptionHandler {
 		response.setError(ex.toString());
 		return new ResponseEntity<CommonResponse>(response, HttpStatus.NOT_FOUND);
 	}
+	
+	@ExceptionHandler(DuplicateScheduleRequestException.class)
+	public final ResponseEntity<CommonResponse> duplicateScheduleRequestException(DuplicateScheduleRequestException ex) {
+		CommonResponse response = new CommonResponse();
+		response.setStatus(HttpStatus.BAD_REQUEST);
+		response.setMessage(ex.getMessage());
+		response.setError(ex.toString());
+		return new ResponseEntity<CommonResponse>(response, HttpStatus.BAD_REQUEST);
+	}
 }
