@@ -103,7 +103,7 @@ public class MailService {
 		helper.setSubject(user.getMailSubject());
 		helper.setText(user.getMessageText());
 		ByteArrayDataSource bds = new ByteArrayDataSource(user.getAttachement(), "application/pdf");
-		helper.addAttachment("Report", bds);
+		helper.addAttachment(user.getUserName() + " Test Report", bds);
 		javaMailSender.send(message);
 	}
 }
