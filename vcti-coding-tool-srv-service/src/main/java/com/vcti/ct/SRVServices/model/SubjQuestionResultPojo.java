@@ -1,6 +1,6 @@
 package com.vcti.ct.SRVServices.model;
 
-import java.nio.ByteBuffer;
+
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
@@ -12,11 +12,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table("subjresult")
-public class SubjQuestionResult {
+public class SubjQuestionResultPojo {
 	@PrimaryKey
 	private ResultKey key;
-	private @NonNull ByteBuffer program;
+	private @NonNull String program;
 	private @NonNull String consolidatedoutput;
 	private String compilationStatus;
 	private String className;
@@ -36,10 +35,8 @@ public class SubjQuestionResult {
 	public void setCompilationStatus(String compilationStatus) {
 		this.compilationStatus = compilationStatus;
 	}
- public SubjQuestionResult() {
-	 
- }
-	public SubjQuestionResult(final ResultKey key, @NonNull ByteBuffer program, @NonNull String consolidatedoutput,String compilationStatus,String className) {
+
+	public SubjQuestionResultPojo(final ResultKey key, @NonNull String program, @NonNull String consolidatedoutput,String compilationStatus,String className) {
 		super();
 		this.key = key;
 		this.program = program;
@@ -56,11 +53,11 @@ public class SubjQuestionResult {
 		this.key = key;
 	}
 
-	public @NonNull ByteBuffer getProgram() {
+	public @NonNull String getProgram() {
 		return program;
 	}
 
-	public void setProgram(@NonNull ByteBuffer program) {
+	public void setProgram(@NonNull String program) {
 		this.program = program;
 	}
 

@@ -11,6 +11,7 @@ import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
+import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 import com.vcti.ct.SRVServices.model.User;
 
 import net.sf.jasperreports.engine.JRException;
@@ -45,7 +46,7 @@ public interface SRVDataService {
 	List<ObjQuestionResult> getObjQResultByQId(String qId);
 
 	// Subjective Q Result
-	boolean addSubjQResult(SubjQuestionResult subjQRes);
+	boolean addSubjQResult(SubjQuestionResultPojo subjQRes);
 
 	boolean removeSubjQResult(SubjQuestionResult subjQRes);
 
@@ -61,7 +62,7 @@ public interface SRVDataService {
 
 	boolean addObjQResultList(List<ObjQuestionResult> objQResList);
 
-	boolean addSubjQResultList(List<SubjQuestionResult> subjQResList);
+	boolean addSubjQResultList(List<SubjQuestionResultPojo> subjQResList);
 
 	List<ScheduledRequest> scheduleRequest(List<ScheduledRequest> scheduleRequest);
 
@@ -72,7 +73,7 @@ public interface SRVDataService {
 	List<ScheduledRequest> cancelScheduleRequest(List<String> id);
 	byte[] getSubjObjResultReport(String format);
 
-	List<CandidateResult> getCandidateReports();
+	List<CandidateResult> getCandidateReports(String id);
 
 	List<String> candidateSendEmail();
 	

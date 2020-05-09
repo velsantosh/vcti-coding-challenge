@@ -5,6 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,6 +62,7 @@ import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestion;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
+import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 import com.vcti.ct.SRVServices.model.SubjectiveResultReport;
 import com.vcti.ct.SRVServices.model.User;
 import com.vcti.ct.SRVServices.model.ValidateSubjQuestions;
@@ -310,9 +316,48 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return true;
 	}
 */
+	 private   ByteBuffer convertStringToByteBuffer(String pro) {
+			
+		  Charset charset = Charset.forName("UTF-8");
+		  CharsetEncoder encoder = charset.newEncoder();
+		  ByteBuffer buff=null;
+		  try{
+			  buff= encoder.encode(CharBuffer.wrap(pro));
+			  }catch(Exception e){e.printStackTrace();}
+			 
+		return buff;
+	}
+	    private String convertByteBufferToString(ByteBuffer buffer) {
+	    	Charset charset = Charset.forName("UTF-8");
+	    	CharsetDecoder decoder = charset.newDecoder();
+	    	String data = "";
+	    	  try{
+	    	    int old_position = buffer.position();
+	    	    data = decoder.decode(buffer).toString();
+	    	    // reset buffer's position to its original so it is not altered:
+	    	    buffer.position(old_position);  
+	    	  }catch (Exception e){
+	    	    e.printStackTrace();
+	    	    return "";
+	    	  }
+	    	  return data;
+	    }
+		private SubjQuestionResult getSubjQuestionResult(SubjQuestionResultPojo pojo) {
+			SubjQuestionResult subjResult=new SubjQuestionResult();
+			subjResult.setClassName(pojo.getClassName());
+			subjResult.setCompilationStatus(pojo.getCompilationStatus());
+			subjResult.setConsolidatedoutput(pojo.getConsolidatedoutput());
+			subjResult.setKey(pojo.getKey());
+			subjResult.setProgram(convertStringToByteBuffer(pojo.getProgram()));
+			
+			
+			return subjResult;
+		}
 	@Override
-	public boolean addSubjQResult(SubjQuestionResult subjQRes) {
-		QuesResponse questionresponse = this.getCompilationsStatus(subjQRes);
+	public boolean addSubjQResult(SubjQuestionResultPojo subjQResPojo) {
+		QuesResponse questionresponse = this.getCompilationsStatus(subjQResPojo);
+		SubjQuestionResult subjQRes= this.getSubjQuestionResult(subjQResPojo);
+		
 		if (null != questionresponse) {
 			subjQRes.setCompilationStatus(questionresponse.getCompilationsStatus());
 			subjResultRepository.save(subjQRes);
@@ -321,40 +366,43 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return false;
 	}
-      private QuesResponse getCompilationsStatus(SubjQuestionResult subjQRes) {
-  	  final String uri = "http://localhost:8082/validateSubjQues/";
-  	  ValidateSubjQuestions request=new ValidateSubjQuestions();
-  	  QuesResponse qr=new QuesResponse();
-  	  qr.setqId(subjQRes.getKey().getQid());
-  	  qr.setUserInput(subjQRes.getProgram().toString());
-  	  request.setUserId(subjQRes.getKey().getUserId());
-  	  request.setQuesResponseObj(qr);
-  	  request.setClassName(subjQRes.getClassName());
-  	  RestTemplate restTemplate = new RestTemplate();
-  	  QuesResponse  questionResponse= null;
-  	  try {
-  		questionResponse=restTemplate.postForObject(uri, request, QuesResponse.class);
-  	
-  	  }
-  		catch(Exception e)	  {
-  			System.out.println(e);
-  		}
-  	// QuesResponse  questionResponse=restTemplate.getForObject(uri,QuesResponse.class);
-  	 return questionResponse;
-    }
-	  @Override
-	public boolean addSubjQResultList(List<SubjQuestionResult> subjQResList) {
-		List<SubjQuestionResult> subQResultList=new ArrayList<SubjQuestionResult>();
-		for(int i=0;i<subjQResList.size();i++) {
-			SubjQuestionResult subjQRes=subjQResList.get(i);
-			QuesResponse questionresponse=this.getCompilationsStatus(subjQRes);
-			subjQRes.setCompilationStatus(questionresponse.getCompilationsStatus());
-			subQResultList.add(subjQRes);
-		}
-		subjResultRepository.saveAll(subQResultList);
-		return true;
-	}
 
+	private QuesResponse getCompilationsStatus(SubjQuestionResultPojo subjQRes) {
+	  	  final String uri = "http://localhost:8082/validateSubjQues/";
+	  	  ValidateSubjQuestions request=new ValidateSubjQuestions();
+	  	  QuesResponse qr=new QuesResponse();
+	  	  qr.setqId(subjQRes.getKey().getQid());
+	  	  qr.setUserInput(subjQRes.getProgram().toString());
+	  	  request.setUserId(subjQRes.getKey().getUserId());
+	  	  request.setQuesResponseObj(qr);
+	  	  request.setClassName(subjQRes.getClassName());
+	  	  RestTemplate restTemplate = new RestTemplate();
+	  	  QuesResponse  questionResponse= null;
+	  	  try {
+	  		questionResponse=restTemplate.postForObject(uri, request, QuesResponse.class);
+	  	
+	  	  }
+	  		catch(Exception e)	  {
+	  			System.out.println(e);
+	  		}
+	  	// QuesResponse  questionResponse=restTemplate.getForObject(uri,QuesResponse.class);
+	  	 return questionResponse;
+	    }
+	 @Override
+		public boolean addSubjQResultList(List<SubjQuestionResultPojo> subjQResList) {
+			List<SubjQuestionResult> subQResultList=new ArrayList<SubjQuestionResult>();
+			for(int i=0;i<subjQResList.size();i++) {
+				
+				SubjQuestionResultPojo subjQRes=subjQResList.get(i);
+				
+				QuesResponse questionresponse=this.getCompilationsStatus(subjQRes);
+				SubjQuestionResult subjQResult= this.getSubjQuestionResult(subjQRes);
+				subjQResult.setCompilationStatus(questionresponse.getCompilationsStatus());
+				subQResultList.add(subjQResult);
+			}
+			subjResultRepository.saveAll(subQResultList);
+			return true;
+		}
 	@Override
 	public boolean removeSubjQResult(SubjQuestionResult subjQRes) {
 		getSubjQResult(subjQRes).forEach(subjQ -> subjResultRepository.deleteById(subjQ.getKey().toString()));
@@ -530,12 +578,19 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public byte[] getSubjObjResultReport(String format)  {
 		List<SubjectiveResultReport> subjReport=new ArrayList<SubjectiveResultReport>();
-		List<SubjQuestionResult> subjQResults=subjResultRepository.findByKeyUserId(format);
+		List<SubjQuestionResult> subjQResults=null;
+		try {
+			subjQResults=subjResultRepository.findByKeyUserId(format);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		for(SubjQuestionResult subj:subjQResults) {
 			Optional<SubjQuestion> subjQuestion=subjQuestionRepository.findByqId(subj.getKey().getQid());
 			SubjectiveResultReport sReport=new SubjectiveResultReport();
 			sReport.setProgram(subjQuestion.get().getStatement());
-			sReport.setAnsSubmitted(subj.getProgram());
+			
+			sReport.setAnsSubmitted(convertByteBufferToString(subj.getProgram()));
 			sReport.setConsolidatedOutput(subj.getConsolidatedoutput());
 			subjReport.add(sReport);
 		}
@@ -545,11 +600,38 @@ public class SRVDataServiceImpl implements SRVDataService {
 			ObjectiveResultReport objreport=new ObjectiveResultReport();
 			Optional<ObjQuestion> objquestion=objQuestionRepository.findByqId(objresult.getKey().getQid());
 			objreport.setProblem(objquestion.get().getStatement());
-			objreport.setOption(objquestion.get().getOptions());
+			String option=objquestion.get().getOptions();
+			if(option!=null) {
+			String options[]=option.split(",");
+			objreport.setOption1(options[0]);
+			objreport.setOption2(options[1]);
+			objreport.setOption3(options[2]);
+			objreport.setOption4(options[3]);
+			}
+			//objreport.setOption(objquestion.get().getOptions());
 			objreport.setCorrectAnswer(objquestion.get().getCorrect_option());
 			objreport.setSlectedAnswer(objresult.getSelectedoption());
 			objReports.add(objreport);
 		}
+		Optional<User> user=userRepository.findByUserId(format);
+		User us=user.get();
+		List<User> userlist=new ArrayList<User>();
+		userlist.add(us);
+		String path = "C:\\mydownloads\\";
+		Path pathDir = Paths.get(path);
+
+		try {
+			if (!Files.exists(pathDir)) {
+				Files.createDirectories(pathDir);
+				System.out.println("Directory created");
+			} else {
+				System.out.println("Directory already exists");
+			}
+		}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		String destFileName=path;
 		byte arr[]= {};
 		try {
 			File file=ResourceUtils.getFile("classpath:Report.jrxml");
@@ -557,8 +639,10 @@ public class SRVDataServiceImpl implements SRVDataService {
 			Map<String,Object> parameters=new HashMap<String,Object>();
 			parameters.put("datasource1", subjReport);
 			parameters.put("datasource2", objReports);
+			parameters.put("datasource3", userlist);
 			JasperPrint print=JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
 		    arr=JasperExportManager.exportReportToPdf(print);
+		    JasperExportManager.exportReportToPdfFile(print, destFileName+"\\candidate.pdf");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -566,16 +650,27 @@ public class SRVDataServiceImpl implements SRVDataService {
 		
 		return arr;
 	}
-
 	private List<QuestionScheduler> getScheduled(){
 		List<QuestionScheduler> scheduled=(List<QuestionScheduler>) questionScheduleRepository.findAll();
 		return scheduled;
 	}
+	private List<QuestionScheduler> getScheduledById(String id){
+		List<QuestionScheduler> scheduled=(List<QuestionScheduler>) questionScheduleRepository.findAllByAssigneruid(id);
+	    return scheduled;
+	}
 	@Override
-	public List<CandidateResult> getCandidateReports() {
+	public List<CandidateResult> getCandidateReports(String id) {
 		
 		List<CandidateResult> candidateResults=new ArrayList<CandidateResult>();
-		List<QuestionScheduler> scheduled=this.getScheduled();
+		List<QuestionScheduler> scheduled=null;
+		String role=userRepository.findByUserId(id).get().getRoleId();
+		if(role.equals("1") || role.equals("2")) {
+			scheduled=this.getScheduled();
+		}
+		else {
+			scheduled=this.getScheduledById(id);
+		}
+		 
 		
 		
 		Map<String,String> candidates=new HashMap<String,String>();
@@ -585,11 +680,11 @@ public class SRVDataServiceImpl implements SRVDataService {
 		Set<Entry<String,String>> candidateEntry=candidates.entrySet();
 		for(Entry<String,String> candidate:candidateEntry) {
 			String status="Scheduled";
-			String testScheduler=userRepository.findById(candidate.getValue()).get().getName();
+			String testScheduler=userRepository.findByUserId(candidate.getValue()).get().getName();
 			CandidateResult result=new CandidateResult();
 			int noOfObjQ=0;
 			int correctAns=0;
-			String candidatename=userRepository.findById(candidate.getKey()).get().getName();
+			String candidatename=userRepository.findByUserId(candidate.getKey()).get().getName();
 			List<ObjQuestionResult> objresults=objResultRepository.findByKeyUserId(candidate.getKey());
 			for(ObjQuestionResult objResult:objresults) {
 				
@@ -604,20 +699,33 @@ public class SRVDataServiceImpl implements SRVDataService {
 			}
 			
 			String objResult= correctAns+" Correct Out Of "+noOfObjQ+" Objective Questions  # ";
-			String subjResult="";
+			int  finalsubjResult=0;
+			int subjectiveQResult=0;
+			int nofSubjectiveq=0;
 			List<SubjQuestionResult> subjResults=subjResultRepository.findByKeyUserId(candidate.getKey());
 			for(SubjQuestionResult subjresult:subjResults) {
-				subjResult=subjresult.getConsolidatedoutput();
+				nofSubjectiveq++;
+				String subjResult=subjresult.getConsolidatedoutput();
+				String subjper[]= {};
+				if(subjResult!=null) {
+					 subjper=subjResult.split(" ");
+				}
+				if(subjper.length>0) {
+				int nofTestcase=Integer.parseInt(subjper[subjper.length-1]);
+				int passedtest=Integer.parseInt(subjper[0]);
+				subjectiveQResult=((passedtest*100)/nofTestcase);
+				}
+			}
+			if(nofSubjectiveq!=0) {
+			finalsubjResult=subjectiveQResult/nofSubjectiveq;
 			}
 			if(!objresults.isEmpty() || !subjResults.isEmpty()) {
 				status="Submitted";
 			}
-			String subjper[]=subjResult.split(" ");
-			int nofTestcase=Integer.parseInt(subjper[subjper.length-1]);
-			int passedtest=Integer.parseInt(subjper[0]);
-			int percentage=(((correctAns*100)/noOfObjQ)+((passedtest*100)/nofTestcase))/2;
 			
-			String finalResult=objResult+" Subjective- "+subjResult;
+			int percentage=(((correctAns*100)/noOfObjQ)+finalsubjResult)/2;
+			
+			String finalResult=objResult+" Subjective- "+finalsubjResult+"%";
 			result.setCandidateName(candidatename);
 			result.setTestScheduler(testScheduler);
 			result.setTestcaseReport(finalResult);
@@ -629,6 +737,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		
 		return candidateResults;
 	}
+
 
 //	@Override
 //	public List<String> candidateSendEmail() {

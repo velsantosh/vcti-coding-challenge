@@ -12,4 +12,5 @@ public interface UserRepository  extends CrudRepository<User, String>{
 
 	@Query(allowFiltering = true)
 	Optional<User> findById(String id);
+	Optional<User> findByUserId(String userId);
 }

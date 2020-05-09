@@ -21,4 +21,7 @@ public interface QuestionSchedulerRepository extends CrudRepository<QuestionSche
 	@AllowFiltering
 	List<QuestionSchedView> findByAssigneruid(String assigneruid);
 
+	@AllowFiltering
+	List<QuestionScheduler> findAllByAssigneruid(String assigneruid);
+
 }

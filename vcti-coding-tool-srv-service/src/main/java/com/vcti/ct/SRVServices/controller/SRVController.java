@@ -1,6 +1,4 @@
 package com.vcti.ct.SRVServices.controller;
-
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +22,7 @@ import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
 import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
-import com.vcti.ct.SRVServices.model.User;
-
-import net.sf.jasperreports.engine.JRException;
+import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -152,12 +148,12 @@ public class SRVController {
 
 	// Subjective Q Result URI
 	@PostMapping(value = "/addSubjRes")
-	public boolean addSubjResult(@RequestBody SubjQuestionResult subjQRes) {
+	public boolean addSubjResult(@RequestBody SubjQuestionResultPojo subjQRes) {
 		return srvDataService.addSubjQResult(subjQRes);
 	}
 
 	@PostMapping(value = "/addSubQResList")
-	public boolean addSubjResultList(@RequestBody List<SubjQuestionResult> subjQResList) {
+	public boolean addSubjResultList(@RequestBody List<SubjQuestionResultPojo> subjQResList) {
 		return srvDataService.addSubjQResultList(subjQResList);
 	}
 
@@ -209,11 +205,10 @@ public class SRVController {
 	public byte[] getSubjObjResultReport(@PathVariable String id) {
 		return srvDataService.getSubjObjResultReport(id);
 	}
-	@GetMapping("/candidateReport")
-	public List<CandidateResult> getCandidateReports(){
-		return srvDataService.getCandidateReports();
+	@GetMapping("/candidateReport/{id}")
+	public List<CandidateResult> getCandidateReports(@PathVariable String id){
+		return srvDataService.getCandidateReports(id);
 	}
-	
 	@GetMapping("/candidate/send/email")
 	public List<String> sendEmailToAllScheduledCandidateForTestLink(){
 		return srvDataService.candidateSendEmail();
