@@ -731,11 +731,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 			result.setTestcaseReport(finalResult);
 			result.setStatus(status);
 			result.setTestCasePercentage(percentage);
-			Optional<User> user = userRepository.findById(candidate.getKey());
-			if(user.isPresent()) {
-				result.setId(user.get().getUserId());
-			}
-//			result.setId(candidate.getKey());
+			result.setId(candidate.getKey());
 			candidateResults.add(result);
 		}
 		
