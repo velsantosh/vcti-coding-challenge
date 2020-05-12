@@ -15,6 +15,11 @@ public class UserDetails {
 	private String toEmailAddress;
 	private String messageText;
 	private byte[] attachement;
+	private String candidateName;
+
+	public UserDetails() {
+	}
+
 	public String getUserName() {
 		return userName;
 	}
@@ -55,4 +60,11 @@ public class UserDetails {
 		this.attachement = attachement;
 	}
 
+	public String getCandidateName() {
+		return candidateName;
+	}
+
+	public void setCandidateName(String candidateName) {
+		this.candidateName = candidateName;
+	}
 }

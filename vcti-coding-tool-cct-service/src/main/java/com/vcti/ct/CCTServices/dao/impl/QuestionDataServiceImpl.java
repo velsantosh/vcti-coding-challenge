@@ -1,6 +1,9 @@
 package com.vcti.ct.CCTServices.dao.impl;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,10 +14,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
@@ -54,6 +60,18 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	@Autowired
 	CassandraOperations cassandraOperations;
 
+	private String junitCoreTest;
+	
+	@PostConstruct
+	public void init() {
+		try {
+			junitCoreTest = new String(Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:JUnitCoreMagicMaster.txt").toString())));
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public Question addQuestion(QuestionBase newQ) {
 
@@ -355,12 +373,14 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@Override
 	public QuesResponse validateSubjQues(ValidateSubjQuestions subjQuesObj) {
+		String javaClassName = getClassName(subjQuesObj.getQuesResponseObj().getUserInput());
 		QuesResponse responseObj = new QuesResponse();
 		// Get complete Program
 		String prog = subjQuesObj.getQuesResponseObj().getUserInput();
-		if (subjQuesObj.getClassName() == null) {
-			subjQuesObj.setClassName("ExampleClass");
-		}
+//		if (subjQuesObj.getClassName() == null) {
+//			subjQuesObj.setClassName("ExampleClass");
+//		}
+		subjQuesObj.setClassName(javaClassName);
 		SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		String currentTime = sdf.format(timestamp);
@@ -381,14 +401,23 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 				responseObj.setUserInput("No record found in Question table for id");
 				return responseObj;
 			} else {
-				String junitName = subjQuesObj.getClassName() + "Test";
+				String junitClassName = getClassName(junitProg);
+				String junitCoreClassName = getClassName(junitCoreTest);
+				junitCoreTest = junitCoreTest.replaceAll("ExampleClassTest", junitClassName);
+//				String junitNewClassName = javaClassName+"Test";
+//				junitProg = junitProg.replaceAll(junitOldClassName, junitNewClassName);
+//				String oldJavaClassRef = junitOldClassName.split("Test")[0];
+//				junitProg = junitProg.replaceAll(oldJavaClassRef, javaClassName);
+//				String junitName = subjQuesObj.getClassName() + "Test";
 				// Write Junit Prog on File
-				String testClassPath = CCTUtils.writeProgInFile(junitProg, junitName, userDir);
+				String testClassPath = CCTUtils.writeProgInFile(junitProg, junitClassName, userDir);
+				String junitCoreTestClassPath = CCTUtils.writeProgInFile(junitCoreTest, junitCoreClassName, userDir);
 				// Compile Junit Program
 				Map<String, String> testCompilationStatus = CCTUtils.compileJavaProgram(testClassPath, userDir + "\\");
-				if (testCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+				Map<String, String> junitCoreTestCompilationStatus = CCTUtils.compileJavaProgram(junitCoreTestClassPath, userDir + "\\");
+				if (testCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name()) && junitCoreTestCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
 					// Since Junit compilation is also successful, then run the Junit
-					Map<String, String> runJunitStatus = CCTUtils.runJavaProgram(junitName, userDir);
+					Map<String, String> runJunitStatus = CCTUtils.runJavaProgram(junitCoreClassName, userDir);
 					if (runJunitStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
 						// Junit Run program is successful
 						responseObj.setqId(subjQuesObj.getQuesResponseObj().getqId());
@@ -412,6 +441,11 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			responseObj.setUserInput(compilationStatus.get(CCTConstants.status.FAIL.name()));
 		}
 		return responseObj;
+	}
+	
+	private String getClassName(String program) {
+		String splits[] = program.substring(program.indexOf("class "), program.indexOf("{")).trim().split(" ");
+		return splits[1];
 	}
 
 //	private byte[] readJunitFile() {

@@ -576,11 +576,11 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 
 	@Override
-	public byte[] getSubjObjResultReport(String format)  {
+	public byte[] getSubjObjResultReport(String candidateId)  {
 		List<SubjectiveResultReport> subjReport=new ArrayList<SubjectiveResultReport>();
 		List<SubjQuestionResult> subjQResults=null;
 		try {
-			subjQResults=subjResultRepository.findByKeyUserId(format);
+			subjQResults=subjResultRepository.findByKeyUserId(candidateId);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -594,7 +594,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 			sReport.setConsolidatedOutput(subj.getConsolidatedoutput());
 			subjReport.add(sReport);
 		}
-		List<ObjQuestionResult> objresults=objResultRepository.findByKeyUserId(format);
+		List<ObjQuestionResult> objresults=objResultRepository.findByKeyUserId(candidateId);
 		List<ObjectiveResultReport> objReports=new ArrayList<ObjectiveResultReport>();
 		for(ObjQuestionResult objresult:objresults) {
 			ObjectiveResultReport objreport=new ObjectiveResultReport();
@@ -613,7 +613,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 			objreport.setSlectedAnswer(objresult.getSelectedoption());
 			objReports.add(objreport);
 		}
-		Optional<User> user=userRepository.findByUserId(format);
+		Optional<User> user=userRepository.findByUserId(candidateId);
 		User us=user.get();
 		List<User> userlist=new ArrayList<User>();
 		userlist.add(us);
@@ -845,12 +845,13 @@ public class SRVDataServiceImpl implements SRVDataService {
 		List<String> responseList = new ArrayList<String>();
 		if (null != interviewer && null != interviewer.getToEmailIds()) {
 			interviewrIds = Arrays.asList(interviewer.getToEmailIds().split(";"));
+			User candidateDetails = getUserDetailsFromUserTable(interviewer.getCandidateId());
 			for (String intrwrId : interviewrIds) {
-				User user = getUserDetailsFromUserTable(intrwrId);
-				if (null != user) {
+				User interviewerDetails = getUserDetailsFromUserTable(intrwrId);
+				if (null != interviewerDetails) {
 				byte[] byteArray = getSubjObjResultReport(interviewer.getCandidateId());
-					user.setByteAttachemenets(byteArray);
-					String response = sendEmailWithDynamicAttachement(user, interviewer);
+					interviewerDetails.setByteAttachemenets(byteArray);
+					String response = sendEmailWithDynamicAttachement(interviewerDetails, interviewer, candidateDetails.getName());
 					responseList.add(response);
 				}
 			}
@@ -858,7 +859,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return responseList;
 	}
 	
-	private String prepareJsonForReport(User user, Interviewer interviewer) {
+	private String prepareJsonForReport(User user, Interviewer interviewer, String candidateName) {
 		String msgBody = "";
 		String subject = "";
 		if(null != interviewer && null != interviewer.getBody()) {
@@ -875,6 +876,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		map.put("toEmailAddress", user.getUserId());
 		map.put("messageText", msgBody.trim());
 		map.put("attachement", user.getByteAttachemenets());
+		map.put("candidateName", candidateName);
 		try {
 			return new ObjectMapper().writeValueAsString(map);
 		} catch (JsonProcessingException e) {
@@ -883,8 +885,8 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return "";
 	}
 	
-	private String sendEmailWithDynamicAttachement(User user, Interviewer interviewer) {
-		String json = prepareJsonForReport(user, interviewer);
+	private String sendEmailWithDynamicAttachement(User user, Interviewer interviewer, String candidateName) {
+		String json = prepareJsonForReport(user, interviewer, candidateName);
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -892,7 +894,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		String url = emailServiceHostPort + "send/mail/with/dynamic/attachment";
 		try {
 			restTemplate.postForEntity(url, request, String.class);
-			return "Congratulations! Your mail has been send to the " + user.getUserId() + " successfully.";
+			return "Successfully email sent to " + user.getUserId() + ".";
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

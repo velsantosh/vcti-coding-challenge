@@ -134,6 +134,8 @@ public class MailServiceController {
 		refUserDetails.setMessageText(userDetails.getMessageText() != null ? userDetails.getMessageText()
 				: "Welcome email from VCTI CCT Tool");
 		refUserDetails.setAttachement(userDetails.getAttachement());
+		
+		refUserDetails.setCandidateName(userDetails.getCandidateName());
 		LOG.debug("user details has been set successfully");
 		/*
 		 * Here we will call sendEmail() for Sending mail to the sender.
