@@ -56,6 +56,7 @@ import com.vcti.ct.SRVServices.model.ObjQuestion;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.ObjectiveResultReport;
 import com.vcti.ct.SRVServices.model.QuesResponse;
+import com.vcti.ct.SRVServices.model.QuestionBase;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
@@ -66,14 +67,10 @@ import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 import com.vcti.ct.SRVServices.model.SubjectiveResultReport;
 import com.vcti.ct.SRVServices.model.User;
 import com.vcti.ct.SRVServices.model.ValidateSubjQuestions;
-import com.vcti.ct.SRVServices.repository.ObjQuestionRepository;
 import com.vcti.ct.SRVServices.repository.ObjResultRepository;
 import com.vcti.ct.SRVServices.repository.QuestionSchedulerRepository;
 import com.vcti.ct.SRVServices.repository.ScheduleRequestRepository;
-import com.vcti.ct.SRVServices.repository.SubjQuestionRepository;
 import com.vcti.ct.SRVServices.repository.SubjResultRepository;
-import com.vcti.ct.SRVServices.repository.UserRepository;
-
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -94,15 +91,10 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Autowired
 	ScheduleRequestRepository scheduleRequestRepository;
 	@Autowired
-	UserRepository userRepository;
-	@Autowired 
-    ObjQuestionRepository objQuestionRepository;
-	@Autowired
-    SubjQuestionRepository subjQuestionRepository;
-
 	@Value("${vcc.aa.service.host.port}")
 	private String aaServiceHostPort;
-
+	@Value("${vcc.cct.service.host.port}")
+    private String cctServiceHostPort;
 	@Value("${vcc.email.service.host.port}")
 	private String emailServiceHostPort;
 	
@@ -368,7 +360,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	private QuesResponse getCompilationsStatus(SubjQuestionResultPojo subjQRes) {
-	  	  final String uri = "http://localhost:8082/validateSubjQues/";
+	  	  final String uri = cctServiceHostPort+"validateSubjQues";
 	  	  ValidateSubjQuestions request=new ValidateSubjQuestions();
 	  	  QuesResponse qr=new QuesResponse();
 	  	  qr.setqId(subjQRes.getKey().getQid());
@@ -585,10 +577,24 @@ public class SRVDataServiceImpl implements SRVDataService {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
+		
 		for(SubjQuestionResult subj:subjQResults) {
-			Optional<SubjQuestion> subjQuestion=subjQuestionRepository.findByqId(subj.getKey().getQid());
+			//Optional<SubjQuestion> subjQuestion=subjQuestionRepository.findByqId(subj.getKey().getQid());
+			//String type="SUBJECTIVE";
+			String url = cctServiceHostPort+"question/";
+			url=url+subj.getKey().getQid();
+			QuestionBase subjQuestions=null;
+			RestTemplate restTemplate = new RestTemplate();
+			try {
+			subjQuestions= restTemplate.getForObject(url, QuestionBase.class);
+			}
+			catch(Exception e) {
+		  e.printStackTrace();
+			}
 			SubjectiveResultReport sReport=new SubjectiveResultReport();
-			sReport.setProgram(subjQuestion.get().getStatement());
+			if(subjQuestions!=null) {
+			sReport.setProgram(subjQuestions.getStatement());
+			}
 			
 			sReport.setAnsSubmitted(convertByteBufferToString(subj.getProgram()));
 			sReport.setConsolidatedOutput(subj.getConsolidatedoutput());
@@ -598,25 +604,37 @@ public class SRVDataServiceImpl implements SRVDataService {
 		List<ObjectiveResultReport> objReports=new ArrayList<ObjectiveResultReport>();
 		for(ObjQuestionResult objresult:objresults) {
 			ObjectiveResultReport objreport=new ObjectiveResultReport();
-			Optional<ObjQuestion> objquestion=objQuestionRepository.findByqId(objresult.getKey().getQid());
-			objreport.setProblem(objquestion.get().getStatement());
-			String option=objquestion.get().getOptions();
-			if(option!=null) {
-			String options[]=option.split(",");
-			objreport.setOption1(options[0]);
-			objreport.setOption2(options[1]);
-			objreport.setOption3(options[2]);
-			objreport.setOption4(options[3]);
+			//Optional<ObjQuestion> objquestion=objQuestionRepository.findByqId(objresult.getKey().getQid());
+			String url = cctServiceHostPort+"question/";
+			url=url+objresult.getKey().getQid();
+			QuestionBase objQuestions=null;
+			RestTemplate restTemplate = new RestTemplate();
+			try {
+			objQuestions= restTemplate.getForObject(url, QuestionBase.class);
 			}
-			//objreport.setOption(objquestion.get().getOptions());
-			objreport.setCorrectAnswer(objquestion.get().getCorrect_option());
+			catch(Exception e) {
+		  e.printStackTrace();
+			}
+			if(objQuestions!=null) {
+			objreport.setProblem(objQuestions.getStatement());
+			List<String> options=objQuestions.getOptions();
+			objreport.setOptions(options);
+			objreport.setCorrectAnswer(objQuestions.getCorrectOption());
+			}
+			
+			//objreport.setCorrectAnswer(objquestion.get().getCorrect_option());
+			//objreport.setSlectedAnswer(objresult.getSelectedoption());
+			
 			objreport.setSlectedAnswer(objresult.getSelectedoption());
 			objReports.add(objreport);
 		}
-		Optional<User> user=userRepository.findByUserId(candidateId);
-		User us=user.get();
+		List<ScheduledRequest> userlist=scheduleRequestRepository.findByCandidateEmailId(candidateId);
+		/*
+				User user=getUserDetailsFromUserTable(format);
+		//User us=user.get();
 		List<User> userlist=new ArrayList<User>();
-		userlist.add(us);
+		userlist.add(user);
+		
 		String path = "C:\\mydownloads\\";
 		Path pathDir = Paths.get(path);
 
@@ -632,6 +650,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 				e.printStackTrace();
 			}
 		String destFileName=path;
+		*/
 		byte arr[]= {};
 		try {
 			File file=ResourceUtils.getFile("classpath:Report.jrxml");
@@ -640,9 +659,9 @@ public class SRVDataServiceImpl implements SRVDataService {
 			parameters.put("datasource1", subjReport);
 			parameters.put("datasource2", objReports);
 			parameters.put("datasource3", userlist);
-			JasperPrint print=JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+			JasperPrint print=JasperFillManager.fillReport(report, parameters, new JREmptyDataSource(1));
 		    arr=JasperExportManager.exportReportToPdf(print);
-		    JasperExportManager.exportReportToPdfFile(print, destFileName+"\\candidate.pdf");
+		    //JasperExportManager.exportReportToPdfFile(print, destFileName+"\\candidate.pdf");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -663,7 +682,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		
 		List<CandidateResult> candidateResults=new ArrayList<CandidateResult>();
 		List<QuestionScheduler> scheduled=null;
-		String role=userRepository.findByUserId(id).get().getRoleId();
+		String role=this.getUserDetailsFromUserTable(id).getRoleId();
 		if(role.equals("1") || role.equals("2")) {
 			scheduled=this.getScheduled();
 		}
@@ -680,19 +699,28 @@ public class SRVDataServiceImpl implements SRVDataService {
 		Set<Entry<String,String>> candidateEntry=candidates.entrySet();
 		for(Entry<String,String> candidate:candidateEntry) {
 			String status="Scheduled";
-			String testScheduler=userRepository.findByUserId(candidate.getValue()).get().getName();
+			String testScheduler=this.getUserDetailsFromUserTable(candidate.getValue()).getName();
 			CandidateResult result=new CandidateResult();
 			int noOfObjQ=0;
 			int correctAns=0;
-			String candidatename=userRepository.findByUserId(candidate.getKey()).get().getName();
+			String candidatename=this.getUserDetailsFromUserTable(candidate.getValue()).getName();
 			List<ObjQuestionResult> objresults=objResultRepository.findByKeyUserId(candidate.getKey());
 			for(ObjQuestionResult objResult:objresults) {
-				
-				Optional<ObjQuestion> objquestion=objQuestionRepository.findByqId(objResult.getKey().getQid());
+				String url = cctServiceHostPort+"question/";
+				url=url+objResult.getKey().getQid();
+				QuestionBase objQuestions=null;
+				RestTemplate restTemplate = new RestTemplate();
+				try {
+				objQuestions= restTemplate.getForObject(url, QuestionBase.class);
+				}
+				catch(Exception e) {
+			  e.printStackTrace();
+				}
+				//Optional<ObjQuestion> objquestion=objQuestionRepository.findByqId(objResult.getKey().getQid());
 				
 				noOfObjQ++;
 				if(objResult!=null && objResult.getSelectedoption()!=null) {
-				if(objResult.getSelectedoption().equals(objquestion.get().getCorrect_option())) {
+				if(objResult.getSelectedoption().equals(objQuestions.getCorrectOption())) {
 					correctAns++;
 				}
 				}

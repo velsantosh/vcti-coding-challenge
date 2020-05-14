@@ -1,7 +1,8 @@
 package com.vcti.ct.SRVServices.model;
-
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 
@@ -26,7 +27,7 @@ public class QuestionBase {
 	private @NonNull String createdUserid;
 	private @NonNull String statement;
 	private @NonNull List<String> options;
-	private @NonNull String correct_option;
+	private @NonNull String correctOption;
 	private @NonNull String methodName;
 	private @NonNull ByteBuffer junitObj;
 	private @NonNull String title;
@@ -43,7 +44,7 @@ public class QuestionBase {
 
 	public QuestionBase(@NonNull String id, @NonNull String type, @NonNull String experience,
 			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
-			@NonNull String correct_option, @NonNull String methodName, @NonNull ByteBuffer junitObj) {
+			@NonNull String correctOption, @NonNull String methodName, @NonNull ByteBuffer junitObj) {
 		super();
 		this.id = id;
 		this.type = type;
@@ -51,16 +52,16 @@ public class QuestionBase {
 		this.createdUserid = createdUserid;
 		this.statement = statement;
 		this.options = options;
-		this.correct_option = correct_option;
+		this.correctOption = correctOption;
 		this.methodName = methodName;
 		this.junitObj = junitObj;
 	}
 
 	public QuestionBase(@NonNull String id, @NonNull String type, @NonNull String experience,
 			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
-			@NonNull String correct_option, @NonNull String methodName, @NonNull ByteBuffer junitObj,
-			@NonNull String title, @NonNull String difficulty, @NonNull String expectedTime,
-			@NonNull String technologyId, @NonNull String technology, @NonNull String topic, String junitText) {
+			@NonNull String correctOption, @NonNull String methodName, ByteBuffer junitObj,
+			@NonNull String title, @NonNull String difficulty, @NonNull String expectedTime, @NonNull String technologyId,
+			@NonNull String technology, @NonNull String topic, String junitText) {
 		super();
 		this.id = id;
 		this.type = type;
@@ -68,7 +69,7 @@ public class QuestionBase {
 		this.createdUserid = createdUserid;
 		this.statement = statement;
 		this.options = options;
-		this.correct_option = correct_option;
+		this.correctOption = correctOption;
 		this.methodName = methodName;
 		this.junitObj = junitObj;
 		this.title = title;
@@ -120,20 +121,20 @@ public class QuestionBase {
 		this.statement = statement;
 	}
 
-	public @NonNull List<String> getOptions() {
+	public List<String> getOptions() {
 		return options;
 	}
 
-	public void setOptions(@NonNull List<String> options) {
+	public void setOptions(List<String> options) {
 		this.options = options;
 	}
 
-	public String getCorrect_option() {
-		return correct_option;
+	public String getCorrectOption() {
+		return correctOption;
 	}
 
-	public void setCorrect_option(String correct_option) {
-		this.correct_option = correct_option;
+	public void setCorrect_option(String correctOption) {
+		this.correctOption = correctOption;
 	}
 
 	public String getMethodName() {
@@ -176,20 +177,20 @@ public class QuestionBase {
 		this.expectedTime = expectedTime;
 	}
 
-	public String getTechnologyId() {
-		return technologyId;
-	}
-
-	public void setTechnologyId(String technologyId) {
-		this.technologyId = technologyId;
-	}
-
 	public String getTechnology() {
 		return technology;
 	}
 
 	public void setTechnology(String technology) {
 		this.technology = technology;
+	}
+
+	public String getTechnologyId() {
+		return technologyId;
+	}
+
+	public void setTechnologyId(String technologyId) {
+		this.technologyId = technologyId;
 	}
 
 	public String getTopic() {

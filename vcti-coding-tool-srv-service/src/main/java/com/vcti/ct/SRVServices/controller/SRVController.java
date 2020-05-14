@@ -99,7 +99,7 @@ public class SRVController {
 			RestTemplate restTemplate = new RestTemplate();
 			QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
 			QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
-					result.getOptions(), result.getCorrect_option(), result.getMethodName(), result.getExperience(),
+					result.getOptions(), result.getCorrectOption(), result.getMethodName(), result.getExperience(),
 					result.getCreatedUserid(), result.getJunitObj(), result.getTitle(), result.getDifficulty(),
 					result.getExpectedTime(), result.getTechnologyId(), result.getTechnology(), result.getTopic(),
 					result.getJunitText());
