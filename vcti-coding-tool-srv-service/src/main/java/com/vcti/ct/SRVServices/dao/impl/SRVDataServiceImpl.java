@@ -703,7 +703,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 			CandidateResult result=new CandidateResult();
 			int noOfObjQ=0;
 			int correctAns=0;
-			String candidatename=this.getUserDetailsFromUserTable(candidate.getValue()).getName();
+			String candidatename=this.getUserDetailsFromUserTable(candidate.getKey()).getName();
 			List<ObjQuestionResult> objresults=objResultRepository.findByKeyUserId(candidate.getKey());
 			for(ObjQuestionResult objResult:objresults) {
 				String url = cctServiceHostPort+"question/";
