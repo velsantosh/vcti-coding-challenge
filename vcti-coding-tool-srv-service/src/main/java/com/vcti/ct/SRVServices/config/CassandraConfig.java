@@ -43,6 +43,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
 	@Value("${spring.data.cassandra.scheduled-request-table}")
 	private String scheduleRequestTable;
+	
+	@Value("${spring.data.cassandra.schedule-challenge-table}")
+	private String scheduleChallengeTable;
 
 	public String getUserName() {
 		return userName;
@@ -99,7 +102,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 		List<String> createQueryList = new ArrayList<String>();
 		// Question Table
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + schedulerTable
-				+ "(id text PRIMARY KEY,qid text, assigneduid text, assigneruid text)");
+				+ "(id text PRIMARY KEY,qid text, challengeid text, assigneduid text, assigneruid text)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + objResultTable
 				+ "(userid text, qId text, selectedoption text, PRIMARY KEY (userid, qId))");
@@ -111,6 +114,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 				+ "(id text, hiringManagerName text, hiringManagerId text, recruiterName text, recruiterId text, candidateName text, "
 				+ "candidateEmailId text, candidateMobileNo text, candidateExperience text, technology text, interviewDate timestamp, "
 				+ "requestedDate text, requirementId text, PRIMARY KEY (id))");
+				
+		//Schedule_Challange Table
+		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + scheduleChallengeTable
+				+ "(challengeid text PRIMARY KEY, assigneduid text, assigneruid text, status text, scheduleTime timestamp, "
+				+ "startTime timestamp, endTime timestamp)");		
 
 		return createQueryList;
 	}

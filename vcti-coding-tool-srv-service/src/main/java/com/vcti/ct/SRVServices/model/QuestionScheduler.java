@@ -2,12 +2,12 @@ package com.vcti.ct.SRVServices.model;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-@AllArgsConstructor
+
 @Getter
 @Setter
 @Table("scheduled")
@@ -15,6 +15,7 @@ public class QuestionScheduler {
 	@PrimaryKey
 	private @NonNull String id;
 	private @NonNull String qid;
+	private @NonNull String challengeid;
 	private @NonNull String assigneduid;
 	private @NonNull String assigneruid;
 
@@ -22,12 +23,13 @@ public class QuestionScheduler {
 		super();
 	}
 
-	public QuestionScheduler(@NonNull String id, @NonNull String qid, @NonNull String assigneduid, @NonNull String assigneruid) {
+	public QuestionScheduler(@NonNull String id, @NonNull String qid, @NonNull String assigneduid, @NonNull String assigneruid, @NonNull String challengeid) {
 		super();
 		this.id = id;
 		this.qid = qid;
 		this.assigneduid = assigneduid;
 		this.assigneruid = assigneruid;
+		this.challengeid = challengeid;
 	}
 
 	public String getId() {
@@ -62,4 +64,13 @@ public class QuestionScheduler {
 		this.assigneruid = assigneruid;
 	}
 
+	public String getChallengeid() {
+		return challengeid;
+	}
+
+	public void setChallengeid(String challengeid) {
+		this.challengeid = challengeid;
+	}
+
+	
 }

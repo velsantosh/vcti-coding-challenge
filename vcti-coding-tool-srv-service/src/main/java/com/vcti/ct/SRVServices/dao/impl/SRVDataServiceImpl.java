@@ -143,17 +143,48 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public Boolean bulkAssignUser(QuestionSchedulerCustom assignBulkQ) {
 		List<QuestionScheduler> assignQObjList = new ArrayList<QuestionScheduler>();
+		List<ScheduleChallenge> scheduleChallengeList = new ArrayList<ScheduleChallenge>();
+		List<String> challengeIdList = new ArrayList<String>();
 		QuestionScheduler assignQ;
+		ScheduleChallenge scheduleChallenge;
+		
 		List<String> qIdList = assignBulkQ.getQidList();
 		if (qIdList == null) {
 			System.out.println("No Question Id specified.");
 			return false;
 		}
+		
+		if(assignBulkQ.getStatus() != null && assignBulkQ.getStatus().equals("Completed")) {
+			ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(assignBulkQ.getChallengeid());
+			if(challengeRecord != null) {
+				challengeRecord.setStatus("Stale");
+				scheduleChallengeRepository.save(challengeRecord);
+			}
+		}
+		
 		List<String> assignedUserIdList = assignBulkQ.getAssigneduidList();
+		//Schedule Challenge
+		
+		for (String userId : assignedUserIdList) {
+			List<ScheduleChallenge> scheduledChallenge= scheduleChallengeRepository.findByAssigneduid(userId);
+			for(ScheduleChallenge challenge : scheduledChallenge) {
+				challenge.setStatus("Stale");
+				scheduleChallengeRepository.save(challenge);
+			}
+			String challengeId = "ChallengeX" + new Random().nextInt(100000) + "X" + System.currentTimeMillis();
+			scheduleChallenge = new ScheduleChallenge(challengeId, userId, assignBulkQ.getAssigneruid(), "Scheduled", 
+					assignBulkQ.getScheduleTime(), null, null);
+			scheduleChallengeList.add(scheduleChallenge);
+			scheduleChallengeRepository.saveAll(scheduleChallengeList);
+			challengeIdList.add(challengeId);
+			
+		}
+		
 		for (String qId : qIdList) {
-			for (String userId : assignedUserIdList) {
-				assignQ = new QuestionScheduler(getId("SchQuest"), qId, userId,
-						assignBulkQ.getAssigneruid());
+			for (String challengeId : challengeIdList) {
+				ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(challengeId);
+				assignQ = new QuestionScheduler(getId("SchQuest"), qId, challengeRecord.getAssigneduid(),
+						assignBulkQ.getAssigneruid(), challengeId);
 				assignQObjList.add(assignQ);
 			}
 		}
@@ -957,5 +988,84 @@ public class SRVDataServiceImpl implements SRVDataService {
 			}
 		}
 		return users;
+	}
+	
+	@Override
+	public List<ScheduleChallenge> getChallengeRecByAssignerId(String assignerId) {
+		List<ScheduleChallenge> challengeIdList = scheduleChallengeRepository.findByAssigneruid(assignerId);
+		return challengeIdList;
+	}
+	
+	@Override
+	public String deleteChallenge(String challengeId) {
+		Boolean result = scheduleChallengeRepository.existsByChallengeid(challengeId);
+		scheduleChallengeRepository.deleteByChallengeid(challengeId);
+		
+		List<QuestionScheduler> quesList = questionScheduleRepository.findByChallengeid(challengeId);
+		if(!quesList.isEmpty()) {
+		deleteQEntry(quesList);
+		}
+		return "{ \"success\" : " + (result ? "true" : "false") + " }";
+	}
+
+	@Override
+	public ScheduleChallenge updateChallenge(QuestionSchedulerCustom assignBulkQ) {
+		QuestionScheduler assignQ;
+		List<QuestionScheduler> assignQObjList = new ArrayList<QuestionScheduler>();
+		
+		ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(assignBulkQ.getChallengeid());
+		
+		if(challengeRecord != null) {
+			//challengeRecord.setChallengeid(challengeId);
+			//challengeRecord.setAssigneduid(assignBulkQ.getAssigneduidList().get(0));
+			//challengeRecord.setAssigneruid(assignBulkQ.getAssigneruid());
+			challengeRecord.setScheduleTime(assignBulkQ.getScheduleTime());
+			
+			scheduleChallengeRepository.save(challengeRecord);
+		
+			List<QuestionScheduler> quesList = questionScheduleRepository.findByChallengeid(assignBulkQ.getChallengeid());
+			if(!quesList.isEmpty()) {
+					deleteQEntry(quesList);
+			}
+		
+			List<String> qIdList = assignBulkQ.getQidList();
+				
+			for (String qId : qIdList) {
+				assignQ = new QuestionScheduler(getId("SchQuest"), qId, challengeRecord.getAssigneduid(),
+						challengeRecord.getAssigneruid(), challengeRecord.getChallengeid());
+				assignQObjList.add(assignQ);
+			}
+			questionScheduleRepository.saveAll(assignQObjList);
+		}
+		return challengeRecord;
+	}
+
+	@Override
+	public List<QuestionScheduler> getQuestionsByChallengeId(String challengeId) {
+		List<QuestionScheduler> quesList = questionScheduleRepository.findByChallengeid(challengeId);
+		return quesList;
+	}
+
+	@Override
+	public List<QuestionSchedView> getQuestionsNotByChallengeId(String assigneduid,String challengeId) {
+		List<QuestionScheduler> quesList = questionScheduleRepository.findByChallengeid(challengeId);
+		if(!quesList.isEmpty()) {
+		deleteQEntry(quesList);
+		}
+		
+		List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneduid(assigneduid);
+		return questionIdList;
+	}
+
+	@Override
+	public List<QuestionScheduler> getQuestionsByCandidateId(String candidateId) {
+		List<QuestionScheduler> questionIdList = new ArrayList<QuestionScheduler>();
+		ScheduleChallenge challengeIdList = scheduleChallengeRepository.findByAssigneduidAndStatus(candidateId, "Scheduled");
+		String challengeId="";
+		if(challengeIdList != null) {
+			challengeId=challengeIdList.getChallengeid();
+			 questionIdList = questionScheduleRepository.findByChallengeid(challengeId);
+		}
+		return questionIdList;
 	}
 }

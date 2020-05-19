@@ -93,18 +93,7 @@ public class SRVController {
 		List<QuestionCustom> questionList = new ArrayList<QuestionCustom>();
 		for (QuestionSchedView qId : quesIdList) {
 			String id = qId.getQid();
-			// TODO move this to application.properties as connection point to CCT Service
-			final String uri = "http://localhost:8082/question/" + id;
-
-			RestTemplate restTemplate = new RestTemplate();
-			QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
-			QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
-					result.getOptions(), result.getCorrectOption(), result.getMethodName(), result.getExperience(),
-					result.getCreatedUserid(), result.getJunitObj(), result.getTitle(), result.getDifficulty(),
-					result.getExpectedTime(), result.getTechnologyId(), result.getTechnology(), result.getTopic(),
-					result.getJunitText());
-
-			questionList.add(customObj);
+			callCCTService(questionList, id);
 		}
 
 		return questionList;
@@ -228,5 +217,65 @@ public class SRVController {
 	@GetMapping("/send/email/candidate/testlink")
 	public List<String> sendEamilToCandidateForTestLink(@RequestBody List<String> candidateEmailList){
 		return srvDataService.sendEamilToCandidateForTestLink(candidateEmailList);
+	}
+	
+	@GetMapping("/chlngRecByassignerId/{assignerId}")
+	public List<ScheduleChallenge> getChallengeRecByAssignerId(@PathVariable String assignerId) {
+		List<ScheduleChallenge> quesIdList = srvDataService.getChallengeRecByAssignerId(assignerId);
+		return quesIdList;
+	}
+	
+	@DeleteMapping(value = "/challenge/{challengeId}", produces = "application/json; charset=utf-8")
+	public String deleteChallenge(@PathVariable String challengeId) {
+		return srvDataService.deleteChallenge(challengeId);
+	}
+	
+	@PutMapping("/updateChallenge")
+	public ScheduleChallenge updateUser(@RequestBody QuestionSchedulerCustom assignBulkQ) {
+		return srvDataService.updateChallenge(assignBulkQ);
+	}
+	
+	@GetMapping("/schQuesBychallengeId/{challengeId}")
+	public List<QuestionCustom> getQuestionsByChallengeId(@PathVariable String challengeId) {
+		List<QuestionScheduler> quesIdList = srvDataService.getQuestionsByChallengeId(challengeId);
+		return getQuestionListFromCCT(quesIdList);
+	}
+	
+	private List<QuestionCustom> getQuestionListFromCCT(List<QuestionScheduler> quesIdList) {
+		List<QuestionCustom> questionList = new ArrayList<QuestionCustom>();
+		for (QuestionScheduler qId : quesIdList) {
+			String id = qId.getQid();
+			// TODO move this to application.properties as connection point to CCT Service
+			callCCTService(questionList, id);
+		}
+
+		return questionList;
+	}
+
+	private void callCCTService(List<QuestionCustom> questionList, String id) {
+		// TODO move this to application.properties as connection point to CCT Service
+		final String uri = "http://localhost:8082/question/" + id;
+
+		RestTemplate restTemplate = new RestTemplate();
+		QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
+		QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
+				result.getOptions(), result.getCorrect_option(), result.getMethodName(), result.getExperience(),
+				result.getCreatedUserid(), result.getJunitObj(), result.getTitle(), result.getDifficulty(),
+				result.getExpectedTime(), result.getTechnologyId(), result.getTechnology(), result.getTopic(),
+				result.getJunitText());
+
+		questionList.add(customObj);
+	}
+	
+	@GetMapping("/schQuesNotBychallengeId/{assigneduid}/{challengeId}")
+	public List<QuestionCustom> getQuestionsNotByChallengeId(@PathVariable String assigneduid, @PathVariable String challengeId) {
+		List<QuestionSchedView> quesIdList = srvDataService.getQuestionsNotByChallengeId(assigneduid,challengeId);
+		 return getQuestionListFromCCTService(quesIdList);
+	}
+	
+	@GetMapping("/schQuesByCandidate/{candidateId}")
+	public List<QuestionCustom> getAllSchQuestionsByCandidate(@PathVariable String candidateId) {
+		List<QuestionScheduler> quesIdList = srvDataService.getQuestionsByCandidateId(candidateId);
+		return getQuestionListFromCCT(quesIdList);
 	}
 }

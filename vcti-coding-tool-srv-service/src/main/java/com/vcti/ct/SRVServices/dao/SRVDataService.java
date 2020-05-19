@@ -82,5 +82,17 @@ public interface SRVDataService {
 	List<String> sendCandidateReport(Interviewer interviewer);
 
 	List<String> sendEamilToCandidateForTestLink(List<String> candidateEmailList);
+	
+	String deleteChallenge(String challengeId);
+
+	ScheduleChallenge updateChallenge(QuestionSchedulerCustom assignBulkQ);
+
+	List<QuestionScheduler> getQuestionsByChallengeId(String challengeId);
+	
+	List<QuestionSchedView> getQuestionsNotByChallengeId(String assigneduid,String challengeId);
+
+	List<ScheduleChallenge> getChallengeRecByAssignerId(String assignerId);
+
+	List<QuestionScheduler> getQuestionsByCandidateId(String candidateId);
 
 }
