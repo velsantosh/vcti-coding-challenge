@@ -1,9 +1,6 @@
 package com.vcti.ct.SRVServices.dao.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -11,7 +8,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,15 +19,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.annotation.PostConstruct;
-
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.UUID;
-import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +32,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -52,7 +44,6 @@ import com.vcti.ct.SRVServices.exceptions.DuplicateScheduleRequestException;
 import com.vcti.ct.SRVServices.exceptions.InvalidScheduleRequestIdException;
 import com.vcti.ct.SRVServices.model.CandidateResult;
 import com.vcti.ct.SRVServices.model.Interviewer;
-import com.vcti.ct.SRVServices.model.ObjQuestion;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.ObjectiveResultReport;
 import com.vcti.ct.SRVServices.model.QuesResponse;
@@ -60,8 +51,8 @@ import com.vcti.ct.SRVServices.model.QuestionBase;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
+import com.vcti.ct.SRVServices.model.ScheduleChallenge;
 import com.vcti.ct.SRVServices.model.ScheduledRequest;
-import com.vcti.ct.SRVServices.model.SubjQuestion;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 import com.vcti.ct.SRVServices.model.SubjectiveResultReport;
@@ -69,10 +60,11 @@ import com.vcti.ct.SRVServices.model.User;
 import com.vcti.ct.SRVServices.model.ValidateSubjQuestions;
 import com.vcti.ct.SRVServices.repository.ObjResultRepository;
 import com.vcti.ct.SRVServices.repository.QuestionSchedulerRepository;
+import com.vcti.ct.SRVServices.repository.ScheduleChallengeRepository;
 import com.vcti.ct.SRVServices.repository.ScheduleRequestRepository;
 import com.vcti.ct.SRVServices.repository.SubjResultRepository;
+
 import net.sf.jasperreports.engine.JREmptyDataSource;
-import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -90,6 +82,8 @@ public class SRVDataServiceImpl implements SRVDataService {
 	SubjResultRepository subjResultRepository;
 	@Autowired
 	ScheduleRequestRepository scheduleRequestRepository;
+	@Autowired
+	ScheduleChallengeRepository scheduleChallengeRepository; 
 	@Autowired
 	@Value("${vcc.aa.service.host.port}")
 	private String aaServiceHostPort;
@@ -201,7 +195,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		List<String> assignedUserIdList = unAssignBulkQ.getAssigneduidList();
 		for (String qId : qIdList) {
 			for (String userId : assignedUserIdList) {
-				unAssignQ = new QuestionScheduler("", qId, userId, unAssignBulkQ.getAssigneruid());
+				unAssignQ = new QuestionScheduler("", qId, userId, unAssignBulkQ.getAssigneruid(), "");
 				unAssignQObjList.add(unAssignQ);
 			}
 		}

@@ -1,6 +1,5 @@
 package com.vcti.ct.SRVServices.dao;
 
-import java.io.FileNotFoundException;
 import java.util.List;
 
 import com.vcti.ct.SRVServices.model.CandidateResult;
@@ -9,12 +8,10 @@ import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
+import com.vcti.ct.SRVServices.model.ScheduleChallenge;
 import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
-import com.vcti.ct.SRVServices.model.User;
-
-import net.sf.jasperreports.engine.JRException;
 
 public interface SRVDataService {
 

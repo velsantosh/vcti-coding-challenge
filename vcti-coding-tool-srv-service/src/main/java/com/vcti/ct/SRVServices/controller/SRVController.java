@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,12 +22,10 @@ import com.vcti.ct.SRVServices.model.QuestionCustom;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
+import com.vcti.ct.SRVServices.model.ScheduleChallenge;
 import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
-
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 
 @CrossOrigin(origins = { "http://localhost:3000" })
 @RestController
@@ -259,7 +259,7 @@ public class SRVController {
 		RestTemplate restTemplate = new RestTemplate();
 		QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
 		QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
-				result.getOptions(), result.getCorrect_option(), result.getMethodName(), result.getExperience(),
+				result.getOptions(), result.getCorrectOption(), result.getMethodName(), result.getExperience(),
 				result.getCreatedUserid(), result.getJunitObj(), result.getTitle(), result.getDifficulty(),
 				result.getExpectedTime(), result.getTechnologyId(), result.getTechnology(), result.getTopic(),
 				result.getJunitText());
