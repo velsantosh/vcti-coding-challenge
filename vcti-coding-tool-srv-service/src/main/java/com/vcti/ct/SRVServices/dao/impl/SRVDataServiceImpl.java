@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -32,6 +33,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -101,15 +103,11 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Value("${vcc.user.login.url}")
 	private String userLoginUrl;
 
-	@Value("${vcc.schedule.request.cron.isEnabled}")
-	private Boolean isCronEnabled;
-
-	@Value("${vcc.schedule.request.cron.time}")
-	private String scheduleRequestCronTime;
-
 	private String testLinkEmailMsg;
 	private String reportToInterviewerMsg;
 
+	private final long millSecFor24Hours = 24 * 60 * 60 * 1000;
+	
 	@PostConstruct
 	public void init() {
 		try {
@@ -792,44 +790,21 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return candidateResults;
 	}
 
-//	@Override
-//	public List<String> candidateSendEmail() {
-//		Iterator<ScheduleRequest> itr = scheduleRequestRepository.findAll().iterator();
-//		List<String> users = new ArrayList<String>();
-//		while(itr.hasNext()) {
-//			ScheduleRequest sr = itr.next();
-//			if(null != sr.getCandidateEmailId()) {
-//				List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneduid(sr.getCandidateEmailId());
-//				User user = null;
-//				if(null != questionIdList && !questionIdList.isEmpty()) {
-//					user = getCandidateDetailsFromUserTable(sr.getCandidateEmailId());
-//					if(null != user) {
-//						String email = sendEmail(user);
-//						users.add(email);
-//					}
-//				}
-//			}
-//		}
-//		return users;
-//	}
-
+	@Scheduled(cron = "${vcc.cnadidate.interview.date.cron}")
 	@Override
-	public List<String> candidateSendEmail() {
-		Iterable<ScheduledRequest> itr = scheduleRequestRepository.findAll();
-		List<ScheduledRequest> schRequest = new ArrayList<ScheduledRequest>();
-		itr.forEach(data -> schRequest.add(data));
-		if (isCronEnabled) {
-			filterByScheduledDate(schRequest);
-		}
+	public List<String> sendTestLinkToCandidates() {
+		Iterable<ScheduleChallenge> scheduleChallenges = scheduleChallengeRepository.findAll();
+		List<ScheduleChallenge> challengList = new ArrayList<ScheduleChallenge>();
+		scheduleChallenges.forEach(data -> challengList.add(data));
+		List<ScheduleChallenge> filterChallengList = challengList.stream()
+				.filter(data -> data.getStatus().equalsIgnoreCase("scheduled"))
+				.collect(Collectors.toList());
 		List<String> users = new ArrayList<String>();
-		for (ScheduledRequest sr : schRequest) {
-			if (null != sr.getCandidateEmailId()) {
-				List<QuestionSchedView> questionIdList = questionScheduleRepository
-						.findByAssigneduid(sr.getCandidateEmailId());
-				User user = null;
-				if (null != questionIdList && !questionIdList.isEmpty()) {
-					user = getUserDetailsFromUserTable(sr.getCandidateEmailId());
-					if (null != user) {
+		for(ScheduleChallenge challenge : filterChallengList) {
+			if(null != challenge.getAssigneduid()) {
+				if(fileterBasedOnCron(challenge)) {
+					User user = getUserDetailsFromUserTable(challenge.getAssigneduid());
+					if(null != user) {
 						String email = sendEmailToCandidates(user);
 						users.add(email);
 					}
@@ -839,11 +814,13 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return users;
 	}
 
-	private void filterByScheduledDate(List<ScheduledRequest> schRequest) {
-		// TODO Auto-generated method stub
-
+	private boolean fileterBasedOnCron(ScheduleChallenge challenge) {
+		long timeInMilliSec = challenge.getScheduleTime().getTime();
+		long currTimeInMillSec = System.currentTimeMillis();
+		long millSecForNext24Hours = currTimeInMillSec + millSecFor24Hours;
+		return (timeInMilliSec >= currTimeInMillSec && timeInMilliSec <= millSecForNext24Hours) ? true : false;
 	}
-
+	
 	private User getUserDetailsFromUserTable(String userId) {
 		RestTemplate restTemplate = new RestTemplate();
 		String url = aaServiceHostPort + "user/userid/" + userId;
@@ -971,11 +948,11 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public List<String> sendEamilToCandidateForTestLink(List<String> candidateEmailList) {
 		List<String> users = new ArrayList<String>();
-		for (String userId : candidateEmailList) {
-			List<QuestionSchedView> scheduledUser = questionScheduleRepository.findByAssigneduid(userId);
-			User user = null;
-			if (null != scheduledUser && !scheduledUser.isEmpty()) {
-				user = getUserDetailsFromUserTable(userId);
+		for (String candidateId : candidateEmailList) {
+			ScheduleChallenge challenge = scheduleChallengeRepository.findByAssigneduidAndStatus(candidateId,
+					"Scheduled");
+			if (null != challenge && null != challenge.getAssigneduid()) {
+				User user = getUserDetailsFromUserTable(challenge.getAssigneduid());
 				if (null != user) {
 					String email = sendEmailToCandidates(user);
 					users.add(email);
