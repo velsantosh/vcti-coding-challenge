@@ -83,44 +83,46 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Autowired
 	ScheduleRequestRepository scheduleRequestRepository;
 	@Autowired
-	ScheduleChallengeRepository scheduleChallengeRepository; 
+	ScheduleChallengeRepository scheduleChallengeRepository;
 	@Autowired
 	@Value("${vcc.aa.service.host.port}")
 	private String aaServiceHostPort;
 	@Value("${vcc.cct.service.host.port}")
-    private String cctServiceHostPort;
+	private String cctServiceHostPort;
 	@Value("${vcc.email.service.host.port}")
 	private String emailServiceHostPort;
-	
+
 	@Value("${vcc.candidate.email.subject}")
 	private String testLinkEmailSubject;
-	
+
 	@Value("${vcc.candidate.report.email.subject}")
 	private String reportEmailSubject;
-	
+
 	@Value("${vcc.user.login.url}")
 	private String userLoginUrl;
-	
+
 	@Value("${vcc.schedule.request.cron.isEnabled}")
 	private Boolean isCronEnabled;
-	
+
 	@Value("${vcc.schedule.request.cron.time}")
 	private String scheduleRequestCronTime;
-	
+
 	private String testLinkEmailMsg;
 	private String reportToInterviewerMsg;
-	
+
 	@PostConstruct
 	public void init() {
 		try {
-			testLinkEmailMsg = new String(Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:testLinkEmailMsg.txt").toString())));
-			reportToInterviewerMsg = new String(Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:reportToInterverMsg.txt").toString())));
-			
+			testLinkEmailMsg = new String(
+					Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:testLinkEmailMsg.txt").toString())));
+			reportToInterviewerMsg = new String(Files
+					.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:reportToInterverMsg.txt").toString())));
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public boolean assignUser(QuestionScheduler assignQ) {
 		assignQ.setId(getId("SchQuest"));
@@ -141,39 +143,40 @@ public class SRVDataServiceImpl implements SRVDataService {
 		List<String> challengeIdList = new ArrayList<String>();
 		QuestionScheduler assignQ;
 		ScheduleChallenge scheduleChallenge;
-		
+
 		List<String> qIdList = assignBulkQ.getQidList();
 		if (qIdList == null) {
 			System.out.println("No Question Id specified.");
 			return false;
 		}
-		
-		if(assignBulkQ.getStatus() != null && assignBulkQ.getStatus().equals("Completed")) {
-			ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(assignBulkQ.getChallengeid());
-			if(challengeRecord != null) {
+
+		if (assignBulkQ.getStatus() != null && assignBulkQ.getStatus().equals("Completed")) {
+			ScheduleChallenge challengeRecord = scheduleChallengeRepository
+					.findByChallengeid(assignBulkQ.getChallengeid());
+			if (challengeRecord != null) {
 				challengeRecord.setStatus("Stale");
 				scheduleChallengeRepository.save(challengeRecord);
 			}
 		}
-		
+
 		List<String> assignedUserIdList = assignBulkQ.getAssigneduidList();
-		//Schedule Challenge
-		
+		// Schedule Challenge
+
 		for (String userId : assignedUserIdList) {
-			List<ScheduleChallenge> scheduledChallenge= scheduleChallengeRepository.findByAssigneduid(userId);
-			for(ScheduleChallenge challenge : scheduledChallenge) {
+			List<ScheduleChallenge> scheduledChallenge = scheduleChallengeRepository.findByAssigneduid(userId);
+			for (ScheduleChallenge challenge : scheduledChallenge) {
 				challenge.setStatus("Stale");
 				scheduleChallengeRepository.save(challenge);
 			}
 			String challengeId = "ChallengeX" + new Random().nextInt(100000) + "X" + System.currentTimeMillis();
-			scheduleChallenge = new ScheduleChallenge(challengeId, userId, assignBulkQ.getAssigneruid(), "Scheduled", 
+			scheduleChallenge = new ScheduleChallenge(challengeId, userId, assignBulkQ.getAssigneruid(), "Scheduled",
 					assignBulkQ.getScheduleTime(), null, null);
 			scheduleChallengeList.add(scheduleChallenge);
 			scheduleChallengeRepository.saveAll(scheduleChallengeList);
 			challengeIdList.add(challengeId);
-			
+
 		}
-		
+
 		for (String qId : qIdList) {
 			for (String challengeId : challengeIdList) {
 				ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(challengeId);
@@ -321,60 +324,63 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	// SubjQ result
 	/*
-	@Override
-	public boolean addSubjQResult(SubjQuestionResult subjQRes) {
-		subjResultRepository.save(subjQRes);
-		return true;
+	 * @Override public boolean addSubjQResult(SubjQuestionResult subjQRes) {
+	 * subjResultRepository.save(subjQRes); return true; }
+	 * 
+	 * @Override public boolean addSubjQResultList(List<SubjQuestionResult>
+	 * subjQResList) { subjResultRepository.saveAll(subjQResList); return true; }
+	 */
+	private ByteBuffer convertStringToByteBuffer(String pro) {
+
+		Charset charset = Charset.forName("UTF-8");
+		CharsetEncoder encoder = charset.newEncoder();
+		ByteBuffer buff = null;
+		try {
+			buff = encoder.encode(CharBuffer.wrap(pro));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return buff;
+	}
+
+	private String convertByteBufferToString(ByteBuffer buffer) {
+		Charset charset = Charset.forName("UTF-8");
+		CharsetDecoder decoder = charset.newDecoder();
+		String data = "";
+		try {
+			int old_position = buffer.position();
+			data = decoder.decode(buffer).toString();
+			// reset buffer's position to its original so it is not altered:
+			buffer.position(old_position);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "";
+		}
+		return data;
+	}
+
+	private SubjQuestionResult getSubjQuestionResult(SubjQuestionResultPojo pojo, QuesResponse questionresponse) {
+		SubjQuestionResult subjResult = new SubjQuestionResult();
+		subjResult.setClassName(pojo.getClassName());
+		// subjResult.setConsolidatedoutput(pojo.getConsolidatedoutput());
+		subjResult.setKey(pojo.getKey());
+		subjResult.setProgram(convertStringToByteBuffer(pojo.getProgram()));
+
+		if (questionresponse != null) {
+			subjResult.setConsolidatedoutput(questionresponse.getUserInput());
+		}
+
+		return subjResult;
 	}
 
 	@Override
-	public boolean addSubjQResultList(List<SubjQuestionResult> subjQResList) {
-		subjResultRepository.saveAll(subjQResList);
-		return true;
-	}
-*/
-	 private   ByteBuffer convertStringToByteBuffer(String pro) {
-			
-		  Charset charset = Charset.forName("UTF-8");
-		  CharsetEncoder encoder = charset.newEncoder();
-		  ByteBuffer buff=null;
-		  try{
-			  buff= encoder.encode(CharBuffer.wrap(pro));
-			  }catch(Exception e){e.printStackTrace();}
-			 
-		return buff;
-	}
-	    private String convertByteBufferToString(ByteBuffer buffer) {
-	    	Charset charset = Charset.forName("UTF-8");
-	    	CharsetDecoder decoder = charset.newDecoder();
-	    	String data = "";
-	    	  try{
-	    	    int old_position = buffer.position();
-	    	    data = decoder.decode(buffer).toString();
-	    	    // reset buffer's position to its original so it is not altered:
-	    	    buffer.position(old_position);  
-	    	  }catch (Exception e){
-	    	    e.printStackTrace();
-	    	    return "";
-	    	  }
-	    	  return data;
-	    }
-		private SubjQuestionResult getSubjQuestionResult(SubjQuestionResultPojo pojo) {
-			SubjQuestionResult subjResult=new SubjQuestionResult();
-			subjResult.setClassName(pojo.getClassName());
-			subjResult.setCompilationStatus(pojo.getCompilationStatus());
-			subjResult.setConsolidatedoutput(pojo.getConsolidatedoutput());
-			subjResult.setKey(pojo.getKey());
-			subjResult.setProgram(convertStringToByteBuffer(pojo.getProgram()));
-			
-			
-			return subjResult;
-		}
-	@Override
 	public boolean addSubjQResult(SubjQuestionResultPojo subjQResPojo) {
 		QuesResponse questionresponse = this.getCompilationsStatus(subjQResPojo);
-		SubjQuestionResult subjQRes= this.getSubjQuestionResult(subjQResPojo);
-		
+
+		SubjQuestionResult subjQRes = this.getSubjQuestionResult(subjQResPojo, questionresponse);
+		subjQRes.setCompilationStatus(questionresponse.getCompilationsStatus());
+
 		if (null != questionresponse) {
 			subjQRes.setCompilationStatus(questionresponse.getCompilationsStatus());
 			subjResultRepository.save(subjQRes);
@@ -385,41 +391,42 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	private QuesResponse getCompilationsStatus(SubjQuestionResultPojo subjQRes) {
-	  	  final String uri = cctServiceHostPort+"validateSubjQues";
-	  	  ValidateSubjQuestions request=new ValidateSubjQuestions();
-	  	  QuesResponse qr=new QuesResponse();
-	  	  qr.setqId(subjQRes.getKey().getQid());
-	  	  qr.setUserInput(subjQRes.getProgram().toString());
-	  	  request.setUserId(subjQRes.getKey().getUserId());
-	  	  request.setQuesResponseObj(qr);
-	  	  request.setClassName(subjQRes.getClassName());
-	  	  RestTemplate restTemplate = new RestTemplate();
-	  	  QuesResponse  questionResponse= null;
-	  	  try {
-	  		questionResponse=restTemplate.postForObject(uri, request, QuesResponse.class);
-	  	
-	  	  }
-	  		catch(Exception e)	  {
-	  			System.out.println(e);
-	  		}
-	  	// QuesResponse  questionResponse=restTemplate.getForObject(uri,QuesResponse.class);
-	  	 return questionResponse;
-	    }
-	 @Override
-		public boolean addSubjQResultList(List<SubjQuestionResultPojo> subjQResList) {
-			List<SubjQuestionResult> subQResultList=new ArrayList<SubjQuestionResult>();
-			for(int i=0;i<subjQResList.size();i++) {
-				
-				SubjQuestionResultPojo subjQRes=subjQResList.get(i);
-				
-				QuesResponse questionresponse=this.getCompilationsStatus(subjQRes);
-				SubjQuestionResult subjQResult= this.getSubjQuestionResult(subjQRes);
-				subjQResult.setCompilationStatus(questionresponse.getCompilationsStatus());
-				subQResultList.add(subjQResult);
-			}
-			subjResultRepository.saveAll(subQResultList);
-			return true;
+		final String uri = cctServiceHostPort + "validateSubjQues";
+		ValidateSubjQuestions request = new ValidateSubjQuestions();
+		QuesResponse qr = new QuesResponse();
+		qr.setqId(subjQRes.getKey().getQid());
+		qr.setUserInput(subjQRes.getProgram().toString());
+		request.setUserId(subjQRes.getKey().getUserId());
+		request.setQuesResponseObj(qr);
+		request.setClassName(subjQRes.getClassName());
+		RestTemplate restTemplate = new RestTemplate();
+		QuesResponse questionResponse = null;
+		try {
+			questionResponse = restTemplate.postForObject(uri, request, QuesResponse.class);
+
+		} catch (Exception e) {
+			System.out.println(e);
 		}
+		// QuesResponse
+		// questionResponse=restTemplate.getForObject(uri,QuesResponse.class);
+		return questionResponse;
+	}
+
+	@Override
+	public boolean addSubjQResultList(List<SubjQuestionResultPojo> subjQResList) {
+		List<SubjQuestionResult> subQResultList = new ArrayList<SubjQuestionResult>();
+		for (int i = 0; i < subjQResList.size(); i++) {
+
+			SubjQuestionResultPojo subjQRes = subjQResList.get(i);
+
+			QuesResponse questionresponse = this.getCompilationsStatus(subjQRes);
+			SubjQuestionResult subjQResult = this.getSubjQuestionResult(subjQRes, questionresponse);
+			subQResultList.add(subjQResult);
+		}
+		subjResultRepository.saveAll(subQResultList);
+		return true;
+	}
+
 	@Override
 	public boolean removeSubjQResult(SubjQuestionResult subjQRes) {
 		getSubjQResult(subjQRes).forEach(subjQ -> subjResultRepository.deleteById(subjQ.getKey().toString()));
@@ -548,12 +555,12 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return "";
 	}
-	
+
 	@Override
 	public List<ScheduledRequest> getAllScheduledRequest() {
 		Iterator<ScheduledRequest> itr = scheduleRequestRepository.findAll().iterator();
 		List<ScheduledRequest> allData = new ArrayList<ScheduledRequest>();
-		while(itr.hasNext()) {
+		while (itr.hasNext()) {
 			allData.add(itr.next());
 		}
 		return allData;
@@ -562,13 +569,13 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public List<ScheduledRequest> rescheduleRequest(List<ScheduledRequest> scheduleRequestList) {
 		List<ScheduledRequest> response = new ArrayList<ScheduledRequest>();
-		for(ScheduledRequest schRequest : scheduleRequestList) {
+		for (ScheduledRequest schRequest : scheduleRequestList) {
 			saveOrUpdateCandidateInUserTable(schRequest);
 			response.add(rescheduleRequest(schRequest));
 		}
 		return response;
 	}
-	
+
 	private ScheduledRequest rescheduleRequest(ScheduledRequest scheduleRequest) {
 		saveOrUpdateCandidateInUserTable(scheduleRequest);
 		ScheduledRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
@@ -578,9 +585,9 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public List<ScheduledRequest> cancelScheduleRequest(List<String> ids) {
 		List<ScheduledRequest> response = new ArrayList<ScheduledRequest>();
-		for(String id : ids) {
+		for (String id : ids) {
 			Optional<ScheduledRequest> scheduleRequest = scheduleRequestRepository.findById(id);
-			if(scheduleRequest.isPresent()) {
+			if (scheduleRequest.isPresent()) {
 				deleteCandidateFromUserTable(scheduleRequest.get());
 				scheduleRequestRepository.deleteById(id);
 				response.add(scheduleRequest.get());
@@ -591,194 +598,188 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return response;
 	}
 
-
 	@Override
-	public byte[] getSubjObjResultReport(String candidateId)  {
-		List<SubjectiveResultReport> subjReport=new ArrayList<SubjectiveResultReport>();
-		List<SubjQuestionResult> subjQResults=null;
+	public byte[] getSubjObjResultReport(String candidateId) {
+		List<SubjectiveResultReport> subjReport = new ArrayList<SubjectiveResultReport>();
+		List<SubjQuestionResult> subjQResults = null;
 		try {
-			subjQResults=subjResultRepository.findByKeyUserId(candidateId);
-		}
-		catch(Exception e) {
+			subjQResults = subjResultRepository.findByKeyUserId(candidateId);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		for(SubjQuestionResult subj:subjQResults) {
-			//Optional<SubjQuestion> subjQuestion=subjQuestionRepository.findByqId(subj.getKey().getQid());
-			//String type="SUBJECTIVE";
-			String url = cctServiceHostPort+"question/";
-			url=url+subj.getKey().getQid();
-			QuestionBase subjQuestions=null;
+
+		for (SubjQuestionResult subj : subjQResults) {
+			// Optional<SubjQuestion>
+			// subjQuestion=subjQuestionRepository.findByqId(subj.getKey().getQid());
+			// String type="SUBJECTIVE";
+			String url = cctServiceHostPort + "question/";
+			url = url + subj.getKey().getQid();
+			QuestionBase subjQuestions = null;
 			RestTemplate restTemplate = new RestTemplate();
 			try {
-			subjQuestions= restTemplate.getForObject(url, QuestionBase.class);
+				subjQuestions = restTemplate.getForObject(url, QuestionBase.class);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			catch(Exception e) {
-		  e.printStackTrace();
+			SubjectiveResultReport sReport = new SubjectiveResultReport();
+			if (subjQuestions != null) {
+				sReport.setProgram(subjQuestions.getStatement());
 			}
-			SubjectiveResultReport sReport=new SubjectiveResultReport();
-			if(subjQuestions!=null) {
-			sReport.setProgram(subjQuestions.getStatement());
-			}
-			
+
 			sReport.setAnsSubmitted(convertByteBufferToString(subj.getProgram()));
 			sReport.setConsolidatedOutput(subj.getConsolidatedoutput());
 			subjReport.add(sReport);
 		}
-		List<ObjQuestionResult> objresults=objResultRepository.findByKeyUserId(candidateId);
-		List<ObjectiveResultReport> objReports=new ArrayList<ObjectiveResultReport>();
-		for(ObjQuestionResult objresult:objresults) {
-			ObjectiveResultReport objreport=new ObjectiveResultReport();
-			//Optional<ObjQuestion> objquestion=objQuestionRepository.findByqId(objresult.getKey().getQid());
-			String url = cctServiceHostPort+"question/";
-			url=url+objresult.getKey().getQid();
-			QuestionBase objQuestions=null;
+		List<ObjQuestionResult> objresults = objResultRepository.findByKeyUserId(candidateId);
+		List<ObjectiveResultReport> objReports = new ArrayList<ObjectiveResultReport>();
+		for (ObjQuestionResult objresult : objresults) {
+			ObjectiveResultReport objreport = new ObjectiveResultReport();
+			// Optional<ObjQuestion>
+			// objquestion=objQuestionRepository.findByqId(objresult.getKey().getQid());
+			String url = cctServiceHostPort + "question/";
+			url = url + objresult.getKey().getQid();
+			QuestionBase objQuestions = null;
 			RestTemplate restTemplate = new RestTemplate();
 			try {
-			objQuestions= restTemplate.getForObject(url, QuestionBase.class);
+				objQuestions = restTemplate.getForObject(url, QuestionBase.class);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			catch(Exception e) {
-		  e.printStackTrace();
+			if (objQuestions != null) {
+				objreport.setProblem(objQuestions.getStatement());
+				List<String> options = objQuestions.getOptions();
+				objreport.setOptions(options);
+				objreport.setCorrectAnswer(objQuestions.getCorrectOption());
 			}
-			if(objQuestions!=null) {
-			objreport.setProblem(objQuestions.getStatement());
-			List<String> options=objQuestions.getOptions();
-			objreport.setOptions(options);
-			objreport.setCorrectAnswer(objQuestions.getCorrectOption());
-			}
-			
-			//objreport.setCorrectAnswer(objquestion.get().getCorrect_option());
-			//objreport.setSlectedAnswer(objresult.getSelectedoption());
-			
+
+			// objreport.setCorrectAnswer(objquestion.get().getCorrect_option());
+			// objreport.setSlectedAnswer(objresult.getSelectedoption());
+
 			objreport.setSlectedAnswer(objresult.getSelectedoption());
 			objReports.add(objreport);
 		}
-		List<ScheduledRequest> userlist=scheduleRequestRepository.findByCandidateEmailId(candidateId);
+		List<ScheduledRequest> userlist = scheduleRequestRepository.findByCandidateEmailId(candidateId);
 		/*
-				User user=getUserDetailsFromUserTable(format);
-		//User us=user.get();
-		List<User> userlist=new ArrayList<User>();
-		userlist.add(user);
-		
-		String path = "C:\\mydownloads\\";
-		Path pathDir = Paths.get(path);
-
+		 * User user=getUserDetailsFromUserTable(format); //User us=user.get();
+		 * List<User> userlist=new ArrayList<User>(); userlist.add(user);
+		 * 
+		 * String path = "C:\\mydownloads\\"; Path pathDir = Paths.get(path);
+		 * 
+		 * try { if (!Files.exists(pathDir)) { Files.createDirectories(pathDir);
+		 * System.out.println("Directory created"); } else {
+		 * System.out.println("Directory already exists"); } } catch(Exception e) {
+		 * e.printStackTrace(); } String destFileName=path;
+		 */
+		byte arr[] = {};
 		try {
-			if (!Files.exists(pathDir)) {
-				Files.createDirectories(pathDir);
-				System.out.println("Directory created");
-			} else {
-				System.out.println("Directory already exists");
-			}
-		}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
-		String destFileName=path;
-		*/
-		byte arr[]= {};
-		try {
-			File file=ResourceUtils.getFile("classpath:Report.jrxml");
+			File file = ResourceUtils.getFile("classpath:Report.jrxml");
 			JasperReport report = JasperCompileManager.compileReport(file.getAbsolutePath());
-			Map<String,Object> parameters=new HashMap<String,Object>();
+			Map<String, Object> parameters = new HashMap<String, Object>();
 			parameters.put("datasource1", subjReport);
 			parameters.put("datasource2", objReports);
 			parameters.put("datasource3", userlist);
-			JasperPrint print=JasperFillManager.fillReport(report, parameters, new JREmptyDataSource(1));
-		    arr=JasperExportManager.exportReportToPdf(print);
-		    //JasperExportManager.exportReportToPdfFile(print, destFileName+"\\candidate.pdf");
-		}
-		catch(Exception e) {
+			JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource(1));
+			arr = JasperExportManager.exportReportToPdf(print);
+			// JasperExportManager.exportReportToPdfFile(print,
+			// destFileName+"\\candidate.pdf");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return arr;
 	}
-	private List<QuestionScheduler> getScheduled(){
-		List<QuestionScheduler> scheduled=(List<QuestionScheduler>) questionScheduleRepository.findAll();
+
+	private List<QuestionScheduler> getScheduled() {
+		List<QuestionScheduler> scheduled = (List<QuestionScheduler>) questionScheduleRepository.findAll();
 		return scheduled;
 	}
-	private List<QuestionScheduler> getScheduledById(String id){
-		List<QuestionScheduler> scheduled=(List<QuestionScheduler>) questionScheduleRepository.findAllByAssigneruid(id);
-	    return scheduled;
+
+	private List<QuestionScheduler> getScheduledById(String id) {
+		List<QuestionScheduler> scheduled = (List<QuestionScheduler>) questionScheduleRepository
+				.findAllByAssigneruid(id);
+		return scheduled;
 	}
+
 	@Override
 	public List<CandidateResult> getCandidateReports(String id) {
-		
-		List<CandidateResult> candidateResults=new ArrayList<CandidateResult>();
-		List<QuestionScheduler> scheduled=null;
-		String role=this.getUserDetailsFromUserTable(id).getRoleId();
-		if(role.equals("1") || role.equals("2")) {
-			scheduled=this.getScheduled();
+
+		List<CandidateResult> candidateResults = new ArrayList<CandidateResult>();
+		List<QuestionScheduler> scheduled = null;
+		String role = this.getUserDetailsFromUserTable(id).getRoleId();
+		if (role.equals("1") || role.equals("2")) {
+			scheduled = this.getScheduled();
+		} else {
+			scheduled = this.getScheduledById(id);
 		}
-		else {
-			scheduled=this.getScheduledById(id);
+
+		Map<String, String> candidates = new HashMap<String, String>();
+		for (QuestionScheduler scheduledQ : scheduled) {
+			candidates.put(scheduledQ.getAssigneduid(), scheduledQ.getAssigneruid());
 		}
-		 
-		
-		
-		Map<String,String> candidates=new HashMap<String,String>();
-		for(QuestionScheduler scheduledQ:scheduled) {
-			candidates.put(scheduledQ.getAssigneduid(),scheduledQ.getAssigneruid());
-		}
-		Set<Entry<String,String>> candidateEntry=candidates.entrySet();
-		for(Entry<String,String> candidate:candidateEntry) {
-			String status="Scheduled";
-			String testScheduler=this.getUserDetailsFromUserTable(candidate.getValue()).getName();
-			CandidateResult result=new CandidateResult();
-			int noOfObjQ=0;
-			int correctAns=0;
-			String candidatename=this.getUserDetailsFromUserTable(candidate.getKey()).getName();
-			List<ObjQuestionResult> objresults=objResultRepository.findByKeyUserId(candidate.getKey());
-			for(ObjQuestionResult objResult:objresults) {
-				String url = cctServiceHostPort+"question/";
-				url=url+objResult.getKey().getQid();
-				QuestionBase objQuestions=null;
+		Set<Entry<String, String>> candidateEntry = candidates.entrySet();
+		for (Entry<String, String> candidate : candidateEntry) {
+			String status = "Scheduled";
+			String testScheduler = this.getUserDetailsFromUserTable(candidate.getValue()).getName();
+			CandidateResult result = new CandidateResult();
+			int noOfObjQ = 0;
+			int correctAns = 0;
+			String candidatename = this.getUserDetailsFromUserTable(candidate.getKey()).getName();
+			List<ObjQuestionResult> objresults = objResultRepository.findByKeyUserId(candidate.getKey());
+			for (ObjQuestionResult objResult : objresults) {
+				String url = cctServiceHostPort + "question/";
+				url = url + objResult.getKey().getQid();
+				QuestionBase objQuestions = null;
 				RestTemplate restTemplate = new RestTemplate();
 				try {
-				objQuestions= restTemplate.getForObject(url, QuestionBase.class);
+					objQuestions = restTemplate.getForObject(url, QuestionBase.class);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				catch(Exception e) {
-			  e.printStackTrace();
-				}
-				//Optional<ObjQuestion> objquestion=objQuestionRepository.findByqId(objResult.getKey().getQid());
-				
+				// Optional<ObjQuestion>
+				// objquestion=objQuestionRepository.findByqId(objResult.getKey().getQid());
+
 				noOfObjQ++;
-				if(objResult!=null && objResult.getSelectedoption()!=null) {
-				if(objResult.getSelectedoption().equals(objQuestions.getCorrectOption())) {
-					correctAns++;
-				}
+				if (objResult != null && objResult.getSelectedoption() != null) {
+					if (objResult.getSelectedoption().equals(objQuestions.getCorrectOption())) {
+						correctAns++;
+					}
 				}
 			}
-			
-			String objResult= correctAns+" Correct Out Of "+noOfObjQ+" Objective Questions  # ";
-			int  finalsubjResult=0;
-			int subjectiveQResult=0;
-			int nofSubjectiveq=0;
-			List<SubjQuestionResult> subjResults=subjResultRepository.findByKeyUserId(candidate.getKey());
-			for(SubjQuestionResult subjresult:subjResults) {
+
+			String objResult = correctAns + " Correct Out Of " + noOfObjQ + " Objective Questions  # ";
+			int finalsubjResult = 0;
+			int subjectiveQResult = 0;
+			int nofSubjectiveq = 0;
+			List<SubjQuestionResult> subjResults = subjResultRepository.findByKeyUserId(candidate.getKey());
+			for (SubjQuestionResult subjresult : subjResults) {
 				nofSubjectiveq++;
-				String subjResult=subjresult.getConsolidatedoutput();
-				String subjper[]= {};
-				if(subjResult!=null) {
-					 subjper=subjResult.split(" ");
+				String subjResult = subjresult.getConsolidatedoutput();
+				String subjper[] = {};
+				if (subjResult != null) {
+					subjper = subjResult.split(" ");
 				}
-				if(subjper.length>0) {
-				int nofTestcase=Integer.parseInt(subjper[subjper.length-1]);
-				int passedtest=Integer.parseInt(subjper[0]);
-				subjectiveQResult=((passedtest*100)/nofTestcase);
+				if (subjper.length > 0) {
+					int nofTestcase = Integer.parseInt(subjper[2].substring(0, 1));
+					int passedtest = (nofTestcase - Integer.parseInt(subjper[4].substring(0, 1)));
+					subjectiveQResult = ((passedtest * 100) / nofTestcase);
 				}
 			}
-			if(nofSubjectiveq!=0) {
-			finalsubjResult=subjectiveQResult/nofSubjectiveq;
+			if (nofSubjectiveq != 0) {
+				finalsubjResult = subjectiveQResult / nofSubjectiveq;
 			}
-			if(!objresults.isEmpty() || !subjResults.isEmpty()) {
-				status="Submitted";
+
+			int percentage = 0;
+			if (noOfObjQ != 0) {
+				percentage = (((correctAns * 100) / noOfObjQ) + finalsubjResult) / 2;
+			} else {
+				percentage = (finalsubjResult);
 			}
-			
-			int percentage=(((correctAns*100)/noOfObjQ)+finalsubjResult)/2;
-			
-			String finalResult=objResult+" Subjective- "+finalsubjResult+"%";
+
+			if (!objresults.isEmpty() || !subjResults.isEmpty()) {
+				status = "Submitted";
+			}
+
+			String finalResult = objResult + " Subjective- " + finalsubjResult + "%";
 			result.setCandidateName(candidatename);
 			result.setTestScheduler(testScheduler);
 			result.setTestcaseReport(finalResult);
@@ -787,10 +788,9 @@ public class SRVDataServiceImpl implements SRVDataService {
 			result.setId(candidate.getKey());
 			candidateResults.add(result);
 		}
-		
+
 		return candidateResults;
 	}
-
 
 //	@Override
 //	public List<String> candidateSendEmail() {
@@ -812,23 +812,24 @@ public class SRVDataServiceImpl implements SRVDataService {
 //		}
 //		return users;
 //	}
-	
+
 	@Override
 	public List<String> candidateSendEmail() {
 		Iterable<ScheduledRequest> itr = scheduleRequestRepository.findAll();
 		List<ScheduledRequest> schRequest = new ArrayList<ScheduledRequest>();
 		itr.forEach(data -> schRequest.add(data));
-		if(isCronEnabled) {
+		if (isCronEnabled) {
 			filterByScheduledDate(schRequest);
 		}
 		List<String> users = new ArrayList<String>();
-		for(ScheduledRequest sr : schRequest) {
-			if(null != sr.getCandidateEmailId()) {
-				List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneduid(sr.getCandidateEmailId());
+		for (ScheduledRequest sr : schRequest) {
+			if (null != sr.getCandidateEmailId()) {
+				List<QuestionSchedView> questionIdList = questionScheduleRepository
+						.findByAssigneduid(sr.getCandidateEmailId());
 				User user = null;
-				if(null != questionIdList && !questionIdList.isEmpty()) {
+				if (null != questionIdList && !questionIdList.isEmpty()) {
 					user = getUserDetailsFromUserTable(sr.getCandidateEmailId());
-					if(null != user) {
+					if (null != user) {
 						String email = sendEmailToCandidates(user);
 						users.add(email);
 					}
@@ -837,10 +838,10 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return users;
 	}
-	
+
 	private void filterByScheduledDate(List<ScheduledRequest> schRequest) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private User getUserDetailsFromUserTable(String userId) {
@@ -855,7 +856,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return null;
 	}
-	
+
 	private String sendEmailToCandidates(User user) {
 		String json = prepareJsonForTestLink(user);
 		RestTemplate restTemplate = new RestTemplate();
@@ -871,13 +872,11 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return json;
 	}
-	
+
 	private String prepareJsonForTestLink(User user) {
 		String temp = new String(testLinkEmailMsg + " ");
-		temp = temp.replace("${name}", user.getName()).
-				replace("${url}", userLoginUrl).
-				replace("${userId}", user.getUserId()).
-				replace("${pass}", user.getPassword());
+		temp = temp.replace("${name}", user.getName()).replace("${url}", userLoginUrl)
+				.replace("${userId}", user.getUserId()).replace("${pass}", user.getPassword());
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("userName", user.getName());
 		map.put("mailSubject", testLinkEmailSubject);
@@ -885,7 +884,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		map.put("messageText", temp.trim());
 		return returnJson(map);
 	}
-	
+
 	@Override
 	public List<QuestionSchedView> getQuestionsByAssignerId(String assignerId) {
 		List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneruid(assignerId);
@@ -902,27 +901,29 @@ public class SRVDataServiceImpl implements SRVDataService {
 			for (String intrwrId : interviewrIds) {
 				User interviewerDetails = getUserDetailsFromUserTable(intrwrId);
 				if (null != interviewerDetails) {
-				byte[] byteArray = getSubjObjResultReport(interviewer.getCandidateId());
+					byte[] byteArray = getSubjObjResultReport(interviewer.getCandidateId());
 					interviewerDetails.setByteAttachemenets(byteArray);
-					String response = sendEmailWithDynamicAttachement(interviewerDetails, interviewer, candidateDetails.getName());
+					String response = sendEmailWithDynamicAttachement(interviewerDetails, interviewer,
+							candidateDetails.getName());
 					responseList.add(response);
 				}
 			}
 		}
 		return responseList;
 	}
-	
+
 	private String prepareJsonForReport(User user, Interviewer interviewer, String candidateName) {
 		String msgBody = "";
 		String subject = "";
-		if(null != interviewer && null != interviewer.getBody()) {
+		if (null != interviewer && null != interviewer.getBody()) {
 			msgBody = interviewer.getBody();
 		} else {
 			msgBody = new String(reportToInterviewerMsg + " ");
 			msgBody = msgBody.replace("${name}", user.getName());
 		}
-		
-		subject = (null != interviewer && null != interviewer.getSubject()) ? subject = interviewer.getSubject() : reportEmailSubject;
+
+		subject = (null != interviewer && null != interviewer.getSubject()) ? subject = interviewer.getSubject()
+				: reportEmailSubject;
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("userName", user.getName());
 		map.put("mailSubject", subject);
@@ -937,7 +938,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return "";
 	}
-	
+
 	private String sendEmailWithDynamicAttachement(User user, Interviewer interviewer, String candidateName) {
 		String json = prepareJsonForReport(user, interviewer, candidateName);
 		RestTemplate restTemplate = new RestTemplate();
@@ -953,7 +954,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return json;
 	}
-	
+
 	private String deleteCandidateFromUserTable(ScheduledRequest scheduleRequest) {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
@@ -983,21 +984,21 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return users;
 	}
-	
+
 	@Override
 	public List<ScheduleChallenge> getChallengeRecByAssignerId(String assignerId) {
 		List<ScheduleChallenge> challengeIdList = scheduleChallengeRepository.findByAssigneruid(assignerId);
 		return challengeIdList;
 	}
-	
+
 	@Override
 	public String deleteChallenge(String challengeId) {
 		Boolean result = scheduleChallengeRepository.existsByChallengeid(challengeId);
 		scheduleChallengeRepository.deleteByChallengeid(challengeId);
-		
+
 		List<QuestionScheduler> quesList = questionScheduleRepository.findByChallengeid(challengeId);
-		if(!quesList.isEmpty()) {
-		deleteQEntry(quesList);
+		if (!quesList.isEmpty()) {
+			deleteQEntry(quesList);
 		}
 		return "{ \"success\" : " + (result ? "true" : "false") + " }";
 	}
@@ -1006,24 +1007,25 @@ public class SRVDataServiceImpl implements SRVDataService {
 	public ScheduleChallenge updateChallenge(QuestionSchedulerCustom assignBulkQ) {
 		QuestionScheduler assignQ;
 		List<QuestionScheduler> assignQObjList = new ArrayList<QuestionScheduler>();
-		
+
 		ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(assignBulkQ.getChallengeid());
-		
-		if(challengeRecord != null) {
-			//challengeRecord.setChallengeid(challengeId);
-			//challengeRecord.setAssigneduid(assignBulkQ.getAssigneduidList().get(0));
-			//challengeRecord.setAssigneruid(assignBulkQ.getAssigneruid());
+
+		if (challengeRecord != null) {
+			// challengeRecord.setChallengeid(challengeId);
+			// challengeRecord.setAssigneduid(assignBulkQ.getAssigneduidList().get(0));
+			// challengeRecord.setAssigneruid(assignBulkQ.getAssigneruid());
 			challengeRecord.setScheduleTime(assignBulkQ.getScheduleTime());
-			
+
 			scheduleChallengeRepository.save(challengeRecord);
-		
-			List<QuestionScheduler> quesList = questionScheduleRepository.findByChallengeid(assignBulkQ.getChallengeid());
-			if(!quesList.isEmpty()) {
-					deleteQEntry(quesList);
+
+			List<QuestionScheduler> quesList = questionScheduleRepository
+					.findByChallengeid(assignBulkQ.getChallengeid());
+			if (!quesList.isEmpty()) {
+				deleteQEntry(quesList);
 			}
-		
+
 			List<String> qIdList = assignBulkQ.getQidList();
-				
+
 			for (String qId : qIdList) {
 				assignQ = new QuestionScheduler(getId("SchQuest"), qId, challengeRecord.getAssigneduid(),
 						challengeRecord.getAssigneruid(), challengeRecord.getChallengeid());
@@ -1041,12 +1043,12 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	@Override
-	public List<QuestionSchedView> getQuestionsNotByChallengeId(String assigneduid,String challengeId) {
+	public List<QuestionSchedView> getQuestionsNotByChallengeId(String assigneduid, String challengeId) {
 		List<QuestionScheduler> quesList = questionScheduleRepository.findByChallengeid(challengeId);
-		if(!quesList.isEmpty()) {
-		deleteQEntry(quesList);
+		if (!quesList.isEmpty()) {
+			deleteQEntry(quesList);
 		}
-		
+
 		List<QuestionSchedView> questionIdList = questionScheduleRepository.findByAssigneduid(assigneduid);
 		return questionIdList;
 	}
@@ -1054,11 +1056,12 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public List<QuestionScheduler> getQuestionsByCandidateId(String candidateId) {
 		List<QuestionScheduler> questionIdList = new ArrayList<QuestionScheduler>();
-		ScheduleChallenge challengeIdList = scheduleChallengeRepository.findByAssigneduidAndStatus(candidateId, "Scheduled");
-		String challengeId="";
-		if(challengeIdList != null) {
-			challengeId=challengeIdList.getChallengeid();
-			 questionIdList = questionScheduleRepository.findByChallengeid(challengeId);
+		ScheduleChallenge challengeIdList = scheduleChallengeRepository.findByAssigneduidAndStatus(candidateId,
+				"Scheduled");
+		String challengeId = "";
+		if (challengeIdList != null) {
+			challengeId = challengeIdList.getChallengeid();
+			questionIdList = questionScheduleRepository.findByChallengeid(challengeId);
 		}
 		return questionIdList;
 	}
