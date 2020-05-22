@@ -198,9 +198,9 @@ public class SRVController {
 	public List<CandidateResult> getCandidateReports(@PathVariable String id){
 		return srvDataService.getCandidateReports(id);
 	}
-	@GetMapping("/candidate/send/email")
-	public List<String> sendEmailToAllScheduledCandidateForTestLink(){
-		return srvDataService.candidateSendEmail();
+	@GetMapping("/send/testlink")
+	public List<String> sendTestLinkToCandidates(){
+		return srvDataService.sendTestLinkToCandidates();
 	}
 	
 	@GetMapping("/schQuesByassignerId/{assignerId}")
@@ -214,7 +214,7 @@ public class SRVController {
 		return srvDataService.sendCandidateReport(interviewer);
 	}
 	
-	@GetMapping("/send/email/candidate/testlink")
+	@GetMapping("/send/testlink/now")
 	public List<String> sendEamilToCandidateForTestLink(@RequestBody List<String> candidateEmailList){
 		return srvDataService.sendEamilToCandidateForTestLink(candidateEmailList);
 	}

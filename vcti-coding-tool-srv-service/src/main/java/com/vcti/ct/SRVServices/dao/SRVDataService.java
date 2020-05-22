@@ -72,7 +72,7 @@ public interface SRVDataService {
 
 	List<CandidateResult> getCandidateReports(String id);
 
-	List<String> candidateSendEmail();
+	List<String> sendTestLinkToCandidates();
 	
 	List<QuestionSchedView> getQuestionsByAssignerId(String assignerId);
 
