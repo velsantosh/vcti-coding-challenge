@@ -232,4 +232,19 @@ public class UserDataServiceImpl implements UserDataService {
 		String id = questionType + "X" + new Random().nextInt(100000) + "X" + System.currentTimeMillis();
 		return id;
 	}
+
+	@Override
+	public User updateUserPassword(User newUser, String uId) {
+		List<User> userList = userRepository.findByUserId(uId);
+		User user;
+		if (userList.size() == 1) {
+			user = userList.get(0);
+		} else {
+			System.out.println("No Unique User found with the provided User Id");
+			return null;
+		}
+		user.setPassword(newUser.getPassword());
+		userRepository.save(user);
+		return user;
+	}
 }

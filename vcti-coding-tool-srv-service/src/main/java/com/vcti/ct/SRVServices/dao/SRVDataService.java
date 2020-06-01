@@ -68,7 +68,7 @@ public interface SRVDataService {
 	List<ScheduledRequest> rescheduleRequest(List<ScheduledRequest> scheduleRequest);
 
 	List<ScheduledRequest> cancelScheduleRequest(List<String> id);
-	byte[] getSubjObjResultReport(String format);
+	byte[] getSubjObjResultReport(String format, String challengeid);
 
 	List<CandidateResult> getCandidateReports(String id);
 
@@ -76,7 +76,7 @@ public interface SRVDataService {
 	
 	List<QuestionSchedView> getQuestionsByAssignerId(String assignerId);
 
-	List<String> sendCandidateReport(Interviewer interviewer);
+	List<String> sendCandidateReport(Interviewer interviewer, String challengeid);
 
 	List<String> sendEamilToCandidateForTestLink(List<String> candidateEmailList);
 	
@@ -91,5 +91,7 @@ public interface SRVDataService {
 	List<ScheduleChallenge> getChallengeRecByAssignerId(String assignerId);
 
 	List<QuestionScheduler> getQuestionsByCandidateId(String candidateId);
+
+	boolean updateChallengeStatus(String candidateId);
 
 }

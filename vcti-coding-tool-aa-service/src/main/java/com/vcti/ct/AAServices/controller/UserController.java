@@ -98,4 +98,10 @@ public class UserController {
 		LOG.debug("Calling getUsersByRole method");
 		return userDataService.getUsersByRole(role);
 	}
+	
+	@PutMapping("/user/password/{uId}")
+	public User updateUserPassword(@RequestBody User newUser, @PathVariable String uId) {
+		LOG.debug("Calling updateUserUsingUserId method");
+		return userDataService.updateUserPassword(newUser, uId);
+	}
 }

@@ -190,9 +190,9 @@ public class SRVController {
 	public List<ScheduledRequest> deleteScheduleRequest(@RequestBody List<String> scheduleRequestIds) {
 		return srvDataService.cancelScheduleRequest(scheduleRequestIds);
 	}
-	@GetMapping("/subjResReport/{id}")
-	public byte[] getSubjObjResultReport(@PathVariable String id) {
-		return srvDataService.getSubjObjResultReport(id);
+	@GetMapping("/subjResReport/{id}/{challengeid}")
+	public byte[] getSubjObjResultReport(@PathVariable String id, @PathVariable String challengeid) {
+		return srvDataService.getSubjObjResultReport(id, challengeid);
 	}
 	@GetMapping("/candidateReport/{id}")
 	public List<CandidateResult> getCandidateReports(@PathVariable String id){
@@ -209,9 +209,9 @@ public class SRVController {
 		return getQuestionListFromCCTService(quesIdList);
 	}
 	
-	@PostMapping("/send/candidate/report")
-	public List<String> sendCandidateReport(@RequestBody Interviewer interviewer){
-		return srvDataService.sendCandidateReport(interviewer);
+	@PostMapping("/send/candidate/report/{challengeid}")
+	public List<String> sendCandidateReport(@PathVariable String challengeid,@RequestBody Interviewer interviewer){
+		return srvDataService.sendCandidateReport(interviewer, challengeid);
 	}
 	
 	@GetMapping("/send/testlink/now")
@@ -277,5 +277,10 @@ public class SRVController {
 	public List<QuestionCustom> getAllSchQuestionsByCandidate(@PathVariable String candidateId) {
 		List<QuestionScheduler> quesIdList = srvDataService.getQuestionsByCandidateId(candidateId);
 		return getQuestionListFromCCT(quesIdList);
+	}
+	
+	@PutMapping("/updateChallengeStatus/{candidateId}")
+	public boolean updateChallengeStatus(@PathVariable String candidateId) {
+		return srvDataService.updateChallengeStatus(candidateId);
 	}
 }

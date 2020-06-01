@@ -27,4 +27,6 @@ public interface UserDataService {
 	User updateUserUsingUserId(User newUser, String uName);
 
 	List<User> getUsersByRole(String role);
+
+	User updateUserPassword(User newUser, String uId);
 }

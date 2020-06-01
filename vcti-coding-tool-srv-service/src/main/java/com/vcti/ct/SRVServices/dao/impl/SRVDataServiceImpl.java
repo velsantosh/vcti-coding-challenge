@@ -107,7 +107,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 	private String reportToInterviewerMsg;
 
 	private final long millSecFor24Hours = 24 * 60 * 60 * 1000;
-	
+
 	@PostConstruct
 	public void init() {
 		try {
@@ -576,6 +576,13 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	private ScheduledRequest rescheduleRequest(ScheduledRequest scheduleRequest) {
 		saveOrUpdateCandidateInUserTable(scheduleRequest);
+		ScheduleChallenge challengeIdList = scheduleChallengeRepository
+				.findByAssigneduidAndStatus(scheduleRequest.getCandidateEmailId(), "Scheduled");
+		if (challengeIdList != null) {
+			challengeIdList.setScheduleTime(scheduleRequest.getInterviewDate());
+			scheduleChallengeRepository.save(challengeIdList);
+		}
+
 		ScheduledRequest scheduledRequest = scheduleRequestRepository.save(scheduleRequest);
 		return scheduledRequest;
 	}
@@ -588,6 +595,21 @@ public class SRVDataServiceImpl implements SRVDataService {
 			if (scheduleRequest.isPresent()) {
 				deleteCandidateFromUserTable(scheduleRequest.get());
 				scheduleRequestRepository.deleteById(id);
+
+				ScheduleChallenge challengeIdList = scheduleChallengeRepository
+						.findByAssigneduidAndStatus(scheduleRequest.get().getCandidateEmailId(), "Scheduled");
+				Boolean result = scheduleChallengeRepository.existsByChallengeid(challengeIdList.getChallengeid());
+
+				if (result) {
+					scheduleChallengeRepository.deleteByChallengeid(challengeIdList.getChallengeid());
+
+					List<QuestionScheduler> quesList = questionScheduleRepository
+							.findByChallengeid(challengeIdList.getChallengeid());
+					if (!quesList.isEmpty()) {
+						deleteQEntry(quesList);
+					}
+				}
+
 				response.add(scheduleRequest.get());
 			} else {
 				throw new InvalidScheduleRequestIdException("Invalid schedule request Id");
@@ -596,96 +618,71 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return response;
 	}
 
-	@Override
-	public byte[] getSubjObjResultReport(String candidateId) {
-		List<SubjectiveResultReport> subjReport = new ArrayList<SubjectiveResultReport>();
-		List<SubjQuestionResult> subjQResults = null;
-		try {
-			subjQResults = subjResultRepository.findByKeyUserId(candidateId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		for (SubjQuestionResult subj : subjQResults) {
-			// Optional<SubjQuestion>
-			// subjQuestion=subjQuestionRepository.findByqId(subj.getKey().getQid());
-			// String type="SUBJECTIVE";
-			String url = cctServiceHostPort + "question/";
-			url = url + subj.getKey().getQid();
-			QuestionBase subjQuestions = null;
-			RestTemplate restTemplate = new RestTemplate();
-			try {
-				subjQuestions = restTemplate.getForObject(url, QuestionBase.class);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			SubjectiveResultReport sReport = new SubjectiveResultReport();
-			if (subjQuestions != null) {
-				sReport.setProgram(subjQuestions.getStatement());
-			}
-
-			sReport.setAnsSubmitted(convertByteBufferToString(subj.getProgram()));
-			sReport.setConsolidatedOutput(subj.getConsolidatedoutput());
-			subjReport.add(sReport);
-		}
-		List<ObjQuestionResult> objresults = objResultRepository.findByKeyUserId(candidateId);
-		List<ObjectiveResultReport> objReports = new ArrayList<ObjectiveResultReport>();
-		for (ObjQuestionResult objresult : objresults) {
-			ObjectiveResultReport objreport = new ObjectiveResultReport();
-			// Optional<ObjQuestion>
-			// objquestion=objQuestionRepository.findByqId(objresult.getKey().getQid());
-			String url = cctServiceHostPort + "question/";
-			url = url + objresult.getKey().getQid();
-			QuestionBase objQuestions = null;
-			RestTemplate restTemplate = new RestTemplate();
-			try {
-				objQuestions = restTemplate.getForObject(url, QuestionBase.class);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			if (objQuestions != null) {
-				objreport.setProblem(objQuestions.getStatement());
-				List<String> options = objQuestions.getOptions();
-				objreport.setOptions(options);
-				objreport.setCorrectAnswer(objQuestions.getCorrectOption());
-			}
-
-			// objreport.setCorrectAnswer(objquestion.get().getCorrect_option());
-			// objreport.setSlectedAnswer(objresult.getSelectedoption());
-
-			objreport.setSlectedAnswer(objresult.getSelectedoption());
-			objReports.add(objreport);
-		}
-		List<ScheduledRequest> userlist = scheduleRequestRepository.findByCandidateEmailId(candidateId);
-		/*
-		 * User user=getUserDetailsFromUserTable(format); //User us=user.get();
-		 * List<User> userlist=new ArrayList<User>(); userlist.add(user);
-		 * 
-		 * String path = "C:\\mydownloads\\"; Path pathDir = Paths.get(path);
-		 * 
-		 * try { if (!Files.exists(pathDir)) { Files.createDirectories(pathDir);
-		 * System.out.println("Directory created"); } else {
-		 * System.out.println("Directory already exists"); } } catch(Exception e) {
-		 * e.printStackTrace(); } String destFileName=path;
-		 */
-		byte arr[] = {};
-		try {
-			File file = ResourceUtils.getFile("classpath:Report.jrxml");
-			JasperReport report = JasperCompileManager.compileReport(file.getAbsolutePath());
-			Map<String, Object> parameters = new HashMap<String, Object>();
-			parameters.put("datasource1", subjReport);
-			parameters.put("datasource2", objReports);
-			parameters.put("datasource3", userlist);
-			JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource(1));
-			arr = JasperExportManager.exportReportToPdf(print);
-			// JasperExportManager.exportReportToPdfFile(print,
-			// destFileName+"\\candidate.pdf");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return arr;
-	}
+	/*
+	 * @Override public byte[] getSubjObjResultReport(String candidateId) {
+	 * List<SubjectiveResultReport> subjReport = new
+	 * ArrayList<SubjectiveResultReport>(); List<SubjQuestionResult> subjQResults =
+	 * null; try { subjQResults = subjResultRepository.findByKeyUserId(candidateId);
+	 * } catch (Exception e) { e.printStackTrace(); }
+	 * 
+	 * for (SubjQuestionResult subj : subjQResults) { // Optional<SubjQuestion> //
+	 * subjQuestion=subjQuestionRepository.findByqId(subj.getKey().getQid()); //
+	 * String type="SUBJECTIVE"; String url = cctServiceHostPort + "question/"; url
+	 * = url + subj.getKey().getQid(); QuestionBase subjQuestions = null;
+	 * RestTemplate restTemplate = new RestTemplate(); try { subjQuestions =
+	 * restTemplate.getForObject(url, QuestionBase.class); } catch (Exception e) {
+	 * e.printStackTrace(); } SubjectiveResultReport sReport = new
+	 * SubjectiveResultReport(); if (subjQuestions != null) {
+	 * sReport.setProgram(subjQuestions.getStatement()); }
+	 * 
+	 * sReport.setAnsSubmitted(convertByteBufferToString(subj.getProgram()));
+	 * sReport.setConsolidatedOutput(subj.getConsolidatedoutput());
+	 * subjReport.add(sReport); } List<ObjQuestionResult> objresults =
+	 * objResultRepository.findByKeyUserId(candidateId); List<ObjectiveResultReport>
+	 * objReports = new ArrayList<ObjectiveResultReport>(); for (ObjQuestionResult
+	 * objresult : objresults) { ObjectiveResultReport objreport = new
+	 * ObjectiveResultReport(); // Optional<ObjQuestion> //
+	 * objquestion=objQuestionRepository.findByqId(objresult.getKey().getQid());
+	 * String url = cctServiceHostPort + "question/"; url = url +
+	 * objresult.getKey().getQid(); QuestionBase objQuestions = null; RestTemplate
+	 * restTemplate = new RestTemplate(); try { objQuestions =
+	 * restTemplate.getForObject(url, QuestionBase.class); } catch (Exception e) {
+	 * e.printStackTrace(); } if (objQuestions != null) {
+	 * objreport.setProblem(objQuestions.getStatement()); List<String> options =
+	 * objQuestions.getOptions(); objreport.setOptions(options);
+	 * objreport.setCorrectAnswer(objQuestions.getCorrectOption()); }
+	 * 
+	 * // objreport.setCorrectAnswer(objquestion.get().getCorrect_option()); //
+	 * objreport.setSlectedAnswer(objresult.getSelectedoption());
+	 * 
+	 * objreport.setSlectedAnswer(objresult.getSelectedoption());
+	 * objReports.add(objreport); } List<ScheduledRequest> userlist =
+	 * scheduleRequestRepository.findByCandidateEmailId(candidateId);
+	 * 
+	 * User user=getUserDetailsFromUserTable(format); //User us=user.get();
+	 * List<User> userlist=new ArrayList<User>(); userlist.add(user);
+	 * 
+	 * String path = "C:\\mydownloads\\"; Path pathDir = Paths.get(path);
+	 * 
+	 * try { if (!Files.exists(pathDir)) { Files.createDirectories(pathDir);
+	 * System.out.println("Directory created"); } else {
+	 * System.out.println("Directory already exists"); } } catch(Exception e) {
+	 * e.printStackTrace(); } String destFileName=path;
+	 * 
+	 * byte arr[] = {}; try { File file =
+	 * ResourceUtils.getFile("classpath:Report.jrxml"); JasperReport report =
+	 * JasperCompileManager.compileReport(file.getAbsolutePath()); Map<String,
+	 * Object> parameters = new HashMap<String, Object>();
+	 * parameters.put("datasource1", subjReport); parameters.put("datasource2",
+	 * objReports); parameters.put("datasource3", userlist); JasperPrint print =
+	 * JasperFillManager.fillReport(report, parameters, new JREmptyDataSource(1));
+	 * arr = JasperExportManager.exportReportToPdf(print); //
+	 * JasperExportManager.exportReportToPdfFile(print, //
+	 * destFileName+"\\candidate.pdf"); } catch (Exception e) { e.printStackTrace();
+	 * }
+	 * 
+	 * return arr; }
+	 */
 
 	private List<QuestionScheduler> getScheduled() {
 		List<QuestionScheduler> scheduled = (List<QuestionScheduler>) questionScheduleRepository.findAll();
@@ -698,97 +695,66 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return scheduled;
 	}
 
-	@Override
-	public List<CandidateResult> getCandidateReports(String id) {
-
-		List<CandidateResult> candidateResults = new ArrayList<CandidateResult>();
-		List<QuestionScheduler> scheduled = null;
-		String role = this.getUserDetailsFromUserTable(id).getRoleId();
-		if (role.equals("1") || role.equals("2")) {
-			scheduled = this.getScheduled();
-		} else {
-			scheduled = this.getScheduledById(id);
-		}
-
-		Map<String, String> candidates = new HashMap<String, String>();
-		for (QuestionScheduler scheduledQ : scheduled) {
-			candidates.put(scheduledQ.getAssigneduid(), scheduledQ.getAssigneruid());
-		}
-		Set<Entry<String, String>> candidateEntry = candidates.entrySet();
-		for (Entry<String, String> candidate : candidateEntry) {
-			String status = "Scheduled";
-			String testScheduler = this.getUserDetailsFromUserTable(candidate.getValue()).getName();
-			CandidateResult result = new CandidateResult();
-			int noOfObjQ = 0;
-			int correctAns = 0;
-			String candidatename = this.getUserDetailsFromUserTable(candidate.getKey()).getName();
-			List<ObjQuestionResult> objresults = objResultRepository.findByKeyUserId(candidate.getKey());
-			for (ObjQuestionResult objResult : objresults) {
-				String url = cctServiceHostPort + "question/";
-				url = url + objResult.getKey().getQid();
-				QuestionBase objQuestions = null;
-				RestTemplate restTemplate = new RestTemplate();
-				try {
-					objQuestions = restTemplate.getForObject(url, QuestionBase.class);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				// Optional<ObjQuestion>
-				// objquestion=objQuestionRepository.findByqId(objResult.getKey().getQid());
-
-				noOfObjQ++;
-				if (objResult != null && objResult.getSelectedoption() != null) {
-					if (objResult.getSelectedoption().equals(objQuestions.getCorrectOption())) {
-						correctAns++;
-					}
-				}
-			}
-
-			String objResult = correctAns + " Correct Out Of " + noOfObjQ + " Objective Questions  # ";
-			int finalsubjResult = 0;
-			int subjectiveQResult = 0;
-			int nofSubjectiveq = 0;
-			List<SubjQuestionResult> subjResults = subjResultRepository.findByKeyUserId(candidate.getKey());
-			for (SubjQuestionResult subjresult : subjResults) {
-				nofSubjectiveq++;
-				String subjResult = subjresult.getConsolidatedoutput();
-				String subjper[] = {};
-				if (subjResult != null) {
-					subjper = subjResult.split(" ");
-				}
-				if (subjper.length > 0) {
-					int nofTestcase = Integer.parseInt(subjper[2].substring(0, 1));
-					int passedtest = (nofTestcase - Integer.parseInt(subjper[4].substring(0, 1)));
-					subjectiveQResult = ((passedtest * 100) / nofTestcase);
-				}
-			}
-			if (nofSubjectiveq != 0) {
-				finalsubjResult = subjectiveQResult / nofSubjectiveq;
-			}
-
-			int percentage = 0;
-			if (noOfObjQ != 0) {
-				percentage = (((correctAns * 100) / noOfObjQ) + finalsubjResult) / 2;
-			} else {
-				percentage = (finalsubjResult);
-			}
-
-			if (!objresults.isEmpty() || !subjResults.isEmpty()) {
-				status = "Submitted";
-			}
-
-			String finalResult = objResult + " Subjective- " + finalsubjResult + "%";
-			result.setCandidateName(candidatename);
-			result.setTestScheduler(testScheduler);
-			result.setTestcaseReport(finalResult);
-			result.setStatus(status);
-			result.setTestCasePercentage(percentage);
-			result.setId(candidate.getKey());
-			candidateResults.add(result);
-		}
-
-		return candidateResults;
-	}
+	/*
+	 * @Override public List<CandidateResult> getCandidateReports(String id) {
+	 * 
+	 * List<CandidateResult> candidateResults = new ArrayList<CandidateResult>();
+	 * List<QuestionScheduler> scheduled = null; String role =
+	 * this.getUserDetailsFromUserTable(id).getRoleId(); if (role.equals("1") ||
+	 * role.equals("2")) { scheduled = this.getScheduled(); } else { scheduled =
+	 * this.getScheduledById(id); }
+	 * 
+	 * Map<String, String> candidates = new HashMap<String, String>(); for
+	 * (QuestionScheduler scheduledQ : scheduled) {
+	 * candidates.put(scheduledQ.getAssigneduid(), scheduledQ.getAssigneruid()); }
+	 * Set<Entry<String, String>> candidateEntry = candidates.entrySet(); for
+	 * (Entry<String, String> candidate : candidateEntry) { String status =
+	 * "Scheduled"; String testScheduler =
+	 * this.getUserDetailsFromUserTable(candidate.getValue()).getName();
+	 * CandidateResult result = new CandidateResult(); int noOfObjQ = 0; int
+	 * correctAns = 0; String candidatename =
+	 * this.getUserDetailsFromUserTable(candidate.getKey()).getName();
+	 * List<ObjQuestionResult> objresults =
+	 * objResultRepository.findByKeyUserId(candidate.getKey()); for
+	 * (ObjQuestionResult objResult : objresults) { String url = cctServiceHostPort
+	 * + "question/"; url = url + objResult.getKey().getQid(); QuestionBase
+	 * objQuestions = null; RestTemplate restTemplate = new RestTemplate(); try {
+	 * objQuestions = restTemplate.getForObject(url, QuestionBase.class); } catch
+	 * (Exception e) { e.printStackTrace(); } // Optional<ObjQuestion> //
+	 * objquestion=objQuestionRepository.findByqId(objResult.getKey().getQid());
+	 * 
+	 * noOfObjQ++; if (objResult != null && objResult.getSelectedoption() != null) {
+	 * if (objResult.getSelectedoption().equals(objQuestions.getCorrectOption())) {
+	 * correctAns++; } } }
+	 * 
+	 * String objResult = correctAns + " Correct Out Of " + noOfObjQ +
+	 * " Objective Questions  # "; int finalsubjResult = 0; int subjectiveQResult =
+	 * 0; int nofSubjectiveq = 0; List<SubjQuestionResult> subjResults =
+	 * subjResultRepository.findByKeyUserId(candidate.getKey()); for
+	 * (SubjQuestionResult subjresult : subjResults) { nofSubjectiveq++; String
+	 * subjResult = subjresult.getConsolidatedoutput(); String subjper[] = {}; if
+	 * (subjResult != null) { subjper = subjResult.split(" "); } if (subjper.length
+	 * > 0) { int nofTestcase = Integer.parseInt(subjper[2].substring(0, 1)); int
+	 * passedtest = (nofTestcase - Integer.parseInt(subjper[4].substring(0, 1)));
+	 * subjectiveQResult = ((passedtest * 100) / nofTestcase); } } if
+	 * (nofSubjectiveq != 0) { finalsubjResult = subjectiveQResult / nofSubjectiveq;
+	 * }
+	 * 
+	 * int percentage = 0; if (noOfObjQ != 0) { percentage = (((correctAns * 100) /
+	 * noOfObjQ) + finalsubjResult) / 2; } else { percentage = (finalsubjResult); }
+	 * 
+	 * if (!objresults.isEmpty() || !subjResults.isEmpty()) { status = "Submitted";
+	 * }
+	 * 
+	 * String finalResult = objResult + " Subjective- " + finalsubjResult + "%";
+	 * result.setCandidateName(candidatename);
+	 * result.setTestScheduler(testScheduler);
+	 * result.setTestcaseReport(finalResult); result.setStatus(status);
+	 * result.setTestCasePercentage(percentage); result.setId(candidate.getKey());
+	 * candidateResults.add(result); }
+	 * 
+	 * return candidateResults; }
+	 */
 
 	@Scheduled(cron = "${vcc.cnadidate.interview.date.cron}")
 	@Override
@@ -797,14 +763,13 @@ public class SRVDataServiceImpl implements SRVDataService {
 		List<ScheduleChallenge> challengList = new ArrayList<ScheduleChallenge>();
 		scheduleChallenges.forEach(data -> challengList.add(data));
 		List<ScheduleChallenge> filterChallengList = challengList.stream()
-				.filter(data -> data.getStatus().equalsIgnoreCase("scheduled"))
-				.collect(Collectors.toList());
+				.filter(data -> data.getStatus().equalsIgnoreCase("scheduled")).collect(Collectors.toList());
 		List<String> users = new ArrayList<String>();
-		for(ScheduleChallenge challenge : filterChallengList) {
-			if(null != challenge.getAssigneduid()) {
-				if(fileterBasedOnCron(challenge)) {
+		for (ScheduleChallenge challenge : filterChallengList) {
+			if (null != challenge.getAssigneduid()) {
+				if (fileterBasedOnCron(challenge)) {
 					User user = getUserDetailsFromUserTable(challenge.getAssigneduid());
-					if(null != user) {
+					if (null != user) {
 						String email = sendEmailToCandidates(user);
 						users.add(email);
 					}
@@ -820,7 +785,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		long millSecForNext24Hours = currTimeInMillSec + millSecFor24Hours;
 		return (timeInMilliSec >= currTimeInMillSec && timeInMilliSec <= millSecForNext24Hours) ? true : false;
 	}
-	
+
 	private User getUserDetailsFromUserTable(String userId) {
 		RestTemplate restTemplate = new RestTemplate();
 		String url = aaServiceHostPort + "user/userid/" + userId;
@@ -869,7 +834,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	@Override
-	public List<String> sendCandidateReport(Interviewer interviewer) {
+	public List<String> sendCandidateReport(Interviewer interviewer, String challengeid) {
 		List<String> interviewrIds = null;
 		List<String> responseList = new ArrayList<String>();
 		if (null != interviewer && null != interviewer.getToEmailIds()) {
@@ -878,7 +843,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 			for (String intrwrId : interviewrIds) {
 				User interviewerDetails = getUserDetailsFromUserTable(intrwrId);
 				if (null != interviewerDetails) {
-					byte[] byteArray = getSubjObjResultReport(interviewer.getCandidateId());
+					byte[] byteArray = getSubjObjResultReport(interviewer.getCandidateId(), challengeid);
 					interviewerDetails.setByteAttachemenets(byteArray);
 					String response = sendEmailWithDynamicAttachement(interviewerDetails, interviewer,
 							candidateDetails.getName());
@@ -1041,5 +1006,268 @@ public class SRVDataServiceImpl implements SRVDataService {
 			questionIdList = questionScheduleRepository.findByChallengeid(challengeId);
 		}
 		return questionIdList;
+	}
+
+	@Override
+	public List<CandidateResult> getCandidateReports(String assignerId) {
+
+		List<CandidateResult> candidateResults = new ArrayList<CandidateResult>();
+
+		List<ScheduleChallenge> challengeLists = scheduleChallengeRepository.findByAssigneruid(assignerId);
+		List<ScheduleChallenge> challengeList = challengeLists.stream()
+				.filter(challenge -> !"Scheduled".equals(challenge.getStatus())).collect(Collectors.toList());
+
+		for (ScheduleChallenge challengeRec : challengeList) {
+			List<ObjQuestionResult> filteredObjQList = new ArrayList<ObjQuestionResult>();
+			List<SubjQuestionResult> filteredSubQList = new ArrayList<SubjQuestionResult>();
+			int noOfObjQ = 0;
+			int correctAns = 0;
+			int finalsubjResult = 0;
+			int subjectiveQResult = 0;
+			int nofSubjectiveq = 0;
+			String candidatename = this.getUserDetailsFromUserTable(challengeRec.getAssigneduid()).getName();
+			String testScheduler = this.getUserDetailsFromUserTable(assignerId).getName();
+			CandidateResult result = new CandidateResult();
+			List<QuestionScheduler> questionIdList = questionScheduleRepository
+					.findByChallengeid(challengeRec.getChallengeid());
+			List<ObjQuestionResult> objresults = objResultRepository.findByKeyUserId(challengeRec.getAssigneduid());
+
+			if (!questionIdList.isEmpty() && !objresults.isEmpty()) {
+				filteredObjQList = objresults.stream()
+						.filter(objResult -> questionIdList.stream()
+								.anyMatch(question -> objResult.getKey().getQid().equals(question.getQid())))
+						.collect(Collectors.toList());
+			}
+
+			for (ObjQuestionResult objResult : filteredObjQList) {
+				String url = cctServiceHostPort + "question/";
+				url = url + objResult.getKey().getQid();
+				QuestionBase objQuestions = null;
+				RestTemplate restTemplate = new RestTemplate();
+				try {
+					objQuestions = restTemplate.getForObject(url, QuestionBase.class);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				// Optional<ObjQuestion>
+				// objquestion=objQuestionRepository.findByqId(objResult.getKey().getQid());
+
+				noOfObjQ++;
+				if (objResult != null && objResult.getSelectedoption() != null) {
+					if (objResult.getSelectedoption().equals(objQuestions.getCorrectOption())) {
+						correctAns++;
+					}
+				}
+			}
+
+			String objResult = correctAns + " Correct Out Of " + noOfObjQ + " Objective Questions ";
+
+			List<SubjQuestionResult> subjResults = subjResultRepository.findByKeyUserId(challengeRec.getAssigneduid());
+			if (!questionIdList.isEmpty() && !subjResults.isEmpty()) {
+				filteredSubQList = subjResults.stream()
+						.filter(subResult -> questionIdList.stream()
+								.anyMatch(question -> subResult.getKey().getQid().equals(question.getQid())))
+						.collect(Collectors.toList());
+			}
+
+			for (SubjQuestionResult subjresult : filteredSubQList) {
+				nofSubjectiveq++;
+				String subjResult = subjresult.getConsolidatedoutput();
+				String subjper[] = {};
+				if (subjResult != null) {
+					subjper = subjResult.split(" ");
+				}
+				if (subjper.length > 0) {
+					int nofTestcase = Integer.parseInt(subjper[subjper.length - 1]);
+					int passedtest = Integer.parseInt(subjper[0]);
+					subjectiveQResult = ((passedtest * 100) / nofTestcase);
+				}
+			}
+			if (nofSubjectiveq != 0) {
+				finalsubjResult = subjectiveQResult / nofSubjectiveq;
+			}
+
+			/*
+			 * if(!objresults.isEmpty() || !subjResults.isEmpty()) { status="Completed"; }
+			 */
+			int percentage = 0;
+			String finalResult="";
+			if (noOfObjQ != 0 && nofSubjectiveq != 0) {
+				percentage = (((correctAns * 100) / noOfObjQ) + finalsubjResult) / 2;
+				finalResult = objResult + " # Subjective- " + finalsubjResult + "%";
+			}
+			else if(noOfObjQ != 0) {
+				percentage = (correctAns * 100) / noOfObjQ;
+				finalResult = objResult;
+			}
+			else if (nofSubjectiveq != 0) {
+				percentage = finalsubjResult;
+				finalResult = " Subjective - " + finalsubjResult + "%";
+			}
+			
+			result.setCandidateName(candidatename);
+			result.setTestScheduler(testScheduler);
+			result.setTestcaseReport(finalResult);
+			result.setStatus(challengeRec.getStatus());
+			result.setTestCasePercentage(percentage);
+			result.setId(challengeRec.getAssigneduid());
+			result.setScheduleDate(challengeRec.getScheduleTime());
+			result.setChallengeid(challengeRec.getChallengeid());
+			candidateResults.add(result);
+		}
+
+		return candidateResults;
+	}
+
+	@Override
+	public boolean updateChallengeStatus(String candidateId) {
+		ScheduleChallenge challengeIdList = scheduleChallengeRepository.findByAssigneduidAndStatus(candidateId,
+				"Scheduled");
+		if (challengeIdList != null) {
+			challengeIdList.setStatus("Completed");
+			scheduleChallengeRepository.save(challengeIdList);
+			saveOrUpdateCandidateInUserTable(candidateId);
+			return true;
+		}
+		return false;
+	}
+
+	private String saveOrUpdateCandidateInUserTable(String candidateId) {
+		String userJson = makeJson(candidateId);
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> request = new HttpEntity<String>(userJson, headers);
+		String url = aaServiceHostPort + "user/password/" + candidateId;
+		try {
+			restTemplate.put(url, request, String.class);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return "";
+	}
+
+	private String makeJson(String candidateId) {
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		// map.put("password", generatePassword(candidateId));
+		map.put("password", "Test@1234");
+		return returnJson(map);
+	}
+
+	@Override
+	public byte[] getSubjObjResultReport(String candidateId, String challengeid) {
+		List<SubjectiveResultReport> subjReport = new ArrayList<SubjectiveResultReport>();
+		List<ObjQuestionResult> filteredObjQList = new ArrayList<ObjQuestionResult>();
+		List<SubjQuestionResult> filteredSubQList = new ArrayList<SubjQuestionResult>();
+		List<ObjectiveResultReport> objReports = new ArrayList<ObjectiveResultReport>();
+
+		List<QuestionScheduler> questionIdList = questionScheduleRepository.findByChallengeid(challengeid);
+		List<SubjQuestionResult> subjResults = subjResultRepository.findByKeyUserId(candidateId);
+
+		if (!questionIdList.isEmpty() && !subjResults.isEmpty()) {
+			filteredSubQList = subjResults.stream()
+					.filter(subResult -> questionIdList.stream()
+							.anyMatch(question -> subResult.getKey().getQid().equals(question.getQid())))
+					.collect(Collectors.toList());
+		}
+
+		for (SubjQuestionResult subj : filteredSubQList) {
+			// Optional<SubjQuestion>
+			// subjQuestion=subjQuestionRepository.findByqId(subj.getKey().getQid());
+			// String type="SUBJECTIVE";
+			String url = cctServiceHostPort + "question/";
+			url = url + subj.getKey().getQid();
+			QuestionBase subjQuestions = null;
+			RestTemplate restTemplate = new RestTemplate();
+			try {
+				subjQuestions = restTemplate.getForObject(url, QuestionBase.class);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			SubjectiveResultReport sReport = new SubjectiveResultReport();
+			if (subjQuestions != null) {
+				sReport.setProgram(subjQuestions.getStatement());
+			}
+
+			sReport.setAnsSubmitted(convertByteBufferToString(subj.getProgram()));
+			sReport.setConsolidatedOutput(subj.getConsolidatedoutput());
+			subjReport.add(sReport);
+		}
+		List<ObjQuestionResult> objresults = objResultRepository.findByKeyUserId(candidateId);
+
+		if (!questionIdList.isEmpty() && !objresults.isEmpty()) {
+			filteredObjQList = objresults.stream()
+					.filter(objResult -> questionIdList.stream()
+							.anyMatch(question -> objResult.getKey().getQid().equals(question.getQid())))
+					.collect(Collectors.toList());
+		}
+
+		for (ObjQuestionResult objresult : filteredObjQList) {
+			ObjectiveResultReport objreport = new ObjectiveResultReport();
+			// Optional<ObjQuestion>
+			// objquestion=objQuestionRepository.findByqId(objresult.getKey().getQid());
+			String url = cctServiceHostPort + "question/";
+			url = url + objresult.getKey().getQid();
+			QuestionBase objQuestions = null;
+			RestTemplate restTemplate = new RestTemplate();
+			try {
+				objQuestions = restTemplate.getForObject(url, QuestionBase.class);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			if (objQuestions != null) {
+				objreport.setProblem(objQuestions.getStatement());
+				List<String> options = objQuestions.getOptions();
+				objreport.setOptions(options);
+				objreport.setCorrectAnswer(objQuestions.getCorrectOption());
+			}
+
+			// objreport.setCorrectAnswer(objquestion.get().getCorrect_option());
+			// objreport.setSlectedAnswer(objresult.getSelectedoption());
+
+			objreport.setSlectedAnswer(objresult.getSelectedoption());
+			objReports.add(objreport);
+		}
+		List<ScheduledRequest> userlist = scheduleRequestRepository.findByCandidateEmailId(candidateId);
+
+		if (userlist.isEmpty()) {
+			User userData = this.getUserDetailsFromUserTable(candidateId);
+			ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(challengeid);
+			ScheduledRequest user = new ScheduledRequest();
+			user.setCandidateName(userData.getName());
+			user.setCandidateMobileNo("**********");
+			user.setCandidateExperience(userData.getExperience().toString());
+			user.setHiringManagerName(challengeRecord.getAssigneruid());
+			user.setRecruiterName(challengeRecord.getAssigneruid());
+			userlist.add(user);
+		}
+		/*
+		 * User user=getUserDetailsFromUserTable(format); //User us=user.get();
+		 * List<User> userlist=new ArrayList<User>(); userlist.add(user);
+		 * 
+		 * String path = "C:\\mydownloads\\"; Path pathDir = Paths.get(path);
+		 * 
+		 * try { if (!Files.exists(pathDir)) { Files.createDirectories(pathDir);
+		 * System.out.println("Directory created"); } else {
+		 * System.out.println("Directory already exists"); } } catch(Exception e) {
+		 * e.printStackTrace(); } String destFileName=path;
+		 */
+		byte arr[] = {};
+		try {
+			File file = ResourceUtils.getFile("classpath:Report.jrxml");
+			JasperReport report = JasperCompileManager.compileReport(file.getAbsolutePath());
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			parameters.put("datasource1", subjReport);
+			parameters.put("datasource2", objReports);
+			parameters.put("datasource3", userlist);
+			JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource(1));
+			arr = JasperExportManager.exportReportToPdf(print);
+			// JasperExportManager.exportReportToPdfFile(print,
+			// destFileName+"\\candidate.pdf");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return arr;
 	}
 }
