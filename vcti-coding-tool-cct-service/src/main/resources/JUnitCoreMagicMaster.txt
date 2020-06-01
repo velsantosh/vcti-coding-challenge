@@ -3,11 +3,20 @@ import org.junit.runner.Result;
 
 public class JUnitCoreMagicMaster {
 	public static void main(String[] args) {
-	        printResult(new JUnitCore().run(ExampleClassTest.class));
+		printResult(new JUnitCore().run(ExampleClassTest.class));
 	}
-	
+
 	public static void printResult(Result result) {
-       System.out.printf("Test ran: %s, Failed: %s%n",
-               result.getRunCount(), result.getFailureCount());
-   }
+		System.out.printf("Test ran: %s, Failed: %s%n", result.getRunCount(), result.getFailureCount());
+		for (Failure failure : result.getFailures()) {
+			String testCaseFailureString = failure.toString();
+			if (testCaseFailureString.contains(":")) {
+				testCaseFailureString = testCaseFailureString.substring(testCaseFailureString.indexOf(":") + 1,
+						testCaseFailureString.length());
+			}
+
+			System.out.println(testCaseFailureString);
+		}
+
+	}
 }

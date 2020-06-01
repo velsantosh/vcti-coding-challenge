@@ -123,10 +123,6 @@ public class CassandraConfig extends AbstractCassandraConfiguration implements A
 
 		// RolePerMapping Table
 		populateRolePerMappingTable(insertQueryList);
-
-		// Add one default admin user
-		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + userTable
-				+ "(id, name, userid, password, roleid, experience) VALUES ('1','ADMIN','ADMIN','admin','1',0)");
 		
 		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + userTable
 				+ "(id, name, userid, password, roleid, experience) VALUES ('1','ADMIN','Admin@vspl.com','Admin@123','1',0)");
