@@ -150,6 +150,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration implements A
 		}
 		System.out.println("Permission Properties loaded successfully");
 		for (int permIndex = 0; permIndex < perm.getPerm().length; permIndex++) {
+			if(permIndex == 6)continue;
 			insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
 					+ "(id, roleid, permissionid) VALUES ('" + mappingIndex + "','1','" + permIndex + "')");
 			mappingIndex++;
