@@ -1078,9 +1078,11 @@ public class SRVDataServiceImpl implements SRVDataService {
 					subjper = subjResult.split(" ");
 				}
 				if (subjper.length > 0) {
-					int nofTestcase = Integer.parseInt(subjper[subjper.length - 1]);
-					int passedtest = Integer.parseInt(subjper[0]);
-					subjectiveQResult = ((passedtest * 100) / nofTestcase);
+					int noOfTestcase = Integer.parseInt(subjper[2].split(",")[0]);
+					int noOfFailedTestcase = Integer.parseInt(subjper[4].split(",")[0].replaceAll("(\\r|\\n)", ""));
+
+					int passedTest = noOfTestcase - noOfFailedTestcase;
+					subjectiveQResult = ((passedTest * 100) / noOfTestcase);
 				}
 			}
 			if (nofSubjectiveq != 0) {
@@ -1091,16 +1093,14 @@ public class SRVDataServiceImpl implements SRVDataService {
 			 * if(!objresults.isEmpty() || !subjResults.isEmpty()) { status="Completed"; }
 			 */
 			int percentage = 0;
-			String finalResult="";
+			String finalResult = "";
 			if (noOfObjQ != 0 && nofSubjectiveq != 0) {
 				percentage = (((correctAns * 100) / noOfObjQ) + finalsubjResult) / 2;
 				finalResult = objResult + " # Subjective- " + finalsubjResult + "%";
-			}
-			else if(noOfObjQ != 0) {
+			} else if (noOfObjQ != 0) {
 				percentage = (correctAns * 100) / noOfObjQ;
 				finalResult = objResult;
-			}
-			else if (nofSubjectiveq != 0) {
+			} else if (nofSubjectiveq != 0) {
 				percentage = finalsubjResult;
 				finalResult = " Subjective - " + finalsubjResult + "%";
 			}
@@ -1257,10 +1257,19 @@ public class SRVDataServiceImpl implements SRVDataService {
 			File file = ResourceUtils.getFile("classpath:Report.jrxml");
 			JasperReport report = JasperCompileManager.compileReport(file.getAbsolutePath());
 			Map<String, Object> parameters = new HashMap<String, Object>();
+
 			parameters.put("datasource1", subjReport);
 			parameters.put("datasource2", objReports);
 			parameters.put("datasource3", userlist);
+			
+			/*
+			 * parameters.put("subjRepoDatasource", subjReport);
+			 * parameters.put("objRepoDatasource", objReports);
+			 * parameters.put("userDatasource", userlist);
+			 */
+		
 			JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource(1));
+
 			arr = JasperExportManager.exportReportToPdf(print);
 			// JasperExportManager.exportReportToPdfFile(print,
 			// destFileName+"\\candidate.pdf");

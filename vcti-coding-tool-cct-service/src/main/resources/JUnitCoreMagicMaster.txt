@@ -1,5 +1,6 @@
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 
 public class JUnitCoreMagicMaster {
 	public static void main(String[] args) {
@@ -8,7 +9,8 @@ public class JUnitCoreMagicMaster {
 
 	public static void printResult(Result result) {
 		System.out.printf("Test ran: %s, Failed: %s%n", result.getRunCount(), result.getFailureCount());
-		for (Failure failure : result.getFailures()) {
+	for (Failure failure : result.getFailures()) {
+		if(failure != null)	{
 			String testCaseFailureString = failure.toString();
 			if (testCaseFailureString.contains(":")) {
 				testCaseFailureString = testCaseFailureString.substring(testCaseFailureString.indexOf(":") + 1,
@@ -16,7 +18,9 @@ public class JUnitCoreMagicMaster {
 			}
 
 			System.out.println(testCaseFailureString);
+			
 		}
+	} 
 
 	}
 }
