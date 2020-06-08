@@ -172,6 +172,13 @@ public class SRVDataServiceImpl implements SRVDataService {
 			scheduleChallengeList.add(scheduleChallenge);
 			scheduleChallengeRepository.saveAll(scheduleChallengeList);
 			challengeIdList.add(challengeId);
+			if(isScheduledDateToday(assignBulkQ.getScheduleTime())) {
+				if(assignBulkQ.getAssigneduidList() != null && !assignBulkQ.getAssigneduidList().isEmpty()) {
+					User user = getUserDetailsFromUserTable(assignBulkQ.getAssigneduidList().get(0));
+					sendEmailToCandidates(user);
+				}
+				
+			}
 
 		}
 
@@ -186,6 +193,19 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 		questionScheduleRepository.saveAll(assignQObjList);
 		return true;
+	}
+	
+	private boolean isScheduledDateToday(Date scheduleDate) {
+		try {
+			SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+			Date todayDate = dateFormatter.parse(dateFormatter.format(new Date() ));
+			scheduleDate = dateFormatter.parse(dateFormatter.format(scheduleDate));
+			return scheduleDate.equals(todayDate);
+		}
+		catch(Exception e) {
+			System.out.println(e);
+		}
+		return false;
 	}
 
 	@Override
@@ -784,6 +804,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		long currTimeInMillSec = System.currentTimeMillis();
 		long millSecForNext24Hours = currTimeInMillSec + millSecFor24Hours;
 		return (timeInMilliSec >= currTimeInMillSec && timeInMilliSec <= millSecForNext24Hours) ? true : false;
+		//return timeInMilliSec <= millSecForNext24Hours ? true : false;
 	}
 
 	private User getUserDetailsFromUserTable(String userId) {

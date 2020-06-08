@@ -12,10 +12,10 @@ public class JUnitCoreMagicMaster {
 	for (Failure failure : result.getFailures()) {
 		if(failure != null)	{
 			String testCaseFailureString = failure.toString();
-			if (testCaseFailureString.contains(":")) {
+			/**if (testCaseFailureString.contains(":")) {
 				testCaseFailureString = testCaseFailureString.substring(testCaseFailureString.indexOf(":") + 1,
 						testCaseFailureString.length());
-			}
+			}*/
 
 			System.out.println(testCaseFailureString);
 			
