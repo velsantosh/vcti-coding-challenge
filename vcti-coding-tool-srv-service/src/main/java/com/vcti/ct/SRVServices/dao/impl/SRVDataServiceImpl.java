@@ -18,10 +18,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -46,6 +44,7 @@ import com.vcti.ct.SRVServices.exceptions.DuplicateScheduleRequestException;
 import com.vcti.ct.SRVServices.exceptions.InvalidScheduleRequestIdException;
 import com.vcti.ct.SRVServices.model.CandidateResult;
 import com.vcti.ct.SRVServices.model.Interviewer;
+import com.vcti.ct.SRVServices.model.InterviewerReport;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.ObjectiveResultReport;
 import com.vcti.ct.SRVServices.model.QuesResponse;
@@ -60,6 +59,7 @@ import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 import com.vcti.ct.SRVServices.model.SubjectiveResultReport;
 import com.vcti.ct.SRVServices.model.User;
 import com.vcti.ct.SRVServices.model.ValidateSubjQuestions;
+import com.vcti.ct.SRVServices.repository.InterviewerReportRepository;
 import com.vcti.ct.SRVServices.repository.ObjResultRepository;
 import com.vcti.ct.SRVServices.repository.QuestionSchedulerRepository;
 import com.vcti.ct.SRVServices.repository.ScheduleChallengeRepository;
@@ -86,6 +86,8 @@ public class SRVDataServiceImpl implements SRVDataService {
 	ScheduleRequestRepository scheduleRequestRepository;
 	@Autowired
 	ScheduleChallengeRepository scheduleChallengeRepository;
+	@Autowired
+	InterviewerReportRepository interviewerReportRepository;
 	@Autowired
 	@Value("${vcc.aa.service.host.port}")
 	private String aaServiceHostPort;
@@ -858,6 +860,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 	public List<String> sendCandidateReport(Interviewer interviewer, String challengeid) {
 		List<String> interviewrIds = null;
 		List<String> responseList = new ArrayList<String>();
+		List<InterviewerReport> reportSent = new ArrayList<InterviewerReport>();
 		if (null != interviewer && null != interviewer.getToEmailIds()) {
 			interviewrIds = Arrays.asList(interviewer.getToEmailIds().split(";"));
 			User candidateDetails = getUserDetailsFromUserTable(interviewer.getCandidateId());
@@ -867,10 +870,18 @@ public class SRVDataServiceImpl implements SRVDataService {
 					byte[] byteArray = getSubjObjResultReport(interviewer.getCandidateId(), challengeid);
 					interviewerDetails.setByteAttachemenets(byteArray);
 					String response = sendEmailWithDynamicAttachement(interviewerDetails, interviewer,
-							candidateDetails.getName());
-					responseList.add(response);
+										candidateDetails.getName());
+										responseList.add(response);
+					
+					InterviewerReport reportData = new InterviewerReport();
+					reportData.setId("ReportX" + new Random().nextInt(100000) + "X" + System.currentTimeMillis());
+					reportData.setChallengeid(challengeid);
+					reportData.setInterviewerid(intrwrId);
+					reportSent.add(reportData);
 				}
 			}
+			if(!reportSent.isEmpty())
+				interviewerReportRepository.saveAll(reportSent);
 		}
 		return responseList;
 	}
@@ -1033,10 +1044,21 @@ public class SRVDataServiceImpl implements SRVDataService {
 	public List<CandidateResult> getCandidateReports(String assignerId) {
 
 		List<CandidateResult> candidateResults = new ArrayList<CandidateResult>();
-
+		List<ScheduleChallenge> challengeList = new ArrayList<ScheduleChallenge>();
+		
 		List<ScheduleChallenge> challengeLists = scheduleChallengeRepository.findByAssigneruid(assignerId);
-		List<ScheduleChallenge> challengeList = challengeLists.stream()
+		
+		if(!challengeLists.isEmpty()) {
+		 challengeList = challengeLists.stream()
 				.filter(challenge -> !"Scheduled".equals(challenge.getStatus())).collect(Collectors.toList());
+		}
+		else {
+			List<InterviewerReport> reportDataList = interviewerReportRepository.findByInterviewerid(assignerId);
+			for(InterviewerReport reportData: reportDataList) {
+				ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(reportData.getChallengeid());
+				challengeList.add(challengeRecord);
+			}
+		}
 
 		for (ScheduleChallenge challengeRec : challengeList) {
 			List<ObjQuestionResult> filteredObjQList = new ArrayList<ObjQuestionResult>();

@@ -183,6 +183,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration implements A
 				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','5')");
 		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
 				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','7')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','9')");
 
 		// GUEST
 

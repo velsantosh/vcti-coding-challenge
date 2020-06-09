@@ -46,6 +46,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 	
 	@Value("${spring.data.cassandra.schedule-challenge-table}")
 	private String scheduleChallengeTable;
+	
+	@Value("${spring.data.cassandra.interviewer-report-table}")
+	private String interviewerReportTable;
 
 	public String getUserName() {
 		return userName;
@@ -118,8 +121,12 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 		//Schedule_Challange Table
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + scheduleChallengeTable
 				+ "(challengeid text PRIMARY KEY, assigneduid text, assigneruid text, status text, scheduleTime timestamp, "
-				+ "startTime timestamp, endTime timestamp)");		
-
+				+ "startTime timestamp, endTime timestamp)");	
+		
+		//DATA: Test Report sent to interviewer
+		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + interviewerReportTable
+				+ "(id text PRIMARY KEY, interviewerid text, challengeid text)");	
+		
 		return createQueryList;
 	}
 	
