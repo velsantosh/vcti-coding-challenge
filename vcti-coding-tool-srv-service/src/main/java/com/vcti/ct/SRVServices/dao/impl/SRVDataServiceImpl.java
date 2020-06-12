@@ -174,12 +174,12 @@ public class SRVDataServiceImpl implements SRVDataService {
 			scheduleChallengeList.add(scheduleChallenge);
 			scheduleChallengeRepository.saveAll(scheduleChallengeList);
 			challengeIdList.add(challengeId);
-			if(isScheduledDateToday(assignBulkQ.getScheduleTime())) {
-				if(assignBulkQ.getAssigneduidList() != null && !assignBulkQ.getAssigneduidList().isEmpty()) {
+			if (isScheduledDateToday(assignBulkQ.getScheduleTime())) {
+				if (assignBulkQ.getAssigneduidList() != null && !assignBulkQ.getAssigneduidList().isEmpty()) {
 					User user = getUserDetailsFromUserTable(assignBulkQ.getAssigneduidList().get(0));
 					sendEmailToCandidates(user);
 				}
-				
+
 			}
 
 		}
@@ -196,15 +196,14 @@ public class SRVDataServiceImpl implements SRVDataService {
 		questionScheduleRepository.saveAll(assignQObjList);
 		return true;
 	}
-	
+
 	private boolean isScheduledDateToday(Date scheduleDate) {
 		try {
 			SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
-			Date todayDate = dateFormatter.parse(dateFormatter.format(new Date() ));
+			Date todayDate = dateFormatter.parse(dateFormatter.format(new Date()));
 			scheduleDate = dateFormatter.parse(dateFormatter.format(scheduleDate));
 			return scheduleDate.equals(todayDate);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			System.out.println(e);
 		}
 		return false;
@@ -806,7 +805,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		long currTimeInMillSec = System.currentTimeMillis();
 		long millSecForNext24Hours = currTimeInMillSec + millSecFor24Hours;
 		return (timeInMilliSec >= currTimeInMillSec && timeInMilliSec <= millSecForNext24Hours) ? true : false;
-		//return timeInMilliSec <= millSecForNext24Hours ? true : false;
+		// return timeInMilliSec <= millSecForNext24Hours ? true : false;
 	}
 
 	private User getUserDetailsFromUserTable(String userId) {
@@ -870,9 +869,9 @@ public class SRVDataServiceImpl implements SRVDataService {
 					byte[] byteArray = getSubjObjResultReport(interviewer.getCandidateId(), challengeid);
 					interviewerDetails.setByteAttachemenets(byteArray);
 					String response = sendEmailWithDynamicAttachement(interviewerDetails, interviewer,
-										candidateDetails.getName());
-										responseList.add(response);
-					
+							candidateDetails.getName());
+					responseList.add(response);
+
 					InterviewerReport reportData = new InterviewerReport();
 					reportData.setId("ReportX" + new Random().nextInt(100000) + "X" + System.currentTimeMillis());
 					reportData.setChallengeid(challengeid);
@@ -880,7 +879,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 					reportSent.add(reportData);
 				}
 			}
-			if(!reportSent.isEmpty())
+			if (!reportSent.isEmpty())
 				interviewerReportRepository.saveAll(reportSent);
 		}
 		return responseList;
@@ -1045,17 +1044,17 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 		List<CandidateResult> candidateResults = new ArrayList<CandidateResult>();
 		List<ScheduleChallenge> challengeList = new ArrayList<ScheduleChallenge>();
-		
+
 		List<ScheduleChallenge> challengeLists = scheduleChallengeRepository.findByAssigneruid(assignerId);
-		
-		if(!challengeLists.isEmpty()) {
-		 challengeList = challengeLists.stream()
-				.filter(challenge -> !"Scheduled".equals(challenge.getStatus())).collect(Collectors.toList());
-		}
-		else {
+
+		if (!challengeLists.isEmpty()) {
+			challengeList = challengeLists.stream().filter(challenge -> !"Scheduled".equals(challenge.getStatus()))
+					.collect(Collectors.toList());
+		} else {
 			List<InterviewerReport> reportDataList = interviewerReportRepository.findByInterviewerid(assignerId);
-			for(InterviewerReport reportData: reportDataList) {
-				ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(reportData.getChallengeid());
+			for (InterviewerReport reportData : reportDataList) {
+				ScheduleChallenge challengeRecord = scheduleChallengeRepository
+						.findByChallengeid(reportData.getChallengeid());
 				challengeList.add(challengeRecord);
 			}
 		}
@@ -1122,7 +1121,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 				}
 				if (subjper.length > 0) {
 					int noOfTestcase = Integer.parseInt(subjper[2].split(",")[0]);
-					int noOfFailedTestcase = Integer.parseInt(subjper[4].split(",")[0].replaceAll("(\\r|\\n)", ""));
+					int noOfFailedTestcase = Integer.parseInt(subjper[4].split("\\n")[0].replaceAll("(\\r|\\n)", ""));
 
 					int passedTest = noOfTestcase - noOfFailedTestcase;
 					subjectiveQResult = ((passedTest * 100) / noOfTestcase);
@@ -1147,7 +1146,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 				percentage = finalsubjResult;
 				finalResult = " Subjective - " + finalsubjResult + "%";
 			}
-			
+
 			result.setCandidateName(candidatename);
 			result.setTestScheduler(testScheduler);
 			result.setTestcaseReport(finalResult);
@@ -1278,6 +1277,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 			ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(challengeid);
 			ScheduledRequest user = new ScheduledRequest();
 			user.setCandidateName(userData.getName());
+			user.setCandidateEmailId(userData.getUserId());
 			user.setCandidateMobileNo("**********");
 			user.setCandidateExperience(userData.getExperience().toString());
 			user.setHiringManagerName(challengeRecord.getAssigneruid());
@@ -1301,16 +1301,10 @@ public class SRVDataServiceImpl implements SRVDataService {
 			JasperReport report = JasperCompileManager.compileReport(file.getAbsolutePath());
 			Map<String, Object> parameters = new HashMap<String, Object>();
 
-			parameters.put("datasource1", subjReport);
-			parameters.put("datasource2", objReports);
-			parameters.put("datasource3", userlist);
-			
-			/*
-			 * parameters.put("subjRepoDatasource", subjReport);
-			 * parameters.put("objRepoDatasource", objReports);
-			 * parameters.put("userDatasource", userlist);
-			 */
-		
+			parameters.put("subjRepoDataSource", subjReport);
+			parameters.put("objRepoDataSource", objReports);
+			parameters.put("userRepoDataSource", userlist);
+
 			JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource(1));
 
 			arr = JasperExportManager.exportReportToPdf(print);
