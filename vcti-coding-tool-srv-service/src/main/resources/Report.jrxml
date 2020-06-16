@@ -77,7 +77,7 @@
 		</band>
 	</title>
 	<detail>
-		<band height="1180" splitType="Stretch">
+		<band height="1010" splitType="Stretch">
 			<property name="local_mesure_unitheight" value="pixel"/>
 			<componentElement>
 				<reportElement x="0" y="10" width="810" height="180" isPrintInFirstWholeBand="true" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
@@ -435,7 +435,7 @@
 				</jr:table>
 			</componentElement>
 			<componentElement>
-				<reportElement x="0" y="730" width="810" height="280" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
+				<reportElement positionType="Float" x="0" y="730" width="810" height="280" isPrintWhenDetailOverflows="true" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
 					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
@@ -553,9 +553,6 @@
 					</jr:column>
 				</jr:table>
 			</componentElement>
-			<break>
-				<reportElement x="0" y="670" width="800" height="1" uuid="6e9763a9-4c1f-42b4-a747-6dde54eb645b"/>
-			</break>
 		</band>
 	</detail>
 </jasperReport>
