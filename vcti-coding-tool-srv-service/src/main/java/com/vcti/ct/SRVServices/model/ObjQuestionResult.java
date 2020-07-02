@@ -2,12 +2,13 @@ package com.vcti.ct.SRVServices.model;
 
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
-import lombok.AllArgsConstructor;
+
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-@AllArgsConstructor
+@Builder
 @Getter
 @Setter
 @Table("objresult")

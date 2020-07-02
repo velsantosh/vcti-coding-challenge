@@ -1,4 +1,5 @@
 package com.vcti.ct.SRVServices.controller;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,9 @@ public class SRVController {
 
 	@Autowired
 	private SRVDataService srvDataService;
+
+	@Autowired
+	private RestTemplate restTemplate;
 
 	// Scheduler URI
 
@@ -180,67 +184,70 @@ public class SRVController {
 	public List<ScheduledRequest> getAllScheduledRequest() {
 		return srvDataService.getAllScheduledRequest();
 	}
-	
+
 	@PutMapping("/reschedule/request")
 	public List<ScheduledRequest> updateScheduleRequest(@RequestBody List<ScheduledRequest> scheduleRequest) {
 		return srvDataService.rescheduleRequest(scheduleRequest);
 	}
-	
+
 	@DeleteMapping("/cancel/schedule/request")
 	public List<ScheduledRequest> deleteScheduleRequest(@RequestBody List<String> scheduleRequestIds) {
 		return srvDataService.cancelScheduleRequest(scheduleRequestIds);
 	}
+
 	@GetMapping("/subjResReport/{id}/{challengeid}")
 	public byte[] getSubjObjResultReport(@PathVariable String id, @PathVariable String challengeid) {
 		return srvDataService.getSubjObjResultReport(id, challengeid);
 	}
+
 	@GetMapping("/candidateReport/{id}")
-	public List<CandidateResult> getCandidateReports(@PathVariable String id){
+	public List<CandidateResult> getCandidateReports(@PathVariable String id) {
 		return srvDataService.getCandidateReports(id);
 	}
+
 	@GetMapping("/send/testlink")
-	public List<String> sendTestLinkToCandidates(){
+	public List<String> sendTestLinkToCandidates() {
 		return srvDataService.sendTestLinkToCandidates();
 	}
-	
+
 	@GetMapping("/schQuesByassignerId/{assignerId}")
 	public List<QuestionCustom> getSchQuestionsByAssignerId(@PathVariable String assignerId) {
 		List<QuestionSchedView> quesIdList = srvDataService.getQuestionsByAssignerId(assignerId);
 		return getQuestionListFromCCTService(quesIdList);
 	}
-	
+
 	@PostMapping("/send/candidate/report/{challengeid}")
-	public List<String> sendCandidateReport(@PathVariable String challengeid,@RequestBody Interviewer interviewer){
+	public List<String> sendCandidateReport(@PathVariable String challengeid, @RequestBody Interviewer interviewer) {
 		return srvDataService.sendCandidateReport(interviewer, challengeid);
 	}
-	
+
 	@GetMapping("/send/testlink/now")
-	public List<String> sendEamilToCandidateForTestLink(@RequestBody List<String> candidateEmailList){
+	public List<String> sendEamilToCandidateForTestLink(@RequestBody List<String> candidateEmailList) {
 		return srvDataService.sendEamilToCandidateForTestLink(candidateEmailList);
 	}
-	
+
 	@GetMapping("/chlngRecByassignerId/{assignerId}")
 	public List<ScheduleChallenge> getChallengeRecByAssignerId(@PathVariable String assignerId) {
 		List<ScheduleChallenge> quesIdList = srvDataService.getChallengeRecByAssignerId(assignerId);
 		return quesIdList;
 	}
-	
+
 	@DeleteMapping(value = "/challenge/{challengeId}", produces = "application/json; charset=utf-8")
 	public String deleteChallenge(@PathVariable String challengeId) {
 		return srvDataService.deleteChallenge(challengeId);
 	}
-	
+
 	@PutMapping("/updateChallenge")
 	public ScheduleChallenge updateUser(@RequestBody QuestionSchedulerCustom assignBulkQ) {
 		return srvDataService.updateChallenge(assignBulkQ);
 	}
-	
+
 	@GetMapping("/schQuesBychallengeId/{challengeId}")
 	public List<QuestionCustom> getQuestionsByChallengeId(@PathVariable String challengeId) {
 		List<QuestionScheduler> quesIdList = srvDataService.getQuestionsByChallengeId(challengeId);
 		return getQuestionListFromCCT(quesIdList);
 	}
-	
+
 	private List<QuestionCustom> getQuestionListFromCCT(List<QuestionScheduler> quesIdList) {
 		List<QuestionCustom> questionList = new ArrayList<QuestionCustom>();
 		for (QuestionScheduler qId : quesIdList) {
@@ -256,7 +263,7 @@ public class SRVController {
 		// TODO move this to application.properties as connection point to CCT Service
 		final String uri = "http://localhost:8082/question/" + id;
 
-		RestTemplate restTemplate = new RestTemplate();
+		// RestTemplate restTemplate = new RestTemplate();
 		QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
 		QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
 				result.getOptions(), result.getCorrectOption(), result.getMethodName(), result.getExperience(),
@@ -266,19 +273,20 @@ public class SRVController {
 
 		questionList.add(customObj);
 	}
-	
+
 	@GetMapping("/schQuesNotBychallengeId/{assigneduid}/{challengeId}")
-	public List<QuestionCustom> getQuestionsNotByChallengeId(@PathVariable String assigneduid, @PathVariable String challengeId) {
-		List<QuestionSchedView> quesIdList = srvDataService.getQuestionsNotByChallengeId(assigneduid,challengeId);
-		 return getQuestionListFromCCTService(quesIdList);
+	public List<QuestionCustom> getQuestionsNotByChallengeId(@PathVariable String assigneduid,
+			@PathVariable String challengeId) {
+		List<QuestionSchedView> quesIdList = srvDataService.getQuestionsNotByChallengeId(assigneduid, challengeId);
+		return getQuestionListFromCCTService(quesIdList);
 	}
-	
+
 	@GetMapping("/schQuesByCandidate/{candidateId}")
 	public List<QuestionCustom> getAllSchQuestionsByCandidate(@PathVariable String candidateId) {
 		List<QuestionScheduler> quesIdList = srvDataService.getQuestionsByCandidateId(candidateId);
 		return getQuestionListFromCCT(quesIdList);
 	}
-	
+
 	@PutMapping("/updateChallengeStatus/{candidateId}")
 	public boolean updateChallengeStatus(@PathVariable String candidateId) {
 		return srvDataService.updateChallengeStatus(candidateId);

@@ -25,8 +25,8 @@ import org.springframework.util.ResourceUtils;
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
-import com.vcti.ct.CCTServices.exceptions.InvalidQuestionTypeExceptoin;
 import com.vcti.ct.CCTServices.exceptions.InvalidQuestionIdException;
+import com.vcti.ct.CCTServices.exceptions.InvalidQuestionTypeExceptoin;
 import com.vcti.ct.CCTServices.exceptions.QuestionAlreadyExistsException;
 import com.vcti.ct.CCTServices.exceptions.QuestionNotFoundExcetion;
 import com.vcti.ct.CCTServices.model.ObjQuestion;
@@ -61,17 +61,18 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	CassandraOperations cassandraOperations;
 
 	private String junitCoreTest;
-	
+
 	@PostConstruct
 	public void init() {
 		try {
-			junitCoreTest = new String(Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:JUnitCoreMagicMaster.txt").toString())));
-			
+			junitCoreTest = new String(Files
+					.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:JUnitCoreMagicMaster.txt").toString())));
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public Question addQuestion(QuestionBase newQ) {
 
@@ -386,7 +387,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		String currentTime = sdf.format(timestamp);
 		String userDir = subjQuesObj.getUserId() + currentTime;
 		// Save program to a Java File
-		String path = CCTUtils.writeProgInFile(prog, subjQuesObj.getClassName(), userDir);
+		String path = CCTUtils.writeProgInFile(prog, subjQuesObj.getClassName(), userDir, ".java");
 		// compilationStatus can be compilation failure or Junit results
 		Map<String, String> compilationStatus = CCTUtils.compileJavaProgram(path);
 
@@ -410,12 +411,15 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 //				junitProg = junitProg.replaceAll(oldJavaClassRef, javaClassName);
 //				String junitName = subjQuesObj.getClassName() + "Test";
 				// Write Junit Prog on File
-				String testClassPath = CCTUtils.writeProgInFile(junitProg, junitClassName, userDir);
-				String junitCoreTestClassPath = CCTUtils.writeProgInFile(junitCoreTest, junitCoreClassName, userDir);
+				String testClassPath = CCTUtils.writeProgInFile(junitProg, junitClassName, userDir, ".java");
+				String junitCoreTestClassPath = CCTUtils.writeProgInFile(junitCoreTest, junitCoreClassName, userDir,
+						".java");
 				// Compile Junit Program
 				Map<String, String> testCompilationStatus = CCTUtils.compileJavaProgram(testClassPath, userDir + "\\");
-				Map<String, String> junitCoreTestCompilationStatus = CCTUtils.compileJavaProgram(junitCoreTestClassPath, userDir + "\\");
-				if (testCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name()) && junitCoreTestCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+				Map<String, String> junitCoreTestCompilationStatus = CCTUtils.compileJavaProgram(junitCoreTestClassPath,
+						userDir + "\\");
+				if (testCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name())
+						&& junitCoreTestCompilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
 					// Since Junit compilation is also successful, then run the Junit
 					Map<String, String> runJunitStatus = CCTUtils.runJavaProgram(junitCoreClassName, userDir);
 					if (runJunitStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
@@ -442,7 +446,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		}
 		return responseObj;
 	}
-	
+
 	private String getClassName(String program) {
 		String splits[] = program.substring(program.indexOf("class "), program.indexOf("{")).trim().split(" ");
 		return splits[1];
@@ -817,5 +821,64 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 				qBase.setTopic(tch.getTopic());
 			}
 		}
+	}
+
+	@Override
+	public QuesResponse runSubjQuesTestCode(ValidateSubjQuestions subjQuesSolObj) {
+
+		String javaClassName = getClassName(subjQuesSolObj.getQuesResponseObj().getUserInput());
+		QuesResponse responseObj = new QuesResponse();
+		// Get complete Program
+		String prog = subjQuesSolObj.getQuesResponseObj().getUserInput();
+		String userInputValue = subjQuesSolObj.getQuesResponseObj().getUserInputValues();
+//		if (subjQuesObj.getClassName() == null) {
+//			subjQuesObj.setClassName("ExampleClass");
+//		}
+
+		subjQuesSolObj.setClassName(javaClassName);
+		SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		String currentTime = sdf.format(timestamp);
+		String userDir = subjQuesSolObj.getUserId() + currentTime;
+
+		// Save input values into a txt File
+		String userInputPath = CCTUtils.writeProgInFile(userInputValue, "userInput", userDir, ".txt");
+		userInputPath = userInputPath.replace("\\", "/");
+
+		prog = prog.replaceAll("System.in", "new File(" + '"' + userInputPath + '"' + ")");
+
+		// Save program to a Java File
+		String path = CCTUtils.writeProgInFile(prog, subjQuesSolObj.getClassName(), userDir, ".java");
+
+		// compilationStatus can be compilation failure or Junit results
+		Map<String, String> compilationStatus = CCTUtils.compileJavaProgram(path);
+
+		if (compilationStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+			// Call Junit Stub which will call runJavaProgram
+			responseObj.setCompilationsStatus(CCTConstants.status.SUCCESS.name());
+
+			Map<String, String> runJunitStatus = CCTUtils.runJavaProgram(subjQuesSolObj.getClassName(), userDir);
+
+			if (runJunitStatus.containsKey(CCTConstants.status.SUCCESS.name())) {
+				// Junit Run program is successful
+				responseObj.setqId(subjQuesSolObj.getQuesResponseObj().getqId());
+				responseObj.setUserInput(runJunitStatus.get(CCTConstants.status.SUCCESS.name()));
+				responseObj.setUserInputValues(subjQuesSolObj.getQuesResponseObj().getUserInputValues());
+			} else {
+				// Compilation failed for Java Program
+				responseObj.setCompilationsStatus(CCTConstants.status.FAIL.name());
+				responseObj.setqId(subjQuesSolObj.getQuesResponseObj().getqId());
+				responseObj.setUserInput(runJunitStatus.get(CCTConstants.status.FAIL.name()));
+
+			}
+
+		} else {
+			// Compilation failed for Java Program
+			responseObj.setCompilationsStatus(CCTConstants.status.FAIL.name());
+			responseObj.setqId(subjQuesSolObj.getQuesResponseObj().getqId());
+			responseObj.setUserInput(compilationStatus.get(CCTConstants.status.FAIL.name()));
+		}
+		return responseObj;
+
 	}
 }

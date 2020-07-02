@@ -27,9 +27,9 @@ public interface QuestionDataService {
 	QuesResponse validateSubjQues(ValidateSubjQuestions validateSubjQ);
 
 	public Question addObjQuestion(QuestionBase newQ);
-	
+
 	public Question addSubQuestion(QuestionBase newQ);
-	
+
 	default Boolean[] executeQuery(List<String> list) {
 		return new Boolean[] { false };
 	}
@@ -45,6 +45,7 @@ public interface QuestionDataService {
 	List<TechnologyMap> getTechnologyByKey(String tname);
 
 	List<QuestionBase> getAllQuestionsByTypeAndTname(String type, String tname);
+
 	List<QuestionBase> getAllQuestionsByType(String type);
 
 	List<QuestionBase> getAllQuestionsByTname(String tname);
@@ -54,5 +55,7 @@ public interface QuestionDataService {
 	Question updateObjQuestion(QuestionBase newQues, String id);
 
 	Question updateQuestions(QuestionBase newQues, String id);
+
+	QuesResponse runSubjQuesTestCode(ValidateSubjQuestions validateSubjQ);
 
 }

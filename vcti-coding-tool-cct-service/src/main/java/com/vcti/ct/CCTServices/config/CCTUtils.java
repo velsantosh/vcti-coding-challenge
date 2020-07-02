@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class CCTUtils {
 
-	public static String writeProgInFile(String prog, String fileName, String userDir) {
+	public static String writeProgInFile(String prog, String fileName, String userDir, String fileExtension) {
 
 		String path = "C:\\takeTest\\" + userDir + "\\";
 		Path pathDir = Paths.get(path);
@@ -24,7 +24,7 @@ public class CCTUtils {
 			} else {
 				System.out.println("Directory already exists");
 			}
-			path = path + fileName + ".java";
+			path = path + fileName + fileExtension;
 			// Java 7
 			Files.write(Paths.get(path), prog.getBytes());
 		} catch (IOException e) {
@@ -108,7 +108,7 @@ public class CCTUtils {
 		if (pro.exitValue() == 0) {
 			processStatusMap.put(CCTConstants.status.SUCCESS.name(), stdoutResponse);
 		} else {
-			stderrResponse = stderrResponse.substring(stderrResponse.lastIndexOf("\\")+1, stderrResponse.length());
+			stderrResponse = stderrResponse.substring(stderrResponse.lastIndexOf("\\") + 1, stderrResponse.length());
 			processStatusMap.put(CCTConstants.status.FAIL.name(), stderrResponse);
 		}
 		return processStatusMap;

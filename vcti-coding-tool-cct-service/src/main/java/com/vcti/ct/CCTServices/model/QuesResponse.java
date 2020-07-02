@@ -4,6 +4,7 @@ public class QuesResponse {
 	private String qId;
 	private String userInput;
 	private String compilationsStatus;
+	private String userInputValues;
 
 	public String getCompilationsStatus() {
 		return compilationsStatus;
@@ -27,5 +28,13 @@ public class QuesResponse {
 
 	public void setUserInput(String userInput) {
 		this.userInput = userInput;
+	}
+
+	public String getUserInputValues() {
+		return userInputValues;
+	}
+
+	public void setUserInputValues(String userInputValues) {
+		this.userInputValues = userInputValues;
 	}
 }

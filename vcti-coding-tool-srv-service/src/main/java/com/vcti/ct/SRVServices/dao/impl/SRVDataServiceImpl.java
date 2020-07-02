@@ -88,6 +88,10 @@ public class SRVDataServiceImpl implements SRVDataService {
 	ScheduleChallengeRepository scheduleChallengeRepository;
 	@Autowired
 	InterviewerReportRepository interviewerReportRepository;
+
+	@Autowired
+	private RestTemplate restTemplate;
+
 	@Autowired
 	@Value("${vcc.aa.service.host.port}")
 	private String aaServiceHostPort;
@@ -418,7 +422,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 		request.setUserId(subjQRes.getKey().getUserId());
 		request.setQuesResponseObj(qr);
 		request.setClassName(subjQRes.getClassName());
-		RestTemplate restTemplate = new RestTemplate();
 		QuesResponse questionResponse = null;
 		try {
 			questionResponse = restTemplate.postForObject(uri, request, QuesResponse.class);
@@ -529,7 +532,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	private String saveOrUpdateCandidateInUserTable(ScheduledRequest scheduleRequest) {
 		String userJson = makeJson(scheduleRequest);
-		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<String>(userJson, headers);
@@ -809,7 +811,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	private User getUserDetailsFromUserTable(String userId) {
-		RestTemplate restTemplate = new RestTemplate();
 		String url = aaServiceHostPort + "user/userid/" + userId;
 		ResponseEntity<User> resultJson = null;
 		try {
@@ -823,7 +824,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	private String sendEmailToCandidates(User user) {
 		String json = prepareJsonForTestLink(user);
-		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<String>(json, headers);
@@ -914,7 +914,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	private String sendEmailWithDynamicAttachement(User user, Interviewer interviewer, String candidateName) {
 		String json = prepareJsonForReport(user, interviewer, candidateName);
-		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<String>(json, headers);
@@ -929,7 +928,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	private String deleteCandidateFromUserTable(ScheduledRequest scheduleRequest) {
-		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		String url = aaServiceHostPort + "/user/" + scheduleRequest.getCandidateEmailId();
@@ -1085,7 +1083,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 				String url = cctServiceHostPort + "question/";
 				url = url + objResult.getKey().getQid();
 				QuestionBase objQuestions = null;
-				RestTemplate restTemplate = new RestTemplate();
 				try {
 					objQuestions = restTemplate.getForObject(url, QuestionBase.class);
 				} catch (Exception e) {
@@ -1176,7 +1173,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	private String saveOrUpdateCandidateInUserTable(String candidateId) {
 		String userJson = makeJson(candidateId);
-		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<String>(userJson, headers);
@@ -1220,7 +1216,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 			String url = cctServiceHostPort + "question/";
 			url = url + subj.getKey().getQid();
 			QuestionBase subjQuestions = null;
-			RestTemplate restTemplate = new RestTemplate();
 			try {
 				subjQuestions = restTemplate.getForObject(url, QuestionBase.class);
 			} catch (Exception e) {
@@ -1251,7 +1246,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 			String url = cctServiceHostPort + "question/";
 			url = url + objresult.getKey().getQid();
 			QuestionBase objQuestions = null;
-			RestTemplate restTemplate = new RestTemplate();
 			try {
 				objQuestions = restTemplate.getForObject(url, QuestionBase.class);
 			} catch (Exception e) {

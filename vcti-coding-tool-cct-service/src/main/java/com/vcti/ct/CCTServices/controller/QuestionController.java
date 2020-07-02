@@ -32,17 +32,17 @@ public class QuestionController {
 	public String getHealthCheck() {
 		return "{ \"isWorking\" : true }";
 	}
-	
+
 	@PostMapping("/question")
 	public Question addQuestion(@RequestBody QuestionBase newQ) {
 		return questionDataService.addQuestion(newQ);
 	}
-	
+
 	@PostMapping("/add/obj/question")
 	public Question addObjQuestion(@RequestBody QuestionBase newQ) {
 		return questionDataService.addObjQuestion(newQ);
 	}
-	
+
 	@PostMapping("/add/sub/question")
 	public Question addSubQuestion(@RequestBody QuestionBase newQ) {
 		return questionDataService.addSubQuestion(newQ);
@@ -52,37 +52,37 @@ public class QuestionController {
 	public Technology addTechnology(@RequestBody Technology technology) {
 		return questionDataService.addTechnology(technology);
 	}
-	
+
 	@GetMapping("/technology/name/{tname}")
 	public List<Technology> getTechnologyByTname(@PathVariable String tname) {
 		return questionDataService.getTechnology(tname);
 	}
-	
+
 	@GetMapping("/technology/key/{tname}")
 	public List<TechnologyMap> getTechnologyByKey(@PathVariable String tname) {
 		return questionDataService.getTechnologyByKey(tname);
 	}
-	
+
 	@GetMapping("/technologies")
 	public List<TechnologyMap> getAllTechnology() {
 		return questionDataService.getAllTechnology();
 	}
-	
+
 	@GetMapping("/questions")
 	public List<QuestionBase> getQuestions() {
 		return questionDataService.getQuestions();
 	}
-	
+
 	@GetMapping("/questions/type/{type}/tech/{tname}")
 	public List<QuestionBase> getAllQuestionsByTypeAndTname(@PathVariable String type, @PathVariable String tname) {
 		return questionDataService.getAllQuestionsByTypeAndTname(type, tname);
 	}
-	
+
 	@GetMapping("/questions/type/{type}")
 	public List<QuestionBase> getAllQuestionsByType(@PathVariable String type) {
 		return questionDataService.getAllQuestionsByType(type);
 	}
-	
+
 	@GetMapping("/questions/tech/{tname}")
 	public List<QuestionBase> getAllQuestionsByTname(@PathVariable String tname) {
 		return questionDataService.getAllQuestionsByTname(tname);
@@ -107,12 +107,12 @@ public class QuestionController {
 	public Question updateSubQuestion(@RequestBody QuestionBase newQues, @PathVariable String id) {
 		return questionDataService.updateSubQuestion(newQues, id);
 	}
-	
+
 	@PutMapping("/update/obj/question/{id}")
 	public Question updateObjQuestion(@RequestBody QuestionBase newQues, @PathVariable String id) {
 		return questionDataService.updateObjQuestion(newQues, id);
 	}
-	
+
 	@PutMapping("/question/{id}")
 	public Question updateQuestion(@RequestBody QuestionBase newQues, @PathVariable String id) {
 		return questionDataService.updateQuestions(newQues, id);
@@ -126,5 +126,10 @@ public class QuestionController {
 	@PostMapping("/validateSubjQues")
 	public QuesResponse validateSubjQues(@RequestBody ValidateSubjQuestions validateSubjQ) {
 		return questionDataService.validateSubjQues(validateSubjQ);
+	}
+
+	@PostMapping("/runSubjQuesTestCode")
+	public QuesResponse runSubjQuesTestCode(@RequestBody ValidateSubjQuestions validateSubjQ) {
+		return questionDataService.runSubjQuesTestCode(validateSubjQ);
 	}
 }

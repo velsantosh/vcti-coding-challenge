@@ -8,15 +8,12 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-@AllArgsConstructor
 @Getter
 @Setter
-
 @JsonInclude(value = Include.NON_EMPTY, content = Include.NON_NULL)
 public class QuestionCustom {
 	@PrimaryKey
@@ -26,7 +23,7 @@ public class QuestionCustom {
 	private List<String> options;
 	private String correct_option;
 	private String methodName;
-	private @NonNull String experience;
+	private String experience;
 	private @NonNull String createdUserid;
 	private @NonNull ByteBuffer junitObj;
 	private @NonNull String title;
@@ -51,9 +48,9 @@ public class QuestionCustom {
 		this.correct_option = correct_option;
 		this.methodName = methodName;
 	}
-	
+
 	public QuestionCustom(@NonNull String id, @NonNull String type, @NonNull String statement, List<String> options,
-			String correct_option, String methodName, @NonNull String experience, @NonNull String createdUserid,
+			String correct_option, String methodName, String experience, @NonNull String createdUserid,
 			@NonNull ByteBuffer junitObj, @NonNull String title, @NonNull String difficulty,
 			@NonNull String expectedTime, @NonNull String technologyId, @NonNull String technology,
 			@NonNull String topic, String junitText) {

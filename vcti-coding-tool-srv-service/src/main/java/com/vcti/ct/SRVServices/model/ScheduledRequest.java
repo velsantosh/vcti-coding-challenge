@@ -13,7 +13,6 @@ import lombok.Setter;
  * @author sandeepkumar.yadav
  *
  */
-@AllArgsConstructor
 @Getter
 @Setter
 @Table("scheduled_request")

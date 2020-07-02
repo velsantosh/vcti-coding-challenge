@@ -1,15 +1,13 @@
 package com.vcti.ct.SRVServices.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-@AllArgsConstructor
 @Getter
 @Setter
 public class ValidateSubjQuestions {
-  
+
 	private @NonNull String userId;
 	private String className;
 	/**
