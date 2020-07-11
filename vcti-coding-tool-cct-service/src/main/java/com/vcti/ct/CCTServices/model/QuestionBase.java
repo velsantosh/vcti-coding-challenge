@@ -43,6 +43,39 @@ public class QuestionBase {
 		super();
 	}
 
+	public QuestionBase(@NonNull String type, @NonNull String statement, @NonNull List<String> options,
+			@NonNull String correctOption, @NonNull String technology, @NonNull String title,
+			@NonNull String difficulty, @NonNull String experience, @NonNull String topic,
+			@NonNull String expectedTime) {
+		super();
+		this.type = type;
+		this.statement = statement;
+		this.options = options;
+		this.correctOption = correctOption;
+		this.technology = technology;
+		this.title = title;
+		this.difficulty = difficulty;
+		this.experience = experience;
+		this.topic = topic;
+		this.expectedTime = expectedTime;
+	}
+
+	public QuestionBase(@NonNull String type, @NonNull String statement, @NonNull String technology,
+			@NonNull String title, @NonNull String difficulty, @NonNull String experience, @NonNull String topic,
+			@NonNull String expectedTime, String junitText, @NonNull String methodName) {
+		super();
+		this.type = type;
+		this.statement = statement;
+		this.technology = technology;
+		this.title = title;
+		this.difficulty = difficulty;
+		this.experience = experience;
+		this.topic = topic;
+		this.expectedTime = expectedTime;
+		this.junitText = junitText;
+		this.methodName = methodName;
+	}
+
 	public QuestionBase(@NonNull String id, @NonNull String type, @NonNull String experience,
 			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
 			@NonNull String correctOption, @NonNull String methodName, @NonNull ByteBuffer junitObj) {
@@ -60,8 +93,8 @@ public class QuestionBase {
 
 	public QuestionBase(@NonNull String id, @NonNull String type, @NonNull String experience,
 			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
-			@NonNull String correctOption, @NonNull String methodName, ByteBuffer junitObj,
-			@NonNull String title, @NonNull String difficulty, @NonNull String expectedTime, @NonNull String technologyId,
+			@NonNull String correctOption, @NonNull String methodName, ByteBuffer junitObj, @NonNull String title,
+			@NonNull String difficulty, @NonNull String expectedTime, @NonNull String technologyId,
 			@NonNull String technology, @NonNull String topic, String junitText) {
 		super();
 		this.id = id;
