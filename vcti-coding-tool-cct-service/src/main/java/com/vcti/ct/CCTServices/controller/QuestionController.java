@@ -15,6 +15,7 @@ import com.vcti.ct.CCTServices.dao.QuestionDataService;
 import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
+import com.vcti.ct.CCTServices.model.QuestionTemplate;
 import com.vcti.ct.CCTServices.model.Technology;
 import com.vcti.ct.CCTServices.model.TechnologyMap;
 import com.vcti.ct.CCTServices.model.ValidateObjQuestions;
@@ -132,4 +133,27 @@ public class QuestionController {
 	public QuesResponse runSubjQuesTestCode(@RequestBody ValidateSubjQuestions validateSubjQ) {
 		return questionDataService.runSubjQuesTestCode(validateSubjQ);
 	}
+	
+	/**
+	 * Handle QuestionTemplate */	
+	
+
+	@GetMapping("/getAllQuestionsTemplates")
+	public List<QuestionTemplate> getAllQuestionsTemplates() {
+		return questionDataService.getAllQuestionTemplate();
+	}
+	
+	@PostMapping("/add/questionTemplate")
+	public QuestionTemplate addQuestionTemplate(@RequestBody QuestionTemplate questTemplateData) {
+		return questionDataService.addQuestionTemplate(questTemplateData);
+	}
+		
+	@PostMapping("/add/deleteQuestionTemplate")
+	public String deleteQuestionTemplate(@RequestBody String questTemplateId) {
+		return questionDataService.deleteQuestionTemplate(questTemplateId);
+	}
+	
+	
+	
+	
 }

@@ -50,6 +50,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 	@Value("${spring.data.cassandra.technology-table}")
 	private String technology;
 	
+	@Value("${spring.data.cassandra.questtemplate-table}")
+	private String questionTemplate;
+	
 	public String getUserName() {
 		return userName;
 	}
@@ -118,6 +121,10 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 		
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + technology
 				+ "(id text PRIMARY KEY, technology text, topic text)");
+		
+		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + questionTemplate
+				+ "(id text PRIMARY KEY, templateName text, technology text, experiance text, questionList text)");
+
 
 		return createQueryList;
 	}

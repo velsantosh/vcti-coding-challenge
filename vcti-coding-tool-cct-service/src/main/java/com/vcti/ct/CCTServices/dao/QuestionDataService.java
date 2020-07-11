@@ -5,6 +5,7 @@ import java.util.List;
 import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
+import com.vcti.ct.CCTServices.model.QuestionTemplate;
 import com.vcti.ct.CCTServices.model.Technology;
 import com.vcti.ct.CCTServices.model.TechnologyMap;
 import com.vcti.ct.CCTServices.model.ValidateSubjQuestions;
@@ -57,5 +58,17 @@ public interface QuestionDataService {
 	Question updateQuestions(QuestionBase newQues, String id);
 
 	QuesResponse runSubjQuesTestCode(ValidateSubjQuestions validateSubjQ);
+	
+	List<QuestionTemplate> getAllQuestionTemplate();
+	List<QuestionTemplate> getAllQuestionTemplateByTech(String technology);
+	List<QuestionTemplate> getAllQuestionTemplateByExp(String experiance);
+	QuestionTemplate getQuestionTemplateByName(String templateName);	
+	QuestionTemplate addQuestionTemplate(QuestionTemplate questionTemplate);
+	QuestionTemplate updateQuestions(QuestionTemplate questionTemplate, String id);
+	String deleteQuestionTemplate(String questionTemplateId);
+
+
+	
+
 
 }

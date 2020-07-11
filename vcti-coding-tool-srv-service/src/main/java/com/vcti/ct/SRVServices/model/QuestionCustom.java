@@ -25,7 +25,7 @@ public class QuestionCustom {
 	private String methodName;
 	private String experience;
 	private @NonNull String createdUserid;
-	private @NonNull ByteBuffer junitObj;
+	private ByteBuffer junitObj;
 	private @NonNull String title;
 	private @NonNull String difficulty;
 	private @NonNull String expectedTime;
@@ -51,7 +51,7 @@ public class QuestionCustom {
 
 	public QuestionCustom(@NonNull String id, @NonNull String type, @NonNull String statement, List<String> options,
 			String correct_option, String methodName, String experience, @NonNull String createdUserid,
-			@NonNull ByteBuffer junitObj, @NonNull String title, @NonNull String difficulty,
+			ByteBuffer junitObj, @NonNull String title, @NonNull String difficulty,
 			@NonNull String expectedTime, @NonNull String technologyId, @NonNull String technology,
 			@NonNull String topic, String junitText) {
 		super();

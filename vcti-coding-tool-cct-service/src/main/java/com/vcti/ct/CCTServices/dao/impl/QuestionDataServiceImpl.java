@@ -34,6 +34,7 @@ import com.vcti.ct.CCTServices.model.Options;
 import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
+import com.vcti.ct.CCTServices.model.QuestionTemplate;
 import com.vcti.ct.CCTServices.model.SubjQuestion;
 import com.vcti.ct.CCTServices.model.Technology;
 import com.vcti.ct.CCTServices.model.TechnologyMap;
@@ -41,6 +42,7 @@ import com.vcti.ct.CCTServices.model.ValidateSubjQuestions;
 import com.vcti.ct.CCTServices.repository.ObjQuestionRepository;
 import com.vcti.ct.CCTServices.repository.OptionsRepository;
 import com.vcti.ct.CCTServices.repository.QuestionRepository;
+import com.vcti.ct.CCTServices.repository.QuestionTemplateRepository;
 import com.vcti.ct.CCTServices.repository.SubjQuestionRepository;
 import com.vcti.ct.CCTServices.repository.TechnologyRepository;
 
@@ -59,6 +61,8 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	TechnologyRepository technologyRepository;
 	@Autowired
 	CassandraOperations cassandraOperations;
+	@Autowired
+	QuestionTemplateRepository questTemplateRepository;
 
 	private String junitCoreTest;
 
@@ -881,4 +885,62 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		return responseObj;
 
 	}
+
+	@Override
+	public List<QuestionTemplate> getAllQuestionTemplate() {
+
+		Iterable<QuestionTemplate> templateList = questTemplateRepository.findAll();
+
+		return (List<QuestionTemplate>) templateList;
+	}
+
+	@Override
+	public List<QuestionTemplate> getAllQuestionTemplateByTech(String technology) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<QuestionTemplate> getAllQuestionTemplateByExp(String experiance) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public QuestionTemplate getQuestionTemplateByName(String templateName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public QuestionTemplate addQuestionTemplate(QuestionTemplate questionTemplate) {
+		
+		questionTemplate.setId(getId("Temp"));
+		
+		
+		QuestionTemplate questionTemplate1 = questTemplateRepository.save(questionTemplate);
+		
+		return questionTemplate1;
+	}
+
+	@Override
+	public String deleteQuestionTemplate(String questionTemplateId) {
+
+			Optional<QuestionTemplate> questionTemplate = questTemplateRepository.findById(questionTemplateId);
+			
+		Boolean result = questionTemplate.isPresent();
+		if (result) {
+			questTemplateRepository.deleteById(questionTemplateId);
+		}
+		return "{ \"success\" : " + (result ? "true" : "false") + " }";
+	}
+
+	@Override
+	public QuestionTemplate updateQuestions(QuestionTemplate questionTemplate, String id) {
+		
+		
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
