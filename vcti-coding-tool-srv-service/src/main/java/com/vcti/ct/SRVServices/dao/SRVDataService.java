@@ -93,5 +93,11 @@ public interface SRVDataService {
 	List<QuestionScheduler> getQuestionsByCandidateId(String candidateId);
 
 	boolean updateChallengeStatus(String candidateId);
+	
+	Boolean assignDynamicTemplate(QuestionSchedulerCustom assignBulkQ);
+	
+	ScheduleChallenge updateChallengeWithTemplate(QuestionSchedulerCustom assignBulkQ);
+
+	Boolean createCustomTemplate(QuestionSchedulerCustom assignBulkQ);
 
 }

@@ -21,13 +21,15 @@ public class ScheduleChallenge {
 	private @NonNull Date scheduleTime;
 	private Date startTime;
 	private Date endTime;
+	private String templateId;
+	private String templateType;
 	
 	public ScheduleChallenge() {
 		super();
 	}
 
 	public ScheduleChallenge(@NonNull String challengeid, @NonNull String assigneduid, @NonNull String assigneruid,
-			@NonNull String status, @NonNull Date scheduleTime, Date startTime, Date endTime) {
+			@NonNull String status, @NonNull Date scheduleTime, Date startTime, Date endTime, String templateId, String templateType) {
 		super();
 		this.challengeid = challengeid;
 		this.assigneduid = assigneduid;
@@ -36,6 +38,8 @@ public class ScheduleChallenge {
 		this.scheduleTime = scheduleTime;
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.templateId = templateId;
+		this.templateType = templateType;
 	}
 
 	public String getChallengeid() {
@@ -92,6 +96,22 @@ public class ScheduleChallenge {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+
+	public String getTemplateId() {
+		return templateId;
+	}
+
+	public void setTemplateId(String templateId) {
+		this.templateId = templateId;
+	}
+
+	public String getTemplateType() {
+		return templateType;
+	}
+
+	public void setTemplateType(String templateType) {
+		this.templateType = templateType;
 	}
 	
 	

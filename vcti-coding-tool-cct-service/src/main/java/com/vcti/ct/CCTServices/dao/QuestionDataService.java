@@ -1,6 +1,7 @@
 package com.vcti.ct.CCTServices.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
@@ -61,11 +62,15 @@ public interface QuestionDataService {
 	
 	List<QuestionTemplate> getAllQuestionTemplate();
 	List<QuestionTemplate> getAllQuestionTemplateByTech(String technology);
-	List<QuestionTemplate> getAllQuestionTemplateByExp(String experiance);
+	List<QuestionTemplate> getAllQuestionTemplateByExp(String experience);
 	QuestionTemplate getQuestionTemplateByName(String templateName);	
 	QuestionTemplate addQuestionTemplate(QuestionTemplate questionTemplate);
 	QuestionTemplate updateQuestions(QuestionTemplate questionTemplate, String id);
 	String deleteQuestionTemplate(String questionTemplateId);
+
+	List<QuestionTemplate> getFilteredTemplates(String tech, String difficulty, String experience);
+
+	Optional<QuestionTemplate> getTemplate(String templateId);
 
 
 	

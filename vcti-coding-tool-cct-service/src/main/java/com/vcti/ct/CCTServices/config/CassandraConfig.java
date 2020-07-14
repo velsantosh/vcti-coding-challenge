@@ -123,7 +123,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 				+ "(id text PRIMARY KEY, technology text, topic text)");
 		
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + questionTemplate
-				+ "(id text PRIMARY KEY, templateName text, technology text, experiance text, questionList text)");
+				+ "(id text PRIMARY KEY, templateName text, technology text, experience text, questionList text, difficulty text)");
 
 
 		return createQueryList;

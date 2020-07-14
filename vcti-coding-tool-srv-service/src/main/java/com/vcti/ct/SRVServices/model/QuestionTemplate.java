@@ -1,4 +1,4 @@
-package com.vcti.ct.CCTServices.model;
+package com.vcti.ct.SRVServices.model;
 
 import java.util.List;
 
@@ -11,13 +11,12 @@ import lombok.NonNull;
 import lombok.Setter;
 
 /**
- * @author afser.basha
  *
  */
 @AllArgsConstructor
 @Getter
 @Setter
-@Table("questionTemplate")
+@Table
 public class QuestionTemplate {
 	
 
@@ -68,10 +67,10 @@ public class QuestionTemplate {
 	public void setQuestionList(List<String> questionList) {
 		this.questionList = questionList;
 	}
-	public String getExperience() {
+	public String getExperiance() {
 		return experience;
 	}
-	public void setExperience(String experience) {
+	public void setExperiance(String experience) {
 		this.experience = experience;
 	}
 	public String getDifficulty() {

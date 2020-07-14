@@ -21,6 +21,7 @@ import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
@@ -901,7 +902,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	}
 
 	@Override
-	public List<QuestionTemplate> getAllQuestionTemplateByExp(String experiance) {
+	public List<QuestionTemplate> getAllQuestionTemplateByExp(String experience) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -942,5 +943,20 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public List<QuestionTemplate> getFilteredTemplates(String tech, String difficulty, String experience) {
 
+		List<QuestionTemplate> templateList = questTemplateRepository.findByTechnologyAndExperienceAndDifficulty(tech, experience, difficulty);
+
+		return templateList;
+	}
+
+	@Override
+	public Optional<QuestionTemplate> getTemplate(String templateId) {
+
+		Optional<QuestionTemplate> templateList = questTemplateRepository.findById(templateId);
+
+		return templateList;
+	}
 }

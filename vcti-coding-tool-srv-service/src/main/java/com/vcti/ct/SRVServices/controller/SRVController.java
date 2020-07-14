@@ -291,4 +291,19 @@ public class SRVController {
 	public boolean updateChallengeStatus(@PathVariable String candidateId) {
 		return srvDataService.updateChallengeStatus(candidateId);
 	}
+	
+	@PostMapping("/assignTemplates")
+	public Boolean assignTemplates(@RequestBody QuestionSchedulerCustom assignBulkQ) {
+		return srvDataService.assignDynamicTemplate(assignBulkQ);
+	}
+	
+	@PutMapping("/updateChallengeTemplate")
+	public ScheduleChallenge updateChallengeWithTemplate(@RequestBody QuestionSchedulerCustom assignBulkQ) {
+		return srvDataService.updateChallengeWithTemplate(assignBulkQ);
+	}
+	
+	@PostMapping("/customTemplates")
+	public Boolean customTemplates(@RequestBody QuestionSchedulerCustom assignBulkQ) {
+		return srvDataService.createCustomTemplate(assignBulkQ);
+	}
 }

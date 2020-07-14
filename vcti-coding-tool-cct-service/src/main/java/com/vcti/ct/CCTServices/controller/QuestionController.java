@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.common.net.MediaType;
 import com.vcti.ct.CCTServices.dao.QuestionDataService;
 import com.vcti.ct.CCTServices.exceptions.InvalidQuestionTypeExceptoin;
 import com.vcti.ct.CCTServices.model.QuesResponse;
@@ -167,6 +167,16 @@ public class QuestionController {
 	@PostMapping("/add/deleteQuestionTemplate")
 	public String deleteQuestionTemplate(@RequestBody String questTemplateId) {
 		return questionDataService.deleteQuestionTemplate(questTemplateId);
+	}
+	
+	@GetMapping("/getFilteredTemplates/{tech}/{difficulty}/{experience}")
+	public List<QuestionTemplate> getFilteredTemplates(@PathVariable String tech, @PathVariable String difficulty, @PathVariable String experience) {
+		return questionDataService.getFilteredTemplates(tech, difficulty, experience);
+	}
+	
+	@GetMapping("/getQuestionsTemplate/{templateId}")
+	public Optional<QuestionTemplate> getQuestionsTemplate(@PathVariable String templateId) {
+		return questionDataService.getTemplate(templateId);
 	}
 
 	@PostMapping(value = "uploadSubjFile")
