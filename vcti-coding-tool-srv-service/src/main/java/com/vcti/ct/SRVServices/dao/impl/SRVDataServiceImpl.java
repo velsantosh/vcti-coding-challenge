@@ -115,6 +115,9 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	private final long millSecFor24Hours = 24 * 60 * 60 * 1000;
 
+	private final String STATIC_TEMPLATE = "Static Template";
+	private final String DYNAMIC_TEMPLATE = "Dynamic Template";
+
 	@PostConstruct
 	public void init() {
 		try {
@@ -1315,7 +1318,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	@Override
 	public Boolean assignDynamicTemplate(QuestionSchedulerCustom assignBulkQ) {
-		if (assignBulkQ.getTemplateType().equalsIgnoreCase("dynamic")) {
+		if (assignBulkQ.getTemplateType().equalsIgnoreCase("DYNAMIC_TEMPLATE")) {
 			List<QuestionTemplate> questionTemplate = getTemplateDtlsFrmTemplateTable(assignBulkQ.getTechnology(),
 					assignBulkQ.getExperience(), assignBulkQ.getDifficulty());
 			if (!questionTemplate.isEmpty() && questionTemplate != null) {
@@ -1332,9 +1335,14 @@ public class SRVDataServiceImpl implements SRVDataService {
 				assignBulkQ.setTemplateId(temp.getId());
 				return bulkAssignUser(assignBulkQ);
 			}
-		} else if (assignBulkQ.getTemplateType().equalsIgnoreCase("static")) {
-			QuestionTemplate questionTemplate = getTemplateDtlsFrmTemplateTable(assignBulkQ.getTemplateId());
-			assignBulkQ.setQidList(questionTemplate.getQuestionList());
+		} else if (assignBulkQ.getTemplateType().equalsIgnoreCase(STATIC_TEMPLATE)) {
+
+			assignBulkQ.getQidList().forEach(item -> {
+				System.out.println(item);
+			});
+
+			assignBulkQ.setQidList(assignBulkQ.getQidList());
+
 			return bulkAssignUser(assignBulkQ);
 		}
 		return false;
@@ -1346,18 +1354,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 		try {
 			resultJson = restTemplate.getForEntity(url, QuestionTemplate[].class);
 			return Arrays.asList(resultJson.getBody());
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return null;
-	}
-
-	private QuestionTemplate getTemplateDtlsFrmTemplateTable(String templateId) {
-		String url = cctServiceHostPort + "/getQuestionsTemplate/" + templateId;
-		ResponseEntity<QuestionTemplate> resultJson = null;
-		try {
-			resultJson = restTemplate.getForEntity(url, QuestionTemplate.class);
-			return resultJson.getBody();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -1385,7 +1381,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 				deleteQEntry(quesList);
 			}
 
-			if (assignBulkQ.getTemplateType().equalsIgnoreCase("dynamic")) {
+			if (assignBulkQ.getTemplateType().equalsIgnoreCase(DYNAMIC_TEMPLATE)) {
 				List<QuestionTemplate> questionTemplate = getTemplateDtlsFrmTemplateTable(assignBulkQ.getTechnology(),
 						assignBulkQ.getExperience(), assignBulkQ.getDifficulty());
 				if (!questionTemplate.isEmpty() && questionTemplate != null) {
@@ -1402,9 +1398,8 @@ public class SRVDataServiceImpl implements SRVDataService {
 					// assignBulkQ.setTemplateId(temp.getId());
 					challengeRecord.setTemplateId(temp.getId());
 				}
-			} else if (assignBulkQ.getTemplateType().equalsIgnoreCase("static")) {
-				QuestionTemplate questionTemplate = getTemplateDtlsFrmTemplateTable(assignBulkQ.getTemplateId());
-				assignBulkQ.setQidList(questionTemplate.getQuestionList());
+			} else if (assignBulkQ.getTemplateType().equalsIgnoreCase(STATIC_TEMPLATE)) {
+
 				challengeRecord.setTemplateId(assignBulkQ.getTemplateId());
 			}
 			challengeRecord.setTemplateType(assignBulkQ.getTemplateType());
@@ -1425,7 +1420,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 	@Override
 	public Boolean createCustomTemplate(QuestionSchedulerCustom assignBulkQ) {
 		QuestionTemplate questionTemplate = saveOrUpdateTemplate(assignBulkQ);
-		if(questionTemplate != null) {
+		if (questionTemplate != null) {
 			assignBulkQ.setTemplateId(questionTemplate.getId());
 			assignBulkQ.setTemplateType("static");
 		}
@@ -1433,38 +1428,38 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	}
 
-	
-	  private QuestionTemplate saveOrUpdateTemplate(QuestionSchedulerCustom assignBulkQ) {
-	  String userJson = makeJson(assignBulkQ); 
-	  HttpHeaders headers = new HttpHeaders();
-	  headers.setContentType(MediaType.APPLICATION_JSON);
-	  HttpEntity<String> request = new HttpEntity<String>(userJson, headers);
-	  String url = cctServiceHostPort + "add/questionTemplate"; 
-	  ResponseEntity<QuestionTemplate> resultJson = null; 
-	  try { resultJson = restTemplate.postForEntity(url, request, QuestionTemplate.class); 
-	  		return resultJson.getBody();
-	  } catch (Exception ex) {
-		  ex.printStackTrace(); 
-	  } 
-	  	return null; 
-	  }
-	  
-	  private String makeJson(QuestionSchedulerCustom assignBulkQ) {
-		  Map<String, Object> map = new LinkedHashMap<String, Object>(); 
-		  map.put("templateName", assignBulkQ.getTemplateName());
-		  map.put("experience", assignBulkQ.getExperience());
-		  map.put("technology", assignBulkQ.getTechnology()); 
-		  map.put("questionList", assignBulkQ.getQidList());
-	      map.put("difficulty", assignBulkQ.getDifficulty()); 
-	      return returnTemplateJson(map); 
-	      }
-	 
-	  private String returnTemplateJson(Map<String, Object> map) {
-			try {
-				return new ObjectMapper().writeValueAsString(map);
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-			return "";
+	private QuestionTemplate saveOrUpdateTemplate(QuestionSchedulerCustom assignBulkQ) {
+		String userJson = makeJson(assignBulkQ);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> request = new HttpEntity<String>(userJson, headers);
+		String url = cctServiceHostPort + "add/questionTemplate";
+		ResponseEntity<QuestionTemplate> resultJson = null;
+		try {
+			resultJson = restTemplate.postForEntity(url, request, QuestionTemplate.class);
+			return resultJson.getBody();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
+		return null;
+	}
+
+	private String makeJson(QuestionSchedulerCustom assignBulkQ) {
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		map.put("templateName", assignBulkQ.getTemplateName());
+		map.put("experience", assignBulkQ.getExperience());
+		map.put("technology", assignBulkQ.getTechnology());
+		map.put("questionList", assignBulkQ.getQidList());
+		map.put("difficulty", assignBulkQ.getDifficulty());
+		return returnTemplateJson(map);
+	}
+
+	private String returnTemplateJson(Map<String, Object> map) {
+		try {
+			return new ObjectMapper().writeValueAsString(map);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
 }

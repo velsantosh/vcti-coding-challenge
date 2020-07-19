@@ -21,7 +21,6 @@ import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
@@ -915,20 +914,19 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@Override
 	public QuestionTemplate addQuestionTemplate(QuestionTemplate questionTemplate) {
-		
+
 		questionTemplate.setId(getId("Temp"));
-		
-		
+
 		QuestionTemplate questionTemplate1 = questTemplateRepository.save(questionTemplate);
-		
+
 		return questionTemplate1;
 	}
 
 	@Override
 	public String deleteQuestionTemplate(String questionTemplateId) {
 
-			Optional<QuestionTemplate> questionTemplate = questTemplateRepository.findById(questionTemplateId);
-			
+		Optional<QuestionTemplate> questionTemplate = questTemplateRepository.findById(questionTemplateId);
+
 		Boolean result = questionTemplate.isPresent();
 		if (result) {
 			questTemplateRepository.deleteById(questionTemplateId);
@@ -938,16 +936,16 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@Override
 	public QuestionTemplate updateQuestions(QuestionTemplate questionTemplate, String id) {
-		
-		
+
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public List<QuestionTemplate> getFilteredTemplates(String tech, String difficulty, String experience) {
 
-		List<QuestionTemplate> templateList = questTemplateRepository.findByTechnologyAndExperienceAndDifficulty(tech, experience, difficulty);
+		List<QuestionTemplate> templateList = questTemplateRepository.findByTechnologyAndExperienceAndDifficulty(tech,
+				experience, difficulty);
 
 		return templateList;
 	}
@@ -959,4 +957,65 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 		return templateList;
 	}
+
+	@Override
+	public List<QuestionBase> getAllQuestsByTemplateId(String templateId) {
+
+		Optional<QuestionTemplate> templateList = questTemplateRepository.findById(templateId);
+
+		List<QuestionBase> questionList = new ArrayList<QuestionBase>();
+
+		templateList.get().getQuestionList().forEach(item -> {
+			System.out.println(" new list: " + item);
+			questionList.add(getQuestion(item));
+
+		});
+
+		System.out.println("questionList aa : " + questionList.size());
+		return questionList;
+	}
+
+	@Override
+	public List<QuestionBase> getAllQuestionsByTechDifficultyAndExp(String tech, String difficulty, String exp) {
+
+		Iterable<Question> questionParentList = questionRepository.findAll();
+		List<QuestionBase> questionList = getQuestionList(questionParentList);
+
+		/*
+		 * questionList = questionList.stream().filter(questionBase
+		 * ->questionBase.getTechnology().equals(tech)).collect(Collectors.toList());
+		 * questionList.stream().filter(questionBase
+		 * ->questionBase.getExperience().equals(exp)).collect(Collectors.toList());
+		 * 
+		 * 
+		 * List<QuestionBase> questionList1 = questionList.stream().filter(questionBase
+		 * ->questionBase.getDifficulty()
+		 * .equals(difficulty)).collect(Collectors.toList());;
+		 */
+
+		return questionList;
+
+	}
+
+	@Override
+	public QuestionTemplate updateQuestionTemplate(QuestionTemplate questTemplateData, String templateId) {
+
+		Optional<QuestionTemplate> QuestionTemplateOptional = questTemplateRepository.findById(templateId);
+
+		if (QuestionTemplateOptional.isPresent()) {
+			QuestionTemplate questionTemplate = QuestionTemplateOptional.get();
+			questionTemplate.setId(templateId);
+			questionTemplate.setDifficulty(questTemplateData.getDifficulty());
+			questionTemplate.setExperience(questTemplateData.getExperience());
+			questionTemplate.setTechnology(questTemplateData.getTechnology());
+			questionTemplate.setTemplateName(questTemplateData.getTemplateName());
+			questionTemplate.setQuestionList(questTemplateData.getQuestionList());
+
+			questTemplateRepository.save(questionTemplate);
+
+		}
+
+		return questTemplateData;
+	}
+
 }
