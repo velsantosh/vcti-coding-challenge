@@ -14,7 +14,6 @@ import lombok.Setter;
  * @author afser.basha
  *
  */
-@AllArgsConstructor
 @Getter
 @Setter
 @Table("questionTemplate")

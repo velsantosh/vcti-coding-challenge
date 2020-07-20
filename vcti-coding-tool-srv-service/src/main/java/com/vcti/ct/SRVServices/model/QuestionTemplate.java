@@ -13,7 +13,7 @@ import lombok.Setter;
 /**
  *
  */
-@AllArgsConstructor
+
 @Getter
 @Setter
 @Table

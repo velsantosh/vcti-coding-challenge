@@ -1318,7 +1318,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	@Override
 	public Boolean assignDynamicTemplate(QuestionSchedulerCustom assignBulkQ) {
-		if (assignBulkQ.getTemplateType().equalsIgnoreCase("DYNAMIC_TEMPLATE")) {
+		if (assignBulkQ.getTemplateType().equalsIgnoreCase(DYNAMIC_TEMPLATE)) {
 			List<QuestionTemplate> questionTemplate = getTemplateDtlsFrmTemplateTable(assignBulkQ.getTechnology(),
 					assignBulkQ.getExperience(), assignBulkQ.getDifficulty());
 			if (!questionTemplate.isEmpty() && questionTemplate != null) {
