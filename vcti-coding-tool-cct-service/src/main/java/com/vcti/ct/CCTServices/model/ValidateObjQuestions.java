@@ -2,7 +2,6 @@ package com.vcti.ct.CCTServices.model;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;

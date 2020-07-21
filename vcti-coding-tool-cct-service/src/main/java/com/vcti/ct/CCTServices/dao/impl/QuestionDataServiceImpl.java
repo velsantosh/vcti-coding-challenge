@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -978,22 +979,34 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	@Override
 	public List<QuestionBase> getAllQuestionsByTechDifficultyAndExp(String tech, String difficulty, String exp) {
 
-		Iterable<Question> questionParentList = questionRepository.findAll();
-		List<QuestionBase> questionList = getQuestionList(questionParentList);
-
 		/*
-		 * questionList = questionList.stream().filter(questionBase
-		 * ->questionBase.getTechnology().equals(tech)).collect(Collectors.toList());
-		 * questionList.stream().filter(questionBase
-		 * ->questionBase.getExperience().equals(exp)).collect(Collectors.toList());
+		 * questionList = questionList.stream().filter(questionBase ->
+		 * (questionBase.getExperience() != null) ?
+		 * questionBase.getExperience().equals(exp) : null)
+		 * .collect(Collectors.toList());
 		 * 
+		 * List<QuestionBase> questionList1 =
+		 * questionList.stream().filter(questionBase->
 		 * 
-		 * List<QuestionBase> questionList1 = questionList.stream().filter(questionBase
-		 * ->questionBase.getDifficulty()
-		 * .equals(difficulty)).collect(Collectors.toList());;
+		 * (questionBase != null && questionBase.getDifficulty() != null) ?
+		 * questionBase.getDifficulty().equals(difficulty) : null )
+		 * .collect(Collectors.toList());
 		 */
+		List<QuestionBase> questionList = getAllQuestionsByTname(tech);
+		List<QuestionBase> filteredQuesList = new ArrayList<QuestionBase>();
 
-		return questionList;
+		for (QuestionBase questionBase : questionList) {
+
+			if (questionBase.getExperience() != null ? questionBase.getExperience().equals(exp) : true) {
+
+				if (questionBase.getDifficulty() != null ? questionBase.getDifficulty().equalsIgnoreCase(difficulty)
+						: true) {
+
+					filteredQuesList.add(questionBase);
+				}
+			}
+		}
+		return filteredQuesList;
 
 	}
 

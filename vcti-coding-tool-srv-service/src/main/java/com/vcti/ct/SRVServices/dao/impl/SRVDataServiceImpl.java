@@ -1348,7 +1348,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		return false;
 	}
 
-	private List<QuestionTemplate> getTemplateDtlsFrmTemplateTable(String tech, String difficulty, String experience) {
+	private List<QuestionTemplate> getTemplateDtlsFrmTemplateTable(String tech, String experience,  String difficulty) {
 		String url = cctServiceHostPort + "/getFilteredTemplates/" + tech + "/" + difficulty + "/" + experience;
 		ResponseEntity<QuestionTemplate[]> resultJson = null;
 		try {
