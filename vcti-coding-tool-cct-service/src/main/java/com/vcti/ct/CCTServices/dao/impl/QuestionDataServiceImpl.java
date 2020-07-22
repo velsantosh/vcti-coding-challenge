@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -966,11 +967,11 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 		List<QuestionBase> questionList = new ArrayList<QuestionBase>();
 
-		templateList.get().getQuestionList().forEach(item -> {
-			System.out.println(" new list: " + item);
-			questionList.add(getQuestion(item));
+		String[] idList = templateList.get().getQuestionList().split(",");
 
-		});
+		for (String id : idList) {
+			questionList.add(getQuestion(id.trim()));
+		}
 
 		System.out.println("questionList aa : " + questionList.size());
 		return questionList;

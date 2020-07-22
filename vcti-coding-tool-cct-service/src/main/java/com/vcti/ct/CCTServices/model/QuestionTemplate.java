@@ -24,12 +24,12 @@ public class QuestionTemplate {
 	private @NonNull String id;
 	private @NonNull String templateName;
 	private  String technology;
-	private @NonNull List<String> questionList;
+	private @NonNull String questionList;
 	private @NonNull String experience;
 	private @NonNull String difficulty;
 	
 	public QuestionTemplate(@NonNull String id, @NonNull String templateName, String technology,
-			@NonNull List<String> questionList, @NonNull String experience, @NonNull String difficulty) {
+			 @NonNull String questionList, @NonNull String experience, @NonNull String difficulty) {
 		super();
 		this.id = id;
 		this.templateName = templateName;
@@ -61,10 +61,10 @@ public class QuestionTemplate {
 	public void setTechnology(String technology) {
 		this.technology = technology;
 	}
-	public List<String> getQuestionList() {
+	public String getQuestionList() {
 		return questionList;
 	}
-	public void setQuestionList(List<String> questionList) {
+	public void setQuestionList(String questionList) {
 		this.questionList = questionList;
 	}
 	public String getExperience() {
