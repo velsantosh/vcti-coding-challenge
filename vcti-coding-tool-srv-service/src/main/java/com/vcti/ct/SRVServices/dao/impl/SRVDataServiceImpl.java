@@ -1331,24 +1331,28 @@ public class SRVDataServiceImpl implements SRVDataService {
 				}
 
 				QuestionTemplate temp = questionTemplate.get(rand);
-				assignBulkQ.setQidList(temp.getQuestionList());
+				assignBulkQ.setQidList(Arrays.asList(temp.getQuestionList().split(",")));
 				assignBulkQ.setTemplateId(temp.getId());
 				return bulkAssignUser(assignBulkQ);
+			} else {
+
+				return false;
 			}
+
 		} else if (assignBulkQ.getTemplateType().equalsIgnoreCase(STATIC_TEMPLATE)) {
 
 			assignBulkQ.getQidList().forEach(item -> {
 				System.out.println(item);
 			});
 
-			assignBulkQ.setQidList(assignBulkQ.getQidList());
+			assignBulkQ.setQidList(Arrays.asList(assignBulkQ.getQidList().toString().split(",")));
 
 			return bulkAssignUser(assignBulkQ);
 		}
 		return false;
 	}
 
-	private List<QuestionTemplate> getTemplateDtlsFrmTemplateTable(String tech, String experience,  String difficulty) {
+	private List<QuestionTemplate> getTemplateDtlsFrmTemplateTable(String tech, String experience, String difficulty) {
 		String url = cctServiceHostPort + "/getFilteredTemplates/" + tech + "/" + difficulty + "/" + experience;
 		ResponseEntity<QuestionTemplate[]> resultJson = null;
 		try {
@@ -1394,7 +1398,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 					}
 
 					QuestionTemplate temp = questionTemplate.get(rand);
-					assignBulkQ.setQidList(temp.getQuestionList());
+					assignBulkQ.setQidList(Arrays.asList(temp.getQuestionList()));
 					// assignBulkQ.setTemplateId(temp.getId());
 					challengeRecord.setTemplateId(temp.getId());
 				}
@@ -1402,6 +1406,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 				challengeRecord.setTemplateId(assignBulkQ.getTemplateId());
 			}
+
 			challengeRecord.setTemplateType(assignBulkQ.getTemplateType());
 
 			List<String> qIdList = assignBulkQ.getQidList();
