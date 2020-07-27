@@ -1341,12 +1341,6 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 		} else if (assignBulkQ.getTemplateType().equalsIgnoreCase(STATIC_TEMPLATE)) {
 
-			assignBulkQ.getQidList().forEach(item -> {
-				System.out.println(item);
-			});
-
-			assignBulkQ.setQidList(Arrays.asList(assignBulkQ.getQidList().toString().split(",")));
-
 			return bulkAssignUser(assignBulkQ);
 		}
 		return false;
