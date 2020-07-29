@@ -1,6 +1,7 @@
 package com.vcti.ct.CCTServices.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +50,8 @@ public interface QuestionDataService {
 
 	List<QuestionBase> getAllQuestionsByTypeAndTname(String type, String tname);
 
+	List<QuestionBase> getAllQuestionsByTechDifficultyAndExp(String tech, String difficulty, String exp);
+
 	List<QuestionBase> getAllQuestionsByType(String type);
 
 	List<QuestionBase> getAllQuestionsByTname(String tname);
@@ -60,17 +63,33 @@ public interface QuestionDataService {
 	Question updateQuestions(QuestionBase newQues, String id);
 
 	QuesResponse runSubjQuesTestCode(ValidateSubjQuestions validateSubjQ);
-	
+
 	List<QuestionTemplate> getAllQuestionTemplate();
+
 	List<QuestionTemplate> getAllQuestionTemplateByTech(String technology);
-	List<QuestionTemplate> getAllQuestionTemplateByExp(String experiance);
-	QuestionTemplate getQuestionTemplateByName(String templateName);	
+
+	List<QuestionTemplate> getAllQuestionTemplateByExp(String experience);
+
+	QuestionTemplate getQuestionTemplateByName(String templateName);
+
 	QuestionTemplate addQuestionTemplate(QuestionTemplate questionTemplate);
+
 	QuestionTemplate updateQuestions(QuestionTemplate questionTemplate, String id);
+
 	String deleteQuestionTemplate(String questionTemplateId);
+
     Question uploadObjFile(MultipartFile file);
     Question uploadSubjFile(MultipartFile file);
 	
 
+
+	List<QuestionTemplate> getFilteredTemplates(String tech, String difficulty, String experience);
+
+	Optional<QuestionTemplate> getTemplate(String templateId);
+
+	List<QuestionBase> getAllQuestsByTemplateId(String templateId);
+
+
+	QuestionTemplate updateQuestionTemplate(QuestionTemplate questTemplateData, String id);
 
 }

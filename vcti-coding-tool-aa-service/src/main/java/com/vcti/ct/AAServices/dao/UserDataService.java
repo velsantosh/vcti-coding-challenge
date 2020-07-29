@@ -2,7 +2,9 @@ package com.vcti.ct.AAServices.dao;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import com.vcti.ct.AAServices.model.PermissionDTO;
 import com.vcti.ct.AAServices.model.User;
 
 public interface UserDataService {
@@ -29,4 +31,8 @@ public interface UserDataService {
 	List<User> getUsersByRole(String role);
 
 	User updateUserPassword(User newUser, String uId);
+
+	boolean updateRolePermissions(PermissionDTO permissionList, String roleId);
+
+	List<String> getPermissionIdByRole(String roleId);
 }

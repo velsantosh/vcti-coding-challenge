@@ -52,6 +52,7 @@ import com.vcti.ct.SRVServices.model.QuestionBase;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
+import com.vcti.ct.SRVServices.model.QuestionTemplate;
 import com.vcti.ct.SRVServices.model.ScheduleChallenge;
 import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
@@ -114,6 +115,9 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	private final long millSecFor24Hours = 24 * 60 * 60 * 1000;
 
+	private final String STATIC_TEMPLATE = "Static Template";
+	private final String DYNAMIC_TEMPLATE = "Dynamic Template";
+
 	@PostConstruct
 	public void init() {
 		try {
@@ -174,7 +178,8 @@ public class SRVDataServiceImpl implements SRVDataService {
 			}
 			String challengeId = "ChallengeX" + new Random().nextInt(100000) + "X" + System.currentTimeMillis();
 			scheduleChallenge = new ScheduleChallenge(challengeId, userId, assignBulkQ.getAssigneruid(), "Scheduled",
-					assignBulkQ.getScheduleTime(), null, null);
+					assignBulkQ.getScheduleTime(), null, null, assignBulkQ.getTemplateId(),
+					assignBulkQ.getTemplateType());
 			scheduleChallengeList.add(scheduleChallenge);
 			scheduleChallengeRepository.saveAll(scheduleChallengeList);
 			challengeIdList.add(challengeId);
@@ -1309,5 +1314,151 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 
 		return arr;
+	}
+
+	@Override
+	public Boolean assignDynamicTemplate(QuestionSchedulerCustom assignBulkQ) {
+		if (assignBulkQ.getTemplateType().equalsIgnoreCase(DYNAMIC_TEMPLATE)) {
+			List<QuestionTemplate> questionTemplate = getTemplateDtlsFrmTemplateTable(assignBulkQ.getTechnology(),
+					assignBulkQ.getExperience(), assignBulkQ.getDifficulty());
+			if (!questionTemplate.isEmpty() && questionTemplate != null) {
+				Random random = new Random();
+				int rand = 0;
+				while (true) {
+					rand = random.nextInt(questionTemplate.size());
+					if (rand != -1)
+						break;
+				}
+
+				QuestionTemplate temp = questionTemplate.get(rand);
+				assignBulkQ.setQidList(Arrays.asList(temp.getQuestionList().split(",")));
+				assignBulkQ.setTemplateId(temp.getId());
+				return bulkAssignUser(assignBulkQ);
+			} else {
+
+				return false;
+			}
+
+		} else if (assignBulkQ.getTemplateType().equalsIgnoreCase(STATIC_TEMPLATE)) {
+
+			return bulkAssignUser(assignBulkQ);
+		}
+		return false;
+	}
+
+	private List<QuestionTemplate> getTemplateDtlsFrmTemplateTable(String tech, String experience, String difficulty) {
+		String url = cctServiceHostPort + "/getFilteredTemplates/" + tech + "/" + difficulty + "/" + experience;
+		ResponseEntity<QuestionTemplate[]> resultJson = null;
+		try {
+			resultJson = restTemplate.getForEntity(url, QuestionTemplate[].class);
+			return Arrays.asList(resultJson.getBody());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public ScheduleChallenge updateChallengeWithTemplate(QuestionSchedulerCustom assignBulkQ) {
+		QuestionScheduler assignQ;
+		List<QuestionScheduler> assignQObjList = new ArrayList<QuestionScheduler>();
+
+		ScheduleChallenge challengeRecord = scheduleChallengeRepository.findByChallengeid(assignBulkQ.getChallengeid());
+
+		if (challengeRecord != null) {
+			// challengeRecord.setChallengeid(challengeId);
+			// challengeRecord.setAssigneduid(assignBulkQ.getAssigneduidList().get(0));
+			// challengeRecord.setAssigneruid(assignBulkQ.getAssigneruid());
+			challengeRecord.setScheduleTime(assignBulkQ.getScheduleTime());
+
+			scheduleChallengeRepository.save(challengeRecord);
+
+			List<QuestionScheduler> quesList = questionScheduleRepository
+					.findByChallengeid(assignBulkQ.getChallengeid());
+			if (!quesList.isEmpty()) {
+				deleteQEntry(quesList);
+			}
+
+			if (assignBulkQ.getTemplateType().equalsIgnoreCase(DYNAMIC_TEMPLATE)) {
+				List<QuestionTemplate> questionTemplate = getTemplateDtlsFrmTemplateTable(assignBulkQ.getTechnology(),
+						assignBulkQ.getExperience(), assignBulkQ.getDifficulty());
+				if (!questionTemplate.isEmpty() && questionTemplate != null) {
+					Random random = new Random();
+					int rand = 0;
+					while (true) {
+						rand = random.nextInt(questionTemplate.size());
+						if (rand != -1)
+							break;
+					}
+
+					QuestionTemplate temp = questionTemplate.get(rand);
+					assignBulkQ.setQidList(Arrays.asList(temp.getQuestionList()));
+					// assignBulkQ.setTemplateId(temp.getId());
+					challengeRecord.setTemplateId(temp.getId());
+				}
+			} else if (assignBulkQ.getTemplateType().equalsIgnoreCase(STATIC_TEMPLATE)) {
+
+				challengeRecord.setTemplateId(assignBulkQ.getTemplateId());
+			}
+
+			challengeRecord.setTemplateType(assignBulkQ.getTemplateType());
+
+			List<String> qIdList = assignBulkQ.getQidList();
+
+			for (String qId : qIdList) {
+				assignQ = new QuestionScheduler(getId("SchQuest"), qId, challengeRecord.getAssigneduid(),
+						challengeRecord.getAssigneruid(), challengeRecord.getChallengeid());
+				assignQObjList.add(assignQ);
+			}
+			scheduleChallengeRepository.save(challengeRecord);
+			questionScheduleRepository.saveAll(assignQObjList);
+		}
+		return challengeRecord;
+	}
+
+	@Override
+	public Boolean createCustomTemplate(QuestionSchedulerCustom assignBulkQ) {
+		QuestionTemplate questionTemplate = saveOrUpdateTemplate(assignBulkQ);
+		if (questionTemplate != null) {
+			assignBulkQ.setTemplateId(questionTemplate.getId());
+			assignBulkQ.setTemplateType("static");
+		}
+		return bulkAssignUser(assignBulkQ);
+
+	}
+
+	private QuestionTemplate saveOrUpdateTemplate(QuestionSchedulerCustom assignBulkQ) {
+		String userJson = makeJson(assignBulkQ);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<String> request = new HttpEntity<String>(userJson, headers);
+		String url = cctServiceHostPort + "add/questionTemplate";
+		ResponseEntity<QuestionTemplate> resultJson = null;
+		try {
+			resultJson = restTemplate.postForEntity(url, request, QuestionTemplate.class);
+			return resultJson.getBody();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+
+	private String makeJson(QuestionSchedulerCustom assignBulkQ) {
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		map.put("templateName", assignBulkQ.getTemplateName());
+		map.put("experience", assignBulkQ.getExperience());
+		map.put("technology", assignBulkQ.getTechnology());
+		map.put("questionList", assignBulkQ.getQidList());
+		map.put("difficulty", assignBulkQ.getDifficulty());
+		return returnTemplateJson(map);
+	}
+
+	private String returnTemplateJson(Map<String, Object> map) {
+		try {
+			return new ObjectMapper().writeValueAsString(map);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 }

@@ -17,6 +17,12 @@ public class QuestionSchedulerCustom {
 	private @NonNull String challengeid;
 	private @NonNull Date scheduleTime;
 	private @NonNull String status;
+	private String templateType;
+	private String templateId;
+	private String technology;
+	private String experience;
+	private String difficulty;
+	private String templateName; 
 
 	public QuestionSchedulerCustom() {
 		super();
@@ -88,6 +94,54 @@ public class QuestionSchedulerCustom {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getTemplateType() {
+		return templateType;
+	}
+
+	public void setTemplateType(String templateType) {
+		this.templateType = templateType;
+	}
+
+	public String getTemplateId() {
+		return templateId;
+	}
+
+	public void setTemplateId(String templateId) {
+		this.templateId = templateId;
+	}
+
+	public String getTechnology() {
+		return technology;
+	}
+
+	public void setTechnology(String technology) {
+		this.technology = technology;
+	}
+
+	public String getExperience() {
+		return experience;
+	}
+
+	public void setExperience(String experience) {
+		this.experience = experience;
+	}
+
+	public String getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(String difficulty) {
+		this.difficulty = difficulty;
+	}
+
+	public String getTemplateName() {
+		return templateName;
+	}
+
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
 	}
 
 	

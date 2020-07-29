@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.vcti.ct.AAServices.dao.UserDataService;
+import com.vcti.ct.AAServices.model.PermissionDTO;
 import com.vcti.ct.AAServices.model.Permissions;
 import com.vcti.ct.AAServices.model.Role;
 import com.vcti.ct.AAServices.model.Rolepermapping;
@@ -246,5 +247,39 @@ public class UserDataServiceImpl implements UserDataService {
 		user.setPassword(newUser.getPassword());
 		userRepository.save(user);
 		return user;
+	}
+	
+	@Override
+	public boolean updateRolePermissions(PermissionDTO permissionList, String roleId) {
+		//Role role = roleRepository.findDistinctByRoleName(roleId).get(0);
+		List<Rolepermapping> rolePerMappingList = rolePerMappingRepository.findByRoleId(roleId);
+		for (Rolepermapping mapping : rolePerMappingList) {
+			rolePerMappingRepository.deleteById(mapping.getId());
+			}
+		
+		List<String> permissionsList = permissionList.getPermissions();
+		List<Rolepermapping> rolepermappingList = new ArrayList<Rolepermapping>();
+		Rolepermapping rolepermappingObj = null;
+		
+		for (String permissions : permissionsList) {
+			 rolepermappingObj = new Rolepermapping(getId("Perm"), roleId, permissions);
+			rolepermappingList.add(rolepermappingObj);
+		}
+		
+		rolePerMappingRepository.saveAll(rolepermappingList);
+		return true;
+	}
+	
+	@Override
+	public List<String> getPermissionIdByRole(String roleId) {
+		
+		List<Rolepermapping> rolePerMappingList = rolePerMappingRepository.findByRoleId(roleId);
+		List<String> permIdSet = new ArrayList<String>();
+		for (Rolepermapping mapping : rolePerMappingList) {
+			if (roleId.equals(mapping.getRoleId())) {
+				permIdSet.add(mapping.getPermissionId());
+			}
+		}
+		return permIdSet;
 	}
 }

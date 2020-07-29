@@ -10,4 +10,5 @@ import com.vcti.ct.AAServices.model.Rolepermapping;
 public interface RolePerMappingRepository extends CrudRepository<Rolepermapping, String> {
 	@Query(allowFiltering = true)
 	List<Rolepermapping> findByRoleId(String roleId);
+	
 }

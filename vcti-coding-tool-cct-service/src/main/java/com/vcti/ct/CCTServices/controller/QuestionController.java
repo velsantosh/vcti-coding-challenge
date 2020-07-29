@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -94,6 +95,12 @@ public class QuestionController {
 		return questionDataService.getAllQuestionsByTypeAndTname(type, tname);
 	}
 
+	@GetMapping("/questions/{tech}/{difficulty}/{experience}")
+	public List<QuestionBase> getAllQuestionsByTechDifficultyAndExp(@PathVariable String tech,
+			@PathVariable String difficulty, @PathVariable String experience) {
+		return questionDataService.getAllQuestionsByTechDifficultyAndExp(tech, difficulty, experience);
+	}
+
 	@GetMapping("/questions/type/{type}")
 	public List<QuestionBase> getAllQuestionsByType(@PathVariable String type) {
 		return questionDataService.getAllQuestionsByType(type);
@@ -163,9 +170,30 @@ public class QuestionController {
 		return questionDataService.addQuestionTemplate(questTemplateData);
 	}
 
-	@PostMapping("/add/deleteQuestionTemplate")
-	public String deleteQuestionTemplate(@RequestBody String questTemplateId) {
+	@PutMapping("/update/questionTemplate/{id}")
+	public QuestionTemplate updateQuestionTemplate(@RequestBody QuestionTemplate questTemplateData,
+			@PathVariable String id) {
+		return questionDataService.updateQuestionTemplate(questTemplateData, id);
+	}
+
+	@DeleteMapping(value = "/delete/questionTemplate/{questTemplateId}", produces = "application/json; charset=utf-8")
+	public String deleteQuestionTemplate(@PathVariable String questTemplateId) {
 		return questionDataService.deleteQuestionTemplate(questTemplateId);
+	}
+	
+	@GetMapping("/getFilteredTemplates/{tech}/{difficulty}/{experience}")
+	public List<QuestionTemplate> getFilteredTemplates(@PathVariable String tech, @PathVariable String difficulty, @PathVariable String experience) {
+		return questionDataService.getFilteredTemplates(tech, difficulty, experience);
+	}
+	
+	@GetMapping("/getQuestionsTemplate/{templateId}")
+	public Optional<QuestionTemplate> getQuestionsTemplate(@PathVariable String templateId) {
+		return questionDataService.getTemplate(templateId);
+	}
+
+	@GetMapping("/getAllQuestionsDataByTemplateId/{templateId}")
+	public List<QuestionBase> getAllQuestionsDataByTemplateId(@PathVariable String templateId) {
+		return questionDataService.getAllQuestsByTemplateId(templateId);
 	}
 
 	@PostMapping(value = "uploadSubjFile")

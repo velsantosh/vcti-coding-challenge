@@ -10,12 +10,14 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -910,7 +912,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	}
 
 	@Override
-	public List<QuestionTemplate> getAllQuestionTemplateByExp(String experiance) {
+	public List<QuestionTemplate> getAllQuestionTemplateByExp(String experience) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -923,20 +925,19 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@Override
 	public QuestionTemplate addQuestionTemplate(QuestionTemplate questionTemplate) {
-		
+
 		questionTemplate.setId(getId("Temp"));
-		
-		
+
 		QuestionTemplate questionTemplate1 = questTemplateRepository.save(questionTemplate);
-		
+
 		return questionTemplate1;
 	}
 
 	@Override
 	public String deleteQuestionTemplate(String questionTemplateId) {
 
-			Optional<QuestionTemplate> questionTemplate = questTemplateRepository.findById(questionTemplateId);
-			
+		Optional<QuestionTemplate> questionTemplate = questTemplateRepository.findById(questionTemplateId);
+
 		Boolean result = questionTemplate.isPresent();
 		if (result) {
 			questTemplateRepository.deleteById(questionTemplateId);
@@ -946,8 +947,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@Override
 	public QuestionTemplate updateQuestions(QuestionTemplate questionTemplate, String id) {
-		
-		
+
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1151,7 +1151,99 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			}
 		}
 
+
 		return qt;
  
  }
+
+	@Override
+	public List<QuestionTemplate> getFilteredTemplates(String tech, String difficulty, String experience) {
+
+		List<QuestionTemplate> templateList = questTemplateRepository.findByTechnologyAndExperienceAndDifficulty(tech,
+				experience, difficulty);
+
+		return templateList;
+	}
+
+	@Override
+	public Optional<QuestionTemplate> getTemplate(String templateId) {
+
+		Optional<QuestionTemplate> templateList = questTemplateRepository.findById(templateId);
+
+		return templateList;
+	}
+
+	@Override
+	public List<QuestionBase> getAllQuestsByTemplateId(String templateId) {
+
+		Optional<QuestionTemplate> templateList = questTemplateRepository.findById(templateId);
+
+		List<QuestionBase> questionList = new ArrayList<QuestionBase>();
+
+		String[] idList = templateList.get().getQuestionList().split(",");
+
+		for (String id : idList) {
+			questionList.add(getQuestion(id.trim()));
+		}
+
+		System.out.println("questionList aa : " + questionList.size());
+		return questionList;
+	}
+
+	@Override
+	public List<QuestionBase> getAllQuestionsByTechDifficultyAndExp(String tech, String difficulty, String exp) {
+
+		/*
+		 * questionList = questionList.stream().filter(questionBase ->
+		 * (questionBase.getExperience() != null) ?
+		 * questionBase.getExperience().equals(exp) : null)
+		 * .collect(Collectors.toList());
+		 * 
+		 * List<QuestionBase> questionList1 =
+		 * questionList.stream().filter(questionBase->
+		 * 
+		 * (questionBase != null && questionBase.getDifficulty() != null) ?
+		 * questionBase.getDifficulty().equals(difficulty) : null )
+		 * .collect(Collectors.toList());
+		 */
+		List<QuestionBase> questionList = getAllQuestionsByTname(tech);
+		List<QuestionBase> filteredQuesList = new ArrayList<QuestionBase>();
+
+		for (QuestionBase questionBase : questionList) {
+
+			if (questionBase.getExperience() != null ? questionBase.getExperience().equals(exp) : true) {
+
+				if (questionBase.getDifficulty() != null ? questionBase.getDifficulty().equalsIgnoreCase(difficulty)
+						: true) {
+
+					filteredQuesList.add(questionBase);
+				}
+			}
+		}
+		return filteredQuesList;
+
+	}
+
+	@Override
+	public QuestionTemplate updateQuestionTemplate(QuestionTemplate questTemplateData, String templateId) {
+
+		Optional<QuestionTemplate> QuestionTemplateOptional = questTemplateRepository.findById(templateId);
+
+		if (QuestionTemplateOptional.isPresent()) {
+			QuestionTemplate questionTemplate = QuestionTemplateOptional.get();
+			questionTemplate.setId(templateId);
+			questionTemplate.setDifficulty(questTemplateData.getDifficulty());
+			questionTemplate.setExperience(questTemplateData.getExperience());
+			questionTemplate.setTechnology(questTemplateData.getTechnology());
+			questionTemplate.setTemplateName(questTemplateData.getTemplateName());
+			questionTemplate.setQuestionList(questTemplateData.getQuestionList());
+
+			questTemplateRepository.save(questionTemplate);
+
+		}
+
+		return questTemplateData;
+	}
+
+
 }
