@@ -111,7 +111,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 				+ "(userid text, qId text, selectedoption text, PRIMARY KEY (userid, qId))");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + subjResultTable
-				+ "(userid text, qId text, program blob, consolidatedoutput text, PRIMARY KEY (userid, qId))");
+				+ "(userid text, qId text, program blob, consolidatedoutput text, classname text, clicksonruntest text,"
+				+ " compilationstatus text,timetook text, PRIMARY KEY (userid, qId))");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + scheduleRequestTable
 				+ "(id text, hiringManagerName text, hiringManagerId text, recruiterName text, recruiterId text, candidateName text, "

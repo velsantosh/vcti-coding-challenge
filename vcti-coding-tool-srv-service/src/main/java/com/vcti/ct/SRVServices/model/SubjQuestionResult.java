@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-
 @Getter
 @Setter
 @Table("subjresult")
@@ -20,6 +19,17 @@ public class SubjQuestionResult {
 	private @NonNull String consolidatedoutput;
 	private String compilationStatus;
 	private String className;
+	private String timeTook;
+	private String clicksonRunTest;
+
+
+	public String getClicksonRunTest() {
+		return clicksonRunTest;
+	}
+
+	public void setClicksonRunTest(String clicksonRunTest) {
+		this.clicksonRunTest = clicksonRunTest;
+	}
 
 	public String getCompilationStatus() {
 		return compilationStatus;
@@ -33,19 +43,33 @@ public class SubjQuestionResult {
 		this.className = className;
 	}
 
+	public String getTimeTook() {
+		return timeTook;
+	}
+
+	public void setTimeTook(String timeTook) {
+		this.timeTook = timeTook;
+	}
+
 	public void setCompilationStatus(String compilationStatus) {
 		this.compilationStatus = compilationStatus;
 	}
- public SubjQuestionResult() {
-	 
- }
-	public SubjQuestionResult(final ResultKey key, @NonNull ByteBuffer program, @NonNull String consolidatedoutput,String compilationStatus,String className) {
+
+	public SubjQuestionResult() {
+
+	}
+
+	public SubjQuestionResult(final ResultKey key, @NonNull ByteBuffer program, @NonNull String consolidatedoutput,
+			String compilationStatus, String className, String timeTook, String clicksonRunTest) {
 		super();
 		this.key = key;
 		this.program = program;
 		this.consolidatedoutput = consolidatedoutput;
-		this.compilationStatus=compilationStatus;
-		this.className=className;
+		this.compilationStatus = compilationStatus;
+		this.className = className;
+		this.timeTook = timeTook;
+		this.clicksonRunTest = clicksonRunTest;
+
 	}
 
 	public ResultKey getKey() {

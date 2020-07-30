@@ -411,6 +411,8 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 		if (null != questionresponse) {
 			subjQRes.setCompilationStatus(questionresponse.getCompilationsStatus());
+			subjQRes.setTimeTook(subjQResPojo.getTimeTook());
+			subjQRes.setClicksonRunTest(subjQResPojo.getClicksonRunTest());
 			subjResultRepository.save(subjQRes);
 			return (null != questionresponse.getCompilationsStatus()
 					&& questionresponse.getCompilationsStatus().equalsIgnoreCase("SUCCESS")) ? true : false;
@@ -1233,6 +1235,9 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 			sReport.setAnsSubmitted(convertByteBufferToString(subj.getProgram()));
 			sReport.setConsolidatedOutput(subj.getConsolidatedoutput());
+			sReport.setTimeTook(subj.getTimeTook());
+			sReport.setClicksonRunTest(subj.getClicksonRunTest());
+
 			subjReport.add(sReport);
 		}
 		List<ObjQuestionResult> objresults = objResultRepository.findByKeyUserId(candidateId);

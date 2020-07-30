@@ -19,6 +19,17 @@ public class SubjQuestionResultPojo {
 	private @NonNull String consolidatedoutput;
 	private String compilationStatus;
 	private String className;
+	private String timeTook;
+	private String clicksonRunTest;
+
+
+	public String getClicksonRunTest() {
+		return clicksonRunTest;
+	}
+
+	public void setClicksonRunTest(String clicksonRunTest) {
+		this.clicksonRunTest = clicksonRunTest;
+	}
 
 	public String getCompilationStatus() {
 		return compilationStatus;
@@ -32,17 +43,28 @@ public class SubjQuestionResultPojo {
 		this.className = className;
 	}
 
+	public String getTimeTook() {
+		return timeTook;
+	}
+
+	public void setTimeTook(String timeTook) {
+		this.timeTook = timeTook;
+	}
+
 	public void setCompilationStatus(String compilationStatus) {
 		this.compilationStatus = compilationStatus;
 	}
 
-	public SubjQuestionResultPojo(final ResultKey key, @NonNull String program, @NonNull String consolidatedoutput,String compilationStatus,String className) {
+	public SubjQuestionResultPojo(final ResultKey key, @NonNull String program, @NonNull String consolidatedoutput,
+			String compilationStatus,String className, String clicksonRunTest) {
 		super();
 		this.key = key;
 		this.program = program;
 		this.consolidatedoutput = consolidatedoutput;
 		this.compilationStatus=compilationStatus;
 		this.className=className;
+		this.clicksonRunTest = clicksonRunTest;
+
 	}
 
 	public ResultKey getKey() {

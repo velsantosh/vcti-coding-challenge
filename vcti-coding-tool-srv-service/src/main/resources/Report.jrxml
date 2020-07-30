@@ -50,6 +50,8 @@
 		<field name="program" class="java.lang.String"/>
 		<field name="ansSubmitted" class="java.lang.String"/>
 		<field name="consolidatedOutput" class="java.lang.String"/>
+		<field name="timeTook" class="java.lang.String"/>
+		<field name="clicksonRunTest" class="java.lang.String"/>
 	</subDataset>
 	<subDataset name="userDataSet" uuid="38d08746-142d-4682-b5d3-88bc45200437">
 		<field name="candidateName" class="java.lang.String"/>
@@ -77,7 +79,7 @@
 		</band>
 	</title>
 	<detail>
-		<band height="1010" splitType="Stretch">
+		<band height="1030" splitType="Stretch">
 			<property name="local_mesure_unitheight" value="pixel"/>
 			<componentElement>
 				<reportElement x="0" y="10" width="810" height="180" isPrintInFirstWholeBand="true" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
@@ -118,7 +120,7 @@
 								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 							</box>
 							<staticText>
-								<reportElement mode="Transparent" x="7" y="54" width="142" height="47" forecolor="#006699" backcolor="#E6E6E6" uuid="77fd2ccf-ad86-4c65-bdec-dd2aff2a7e8e"/>
+								<reportElement mode="Transparent" x="7" y="54" width="142" height="45" forecolor="#006699" backcolor="#E6E6E6" uuid="77fd2ccf-ad86-4c65-bdec-dd2aff2a7e8e"/>
 								<box leftPadding="2">
 									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -141,10 +143,10 @@
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font size="14" isBold="true"/>
 								</textElement>
-								<text><![CDATA[CandidateName]]></text>
+								<text><![CDATA[Candidate Name]]></text>
 							</staticText>
 							<staticText>
-								<reportElement mode="Transparent" x="407" y="9" width="145" height="45" forecolor="#006699" backcolor="#E6E6E6" uuid="a2e51cac-da0f-4f0e-93e4-4ba277f257c2"/>
+								<reportElement mode="Transparent" x="407" y="9" width="153" height="45" forecolor="#006699" backcolor="#E6E6E6" uuid="a2e51cac-da0f-4f0e-93e4-4ba277f257c2"/>
 								<box leftPadding="2">
 									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -164,20 +166,20 @@
 									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 								</box>
-								<textElement>
+								<textElement verticalAlignment="Middle">
 									<font fontName="Arial" size="14"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{candidateExperience}]]></textFieldExpression>
 							</textField>
 							<textField>
-								<reportElement x="551" y="9" width="251" height="45" uuid="07bfdb85-fc15-495e-b3a6-4c8a472cb707"/>
+								<reportElement x="560" y="9" width="242" height="45" uuid="07bfdb85-fc15-495e-b3a6-4c8a472cb707"/>
 								<box leftPadding="2">
 									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 								</box>
-								<textElement>
+								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="14"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{candidateEmailId}]]></textFieldExpression>
@@ -203,7 +205,7 @@
 									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 								</box>
-								<textElement>
+								<textElement verticalAlignment="Middle">
 									<font fontName="Arial" size="14"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{candidateMobileNo}]]></textFieldExpression>
@@ -216,13 +218,13 @@
 									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 								</box>
-								<textElement>
+								<textElement verticalAlignment="Middle">
 									<font fontName="Arial" size="14"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{candidateName}]]></textFieldExpression>
 							</textField>
 							<staticText>
-								<reportElement mode="Transparent" x="407" y="54" width="145" height="46" forecolor="#006699" backcolor="#E6E6E6" uuid="77fd2ccf-ad86-4c65-bdec-dd2aff2a7e8e"/>
+								<reportElement mode="Transparent" x="407" y="54" width="153" height="45" forecolor="#006699" backcolor="#E6E6E6" uuid="77fd2ccf-ad86-4c65-bdec-dd2aff2a7e8e"/>
 								<box leftPadding="2">
 									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -232,36 +234,36 @@
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font size="14" isBold="true"/>
 								</textElement>
-								<text><![CDATA[HiringManagerName]]></text>
+								<text><![CDATA[HiringManager Name]]></text>
 							</staticText>
 							<textField>
-								<reportElement key="" x="551" y="53" width="251" height="46" uuid="6a4b1216-70ac-4981-9aa2-4a0851ffa4f7"/>
+								<reportElement key="" x="560" y="54" width="242" height="45" uuid="6a4b1216-70ac-4981-9aa2-4a0851ffa4f7"/>
 								<box leftPadding="2">
 									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 								</box>
-								<textElement>
+								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="14"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{hiringManagerName}]]></textFieldExpression>
 							</textField>
 							<textField>
-								<reportElement key="" x="551" y="100" width="251" height="37" uuid="6a4b1216-70ac-4981-9aa2-4a0851ffa4f7"/>
+								<reportElement key="" x="560" y="100" width="242" height="37" uuid="6a4b1216-70ac-4981-9aa2-4a0851ffa4f7"/>
 								<box leftPadding="2">
 									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 								</box>
-								<textElement>
+								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font fontName="Arial" size="14"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{recruiterName}]]></textFieldExpression>
 							</textField>
 							<staticText>
-								<reportElement mode="Transparent" x="407" y="99" width="145" height="38" forecolor="#006699" backcolor="#E6E6E6" uuid="77fd2ccf-ad86-4c65-bdec-dd2aff2a7e8e"/>
+								<reportElement mode="Transparent" x="407" y="99" width="153" height="38" forecolor="#006699" backcolor="#E6E6E6" uuid="77fd2ccf-ad86-4c65-bdec-dd2aff2a7e8e"/>
 								<box leftPadding="2">
 									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -278,7 +280,7 @@
 				</jr:table>
 			</componentElement>
 			<componentElement>
-				<reportElement positionType="Float" stretchType="ElementGroupHeight" x="0" y="220" width="810" height="300" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
+				<reportElement positionType="Float" stretchType="ElementGroupHeight" x="0" y="220" width="810" height="270" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
 					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
@@ -301,7 +303,7 @@
 								<textFieldExpression><![CDATA["Objective Question Summary"]]></textFieldExpression>
 							</textField>
 						</jr:tableHeader>
-						<jr:detailCell style="Table_TD" height="240">
+						<jr:detailCell style="Table_TD" height="220">
 							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 							<frame>
 								<reportElement positionType="Float" x="10" y="10" width="800" height="40" uuid="194ad461-2128-4eb4-a274-876de66918cc"/>
@@ -435,7 +437,7 @@
 				</jr:table>
 			</componentElement>
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="730" width="810" height="280" isPrintWhenDetailOverflows="true" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
+				<reportElement positionType="Float" x="0" y="730" width="810" height="300" isPrintWhenDetailOverflows="true" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
 					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
@@ -456,7 +458,7 @@
 								<textFieldExpression><![CDATA["Subjective Quesion Summary"]]></textFieldExpression>
 							</textField>
 						</jr:tableHeader>
-						<jr:detailCell style="Table_TD" height="200">
+						<jr:detailCell style="Table_TD" height="260">
 							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 							<frame>
 								<reportElement positionType="Float" x="10" y="10" width="800" height="50" uuid="ebb57e55-6105-40d4-b7e0-62dae2ac203c">
@@ -490,11 +492,11 @@
 								</textField>
 							</frame>
 							<frame>
-								<reportElement positionType="Float" x="10" y="60" width="800" height="60" uuid="10690ddd-b911-499e-bd48-847eee2981fe">
+								<reportElement positionType="Float" x="10" y="60" width="800" height="80" uuid="10690ddd-b911-499e-bd48-847eee2981fe">
 									<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								</reportElement>
 								<textField textAdjust="StretchHeight">
-									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="194" height="60" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="b4886f31-a81e-4408-bd4b-70965b1f2ed7"/>
+									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="194" height="80" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="b4886f31-a81e-4408-bd4b-70965b1f2ed7"/>
 									<box leftPadding="2">
 										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -507,7 +509,7 @@
 									<textFieldExpression><![CDATA["Solution"]]></textFieldExpression>
 								</textField>
 								<textField textAdjust="StretchHeight">
-									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="194" y="0" width="599" height="60" isPrintWhenDetailOverflows="true" uuid="6a4b1216-70ac-4981-9aa2-4a0851ffa4f7"/>
+									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="194" y="0" width="599" height="80" isPrintWhenDetailOverflows="true" uuid="6a4b1216-70ac-4981-9aa2-4a0851ffa4f7"/>
 									<box leftPadding="2">
 										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -521,7 +523,7 @@
 								</textField>
 							</frame>
 							<frame>
-								<reportElement positionType="Float" x="10" y="120" width="800" height="50" uuid="43756def-96e7-4b3a-ae7e-bc7aca423839"/>
+								<reportElement positionType="Float" x="10" y="140" width="800" height="50" uuid="43756def-96e7-4b3a-ae7e-bc7aca423839"/>
 								<textField textAdjust="StretchHeight">
 									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="194" height="50" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="3425e2bf-e73f-45a6-b1b4-01fa650fb75b"/>
 									<box leftPadding="2">
@@ -547,6 +549,61 @@
 										<font fontName="Arial" size="14"/>
 									</textElement>
 									<textFieldExpression><![CDATA[$F{consolidatedOutput}]]></textFieldExpression>
+								</textField>
+							</frame>
+							<frame>
+								<reportElement positionType="Float" x="10" y="190" width="793" height="50" uuid="3797b1b0-59f7-41fd-aa30-1ed8424866d0"/>
+								<textField textAdjust="StretchHeight">
+									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="194" height="50" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="4224b509-0310-4c8c-ac2e-90dc8886dda1"/>
+									<box leftPadding="2">
+										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="14" isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA["Time Taken"]]></textFieldExpression>
+								</textField>
+								<textField textAdjust="StretchHeight">
+									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="194" y="0" width="196" height="50" isPrintWhenDetailOverflows="true" uuid="0288024f-c15b-4907-a592-c3f8d8c1a55d"/>
+									<box leftPadding="2">
+										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+									</box>
+									<textElement verticalAlignment="Middle">
+										<font fontName="Arial" size="14"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{timeTook}]]></textFieldExpression>
+								</textField>
+								<textField textAdjust="StretchHeight">
+									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="584" y="0" width="209" height="50" isPrintWhenDetailOverflows="true" uuid="c87bf325-2e6b-426a-a1e6-b62baa4f147d"/>
+									<box leftPadding="2">
+										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+									</box>
+									<textElement verticalAlignment="Middle">
+										<font fontName="Arial" size="14"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{clicksonRunTest}]]></textFieldExpression>
+								</textField>
+								<textField textAdjust="StretchHeight">
+									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="390" y="0" width="194" height="50" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="003e414d-712e-4cfb-b1ae-1afce6140e4f"/>
+									<box leftPadding="2">
+										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+										<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="14" isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA["Clicks on RunTest"]]></textFieldExpression>
 								</textField>
 							</frame>
 						</jr:detailCell>

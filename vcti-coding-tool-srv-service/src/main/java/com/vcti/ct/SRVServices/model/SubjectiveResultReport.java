@@ -5,6 +5,22 @@ public class SubjectiveResultReport {
 	private String program;
 	private String ansSubmitted;
 	private String consolidatedOutput;
+	private String timeTook;
+	private String clicksonRunTest;
+
+	
+	public String getClicksonRunTest() {
+		return clicksonRunTest;
+	}
+	public void setClicksonRunTest(String clicksonRunTest) {
+		this.clicksonRunTest = clicksonRunTest;
+	}
+	public String getTimeTook() {
+		return timeTook;
+	}
+	public void setTimeTook(String timeTook) {
+		this.timeTook = timeTook;
+	}
 	public String getProgram() {
 		return program;
 	}
