@@ -1,5 +1,8 @@
 package com.vcti.ct.CCTServices.dao.impl;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -18,11 +21,17 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.vcti.ct.CCTServices.config.CCTConstants;
 import com.vcti.ct.CCTServices.config.CCTUtils;
@@ -942,6 +951,210 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		// TODO Auto-generated method stub
 		return null;
 	}
+ public  Question uploadObjFile(MultipartFile file) {
+	 FileInputStream fis = null;
+		BufferedReader br = null;
+		XSSFRow row;
+		Question qt=null;
+		QuestionBase newQues = new QuestionBase();
+		try {
+			File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
+			file.transferTo(fileToSave);
+			String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
+			String[] validate = { "type", "statement", "option1", "option2", "option3", "option4", "correctOption",
+					"technology","difficulty", "experience", "Title","topic", "expectedTime" };
+			fis = new FileInputStream(new File(csvFile));
+
+			XSSFWorkbook workbook = new XSSFWorkbook(fis);
+			XSSFSheet spreadsheet = workbook.getSheetAt(0);
+			Iterator<Row> rowIterator = spreadsheet.iterator();
+			row = (XSSFRow) rowIterator.next();
+			Iterator<Cell> HeadingcellIterator = row.cellIterator();
+			int noOfColumns = spreadsheet.getRow(0).getPhysicalNumberOfCells();    
+			if(noOfColumns!=validate.length) {
+				throw new InvalidQuestionTypeExceptoin("There was error in heading");
+			}
+			 
+				for (int i = 0; i < validate.length; i++) {
+				System.out.println(validate[i]);
+				String cell = HeadingcellIterator.next().getStringCellValue();
+				System.out.println(cell);
+				String str = cell.trim();
+				String str2 = validate[i].trim();
+				if (str2.equalsIgnoreCase(str)) {
+
+				} else {
+					throw new InvalidQuestionTypeExceptoin("There was error in heading");
+						
+				}
+			}
+			while (rowIterator.hasNext()) {
+				row = (XSSFRow) rowIterator.next();
+				Iterator<Cell> cellIterator = row.cellIterator();
+
+				while (cellIterator.hasNext()) {
+				   ArrayList al =new ArrayList();
+					Cell cell1 = cellIterator.next();
+					String type = cell1.getStringCellValue();
+					// System.out.println(type);
+					Cell cell2 = cellIterator.next();
+					String statement = cell2.getStringCellValue();
+					// System.out.println(statement);
+					Cell cell3 = cellIterator.next();
+					String option1 = cell3.getStringCellValue();
+					al.add(option1);
+					// System.out.println(technology);
+					Cell cell4 = cellIterator.next();
+
+					String option2 = cell4.getStringCellValue();
+					al.add(option2);
+					// System.out.println(title);
+					Cell cell5 = cellIterator.next();
+					String option3 = cell5.getStringCellValue();
+					 al.add(option3);
+					// System.out.println(difficulty);
+					Cell cell6 = cellIterator.next();
+					
+					//String experience = String.valueOf((int) cell6.getNumericCellValue());
+					 String option4 =cell6.getStringCellValue();
+					al.add(option4);
+					// System.out.println(experience);
+					Cell cell7 = cellIterator.next();
+					String correctOption = cell7.getStringCellValue();
+					// System.out.println(topic);
+					Cell cell8 = cellIterator.next();
+					//String technology = String.valueOf((int) cell8.getNumericCellValue());
+					String technology = cell8.getStringCellValue(); 
+					// System.out.println(expectedTime);
+					Cell cell9 = cellIterator.next();
+					String difficulty = cell9.getStringCellValue();
+					Cell cell10 = cellIterator.next();
+					String experience =  cell10.getStringCellValue();
+					//String.valueOf((int) cell10.getNumericCellValue());
+					// System.out.println(cell10.getStringCellValue());
+					Cell cell11 = cellIterator.next();
+					String title =  cell11.getStringCellValue();
+					Cell cell12 = cellIterator.next();
+					String topic = cell12.getStringCellValue();
+					Cell cell13 = cellIterator.next();
+					String expectedTime = String.valueOf((int) cell13.getNumericCellValue());
+					newQues = new QuestionBase(type, statement, al, correctOption, technology, difficulty, experience,title,
+							topic, expectedTime);
+					qt = addObjQuestion(newQues);
+
+				}
+				// System.out.println();
+			}
+			fis.close();
+
+		} catch (IOException ex) {
+			try {
+				fis.close();
+			} catch (IOException et) {
+			}
+		} 
+	 
+	 
+	 return qt;
+	 
+  } 
+ public  Question uploadSubjFile(MultipartFile file) {
+	 FileInputStream fis = null;
+		String[] rowHeading = { "type", "statement", "technology", "title", "difficulty", "experience", "topic",
+				"expectedTime", "JunitText" };
+
+		XSSFRow row;
+		BufferedReader br = null;
+		Question qt = null;
+		QuestionBase newQues = new QuestionBase();
+		try {
+			File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
+			file.transferTo(fileToSave);
+			String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
+			System.out.println(csvFile);
+
+			fis = new FileInputStream(new File(csvFile));
+         
+			XSSFWorkbook workbook = new XSSFWorkbook(fis);
+			XSSFSheet spreadsheet = workbook.getSheetAt(0);
+			Iterator<Row> rowIterator = spreadsheet.iterator();
+			row = (XSSFRow) rowIterator.next();
+			Iterator<Cell> HeadingcellIterator = row.cellIterator();
+			String[] validate = { "type", "statement", "technology", "title", "difficulty", "experience", "topic",
+					"expectedTime", "JunitText", "methodName" };
+			int noOfColumns = spreadsheet.getRow(0).getPhysicalNumberOfCells();    
+			if(noOfColumns!=validate.length) {
+				throw new InvalidQuestionTypeExceptoin("There was error in heading");
+			}
+			 
+				for (int i = 0; i < validate.length; i++) {
+				System.out.println(validate[i]);
+				String cell = HeadingcellIterator.next().getStringCellValue();
+				System.out.println(cell);
+				String str = cell.trim();
+				String str2 = validate[i].trim();
+				if (str2.equalsIgnoreCase(str)) {
+
+				} else {
+					throw new InvalidQuestionTypeExceptoin("There was error in heading");
+						
+				}
+			}
+			while (rowIterator.hasNext()) {
+				row = (XSSFRow) rowIterator.next();
+				Iterator<Cell> cellIterator = row.cellIterator();
+
+				while (cellIterator.hasNext()) {
+					Cell cell1 = cellIterator.next();
+					String type = cell1.getStringCellValue();
+					// System.out.println(type);
+					Cell cell2 = cellIterator.next();
+					String statement = cell2.getStringCellValue();
+					// System.out.println(statement);
+					Cell cell3 = cellIterator.next();
+					String technology = cell3.getStringCellValue();
+					// System.out.println(technology);
+					Cell cell4 = cellIterator.next();
+
+					String title = cell4.getStringCellValue();
+					// System.out.println(title);
+					Cell cell5 = cellIterator.next();
+					String difficulty = cell5.getStringCellValue();
+					// System.out.println(difficulty);
+					Cell cell6 = cellIterator.next();
+					String experience =  cell6.getStringCellValue();
+					//String.valueOf((int) cell6.getNumericCellValue());// System.out.println(experience);
+					Cell cell7 = cellIterator.next();
+					String topic = cell7.getStringCellValue();
+					// System.out.println(topic);
+					Cell cell8 = cellIterator.next();
+					String expectedTime = String.valueOf((int) cell8.getNumericCellValue());
+					// System.out.println(expectedTime);
+					Cell cell9 = cellIterator.next();
+					String junitText = cell9.getStringCellValue();
+					Cell cell10 = cellIterator.next();
+					String methodName = cell10.getStringCellValue();
+					// System.out.println(cell10.getStringCellValue());
+					newQues = new QuestionBase(type, statement, technology, title, experience, difficulty, topic,
+							expectedTime, junitText, methodName);
+					qt = addSubQuestion(newQues);
+
+				}
+				// System.out.println();
+			}
+			fis.close();
+
+		} catch (IOException ex) {
+			try {
+				fis.close();
+			} catch (IOException et) {
+			}
+		}
+
+
+		return qt;
+ 
+ }
 
 	@Override
 	public List<QuestionTemplate> getFilteredTemplates(String tech, String difficulty, String experience) {
@@ -1031,5 +1244,6 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 		return questTemplateData;
 	}
+
 
 }

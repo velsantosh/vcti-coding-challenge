@@ -43,8 +43,8 @@ public class QuestionBase {
 	}
 
 	public QuestionBase(@NonNull String type, @NonNull String statement, @NonNull List<String> options,
-			@NonNull String correctOption, @NonNull String technology, @NonNull String title,
-			@NonNull String difficulty, @NonNull String experience, @NonNull String topic,
+			@NonNull String correctOption, @NonNull String technology, @NonNull String difficulty,
+			@NonNull String experience, @NonNull String title, @NonNull String topic,
 			@NonNull String expectedTime) {
 		super();
 		this.type = type;
@@ -52,9 +52,9 @@ public class QuestionBase {
 		this.options = options;
 		this.correctOption = correctOption;
 		this.technology = technology;
-		this.title = title;
 		this.difficulty = difficulty;
-		this.experience = experience;
+		this.experience=experience;
+		this.title = title;
 		this.topic = topic;
 		this.expectedTime = expectedTime;
 	}

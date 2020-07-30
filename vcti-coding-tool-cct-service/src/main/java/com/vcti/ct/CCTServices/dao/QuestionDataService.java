@@ -3,6 +3,8 @@ package com.vcti.ct.CCTServices.dao;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.vcti.ct.CCTServices.model.QuesResponse;
 import com.vcti.ct.CCTServices.model.Question;
 import com.vcti.ct.CCTServices.model.QuestionBase;
@@ -76,11 +78,17 @@ public interface QuestionDataService {
 
 	String deleteQuestionTemplate(String questionTemplateId);
 
+    Question uploadObjFile(MultipartFile file);
+    Question uploadSubjFile(MultipartFile file);
+	
+
+
 	List<QuestionTemplate> getFilteredTemplates(String tech, String difficulty, String experience);
 
 	Optional<QuestionTemplate> getTemplate(String templateId);
 
 	List<QuestionBase> getAllQuestsByTemplateId(String templateId);
+
 
 	QuestionTemplate updateQuestionTemplate(QuestionTemplate questTemplateData, String id);
 
