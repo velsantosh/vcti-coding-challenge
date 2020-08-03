@@ -5,19 +5,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -27,10 +24,11 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.vcti.ct.CCTServices.config.CCTConstants;
@@ -79,13 +77,21 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 	@PostConstruct
 	public void init() {
-		try {
-			junitCoreTest = new String(Files
-					.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:JUnitCoreMagicMaster.txt").toString())));
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		/*
+		 * try { junitCoreTest = new String(Files
+		 * .readAllBytes(Paths.get(ResourceUtils.getFile(
+		 * "classpath:JUnitCoreMagicMaster.txt").toString())));
+		 * 
+		 * } catch (IOException e) { e.printStackTrace(); }
+		 */
+		ClassPathResource resource = new ClassPathResource("JUnitCoreMagicMaster.txt");
+        try {
+            byte[] dataArr = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            junitCoreTest = new String(dataArr, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+                e.printStackTrace();
+        }
+		
 	}
 
 	@Override

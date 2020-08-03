@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
 import com.vcti.ct.SRVServices.dao.SRVDataService;
 import com.vcti.ct.SRVServices.model.CandidateResult;
 import com.vcti.ct.SRVServices.model.Interviewer;
@@ -28,7 +27,7 @@ import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 
-@CrossOrigin(origins = { "http://localhost:3000" })
+//@CrossOrigin(origins = { "*" })
 @RestController
 public class SRVController {
 
@@ -291,17 +290,17 @@ public class SRVController {
 	public boolean updateChallengeStatus(@PathVariable String candidateId) {
 		return srvDataService.updateChallengeStatus(candidateId);
 	}
-	
+
 	@PostMapping("/assignTemplates")
 	public Boolean assignTemplates(@RequestBody QuestionSchedulerCustom assignBulkQ) {
 		return srvDataService.assignDynamicTemplate(assignBulkQ);
 	}
-	
+
 	@PutMapping("/updateChallengeTemplate")
 	public ScheduleChallenge updateChallengeWithTemplate(@RequestBody QuestionSchedulerCustom assignBulkQ) {
 		return srvDataService.updateChallengeWithTemplate(assignBulkQ);
 	}
-	
+
 	@PostMapping("/customTemplates")
 	public Boolean customTemplates(@RequestBody QuestionSchedulerCustom assignBulkQ) {
 		return srvDataService.createCustomTemplate(assignBulkQ);

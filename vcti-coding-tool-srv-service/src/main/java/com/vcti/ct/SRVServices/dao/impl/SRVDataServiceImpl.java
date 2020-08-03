@@ -7,8 +7,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +26,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -34,6 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -120,15 +121,35 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	@PostConstruct
 	public void init() {
-		try {
-			testLinkEmailMsg = new String(
-					Files.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:testLinkEmailMsg.txt").toString())));
-			reportToInterviewerMsg = new String(Files
-					.readAllBytes(Paths.get(ResourceUtils.getFile("classpath:reportToInterverMsg.txt").toString())));
+		/*
+		 * try { testLinkEmailMsg = new String(
+		 * Files.readAllBytes(Paths.get(ResourceUtils.getFile(
+		 * "classpath:testLinkEmailMsg.txt").toString()))); reportToInterviewerMsg = new
+		 * String(Files .readAllBytes(Paths.get(ResourceUtils.getFile(
+		 * "classpath:reportToInterverMsg.txt").toString())));
+		 * 
+		 * } catch (IOException e) { e.printStackTrace(); }
+		 */
 
+		ClassPathResource resource = new ClassPathResource("testLinkEmailMsg.txt");
+		try {
+			byte[] dataArr = FileCopyUtils.copyToByteArray(resource.getInputStream());
+			testLinkEmailMsg = new String(dataArr, StandardCharsets.UTF_8);
+			System.out.println("Loaded testLinkEmailMsg");
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
+		ClassPathResource resource1 = new ClassPathResource("reportToInterverMsg.txt");
+		try {
+			byte[] dataArr = FileCopyUtils.copyToByteArray(resource1.getInputStream());
+			reportToInterviewerMsg = new String(dataArr, StandardCharsets.UTF_8);
+			System.out.println("Loaded reportToInterverMsg");
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+		}
+
 	}
 
 	@Override

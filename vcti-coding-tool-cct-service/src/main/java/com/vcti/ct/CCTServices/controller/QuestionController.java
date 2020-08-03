@@ -38,7 +38,7 @@ import com.vcti.ct.CCTServices.model.TechnologyMap;
 import com.vcti.ct.CCTServices.model.ValidateObjQuestions;
 import com.vcti.ct.CCTServices.model.ValidateSubjQuestions;
 
-@CrossOrigin(origins = { "http://localhost:3000" })
+@CrossOrigin(origins = { "http://cct:8089","http://localhost:3000" })
 @RestController
 public class QuestionController {
 
