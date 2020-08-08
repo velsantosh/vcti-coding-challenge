@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -85,13 +88,13 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		 * } catch (IOException e) { e.printStackTrace(); }
 		 */
 		ClassPathResource resource = new ClassPathResource("JUnitCoreMagicMaster.txt");
-        try {
-            byte[] dataArr = FileCopyUtils.copyToByteArray(resource.getInputStream());
-            junitCoreTest = new String(dataArr, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-                e.printStackTrace();
-        }
-		
+		try {
+			byte[] dataArr = FileCopyUtils.copyToByteArray(resource.getInputStream());
+			junitCoreTest = new String(dataArr, StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
@@ -957,18 +960,42 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 		// TODO Auto-generated method stub
 		return null;
 	}
- public  Question uploadObjFile(MultipartFile file) {
-	 FileInputStream fis = null;
+
+	public Question uploadObjFile(MultipartFile file) {
+		FileInputStream fis = null;
 		BufferedReader br = null;
 		XSSFRow row;
-		Question qt=null;
+		SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		String currentTime = sdf.format(timestamp);
+		String userDir = currentTime;
+		String path = "C:\\takeTest\\" + userDir + "\\" + file.getOriginalFilename();
+		Path pathDir = Paths.get(path);
+
+		try {
+			if (!Files.exists(pathDir)) {
+				Files.createDirectories(pathDir);
+				System.out.println("Directory created");
+			} else {
+				System.out.println("Directory already exists");
+			}
+			// path = path + fileName + fileExtension;
+			// Java 7
+			// Files.write(Paths.get(path), prog.getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Question qt = null;
 		QuestionBase newQues = new QuestionBase();
 		try {
-			File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
-			file.transferTo(fileToSave);
-			String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
+			// File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
+			// file.transferTo(fileToSave);
+			file.transferTo(pathDir.toFile());
+			// String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
+			String csvFile = pathDir.toString();
+
 			String[] validate = { "type", "statement", "option1", "option2", "option3", "option4", "correctOption",
-					"technology","difficulty", "experience", "Title","topic", "expectedTime" };
+					"technology", "difficulty", "experience", "Title", "topic", "expectedTime" };
 			fis = new FileInputStream(new File(csvFile));
 
 			XSSFWorkbook workbook = new XSSFWorkbook(fis);
@@ -976,12 +1003,12 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			Iterator<Row> rowIterator = spreadsheet.iterator();
 			row = (XSSFRow) rowIterator.next();
 			Iterator<Cell> HeadingcellIterator = row.cellIterator();
-			int noOfColumns = spreadsheet.getRow(0).getPhysicalNumberOfCells();    
-			if(noOfColumns!=validate.length) {
+			int noOfColumns = spreadsheet.getRow(0).getPhysicalNumberOfCells();
+			if (noOfColumns != validate.length) {
 				throw new InvalidQuestionTypeExceptoin("There was error in heading");
 			}
-			 
-				for (int i = 0; i < validate.length; i++) {
+
+			for (int i = 0; i < validate.length; i++) {
 				System.out.println(validate[i]);
 				String cell = HeadingcellIterator.next().getStringCellValue();
 				System.out.println(cell);
@@ -991,7 +1018,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 				} else {
 					throw new InvalidQuestionTypeExceptoin("There was error in heading");
-						
+
 				}
 			}
 			while (rowIterator.hasNext()) {
@@ -999,10 +1026,10 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 				Iterator<Cell> cellIterator = row.cellIterator();
 
 				while (cellIterator.hasNext()) {
-				   ArrayList al =new ArrayList();
+					ArrayList al = new ArrayList();
 					Cell cell1 = cellIterator.next();
 					String type = cell1.getStringCellValue();
-					// System.out.println(type);
+					System.out.println(type);
 					Cell cell2 = cellIterator.next();
 					String statement = cell2.getStringCellValue();
 					// System.out.println(statement);
@@ -1017,35 +1044,35 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 					// System.out.println(title);
 					Cell cell5 = cellIterator.next();
 					String option3 = cell5.getStringCellValue();
-					 al.add(option3);
+					al.add(option3);
 					// System.out.println(difficulty);
 					Cell cell6 = cellIterator.next();
-					
-					//String experience = String.valueOf((int) cell6.getNumericCellValue());
-					 String option4 =cell6.getStringCellValue();
+
+					// String experience = String.valueOf((int) cell6.getNumericCellValue());
+					String option4 = cell6.getStringCellValue();
 					al.add(option4);
 					// System.out.println(experience);
 					Cell cell7 = cellIterator.next();
 					String correctOption = cell7.getStringCellValue();
 					// System.out.println(topic);
 					Cell cell8 = cellIterator.next();
-					//String technology = String.valueOf((int) cell8.getNumericCellValue());
-					String technology = cell8.getStringCellValue(); 
+					// String technology = String.valueOf((int) cell8.getNumericCellValue());
+					String technology = cell8.getStringCellValue();
 					// System.out.println(expectedTime);
 					Cell cell9 = cellIterator.next();
 					String difficulty = cell9.getStringCellValue();
 					Cell cell10 = cellIterator.next();
-					String experience =  cell10.getStringCellValue();
-					//String.valueOf((int) cell10.getNumericCellValue());
+					String experience = cell10.getStringCellValue();
+					// String.valueOf((int) cell10.getNumericCellValue());
 					// System.out.println(cell10.getStringCellValue());
 					Cell cell11 = cellIterator.next();
-					String title =  cell11.getStringCellValue();
+					String title = cell11.getStringCellValue();
 					Cell cell12 = cellIterator.next();
 					String topic = cell12.getStringCellValue();
 					Cell cell13 = cellIterator.next();
 					String expectedTime = String.valueOf((int) cell13.getNumericCellValue());
-					newQues = new QuestionBase(type, statement, al, correctOption, technology, difficulty, experience,title,
-							topic, expectedTime);
+					newQues = new QuestionBase(type, statement, al, correctOption, technology, difficulty, experience,
+							title, topic, expectedTime);
 					qt = addObjQuestion(newQues);
 
 				}
@@ -1058,29 +1085,52 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 				fis.close();
 			} catch (IOException et) {
 			}
-		} 
-	 
-	 
-	 return qt;
-	 
-  } 
- public  Question uploadSubjFile(MultipartFile file) {
-	 FileInputStream fis = null;
+		}
+
+		return qt;
+
+	}
+
+	public Question uploadSubjFile(MultipartFile file) {
+		FileInputStream fis = null;
 		String[] rowHeading = { "type", "statement", "technology", "title", "difficulty", "experience", "topic",
 				"expectedTime", "JunitText" };
 
 		XSSFRow row;
 		BufferedReader br = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		String currentTime = sdf.format(timestamp);
+		String userDir = currentTime;
+		String path = "C:\\takeTest\\" + userDir + "\\" + file.getOriginalFilename();
+		Path pathDir = Paths.get(path);
+
+		try {
+			if (!Files.exists(pathDir)) {
+				Files.createDirectories(pathDir);
+				System.out.println("Directory created");
+			} else {
+				System.out.println("Directory already exists");
+			}
+			// path = path + fileName + fileExtension;
+			// Java 7
+			// Files.write(Paths.get(path), prog.getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		Question qt = null;
 		QuestionBase newQues = new QuestionBase();
 		try {
-			File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
-			file.transferTo(fileToSave);
-			String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
-			System.out.println(csvFile);
+			// File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
+			// file.transferTo(fileToSave);
+			file.transferTo(pathDir.toFile());
+			String csvFile = pathDir.toString();
+			// String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
+
+			// System.out.println(csvFile);
 
 			fis = new FileInputStream(new File(csvFile));
-         
+
 			XSSFWorkbook workbook = new XSSFWorkbook(fis);
 			XSSFSheet spreadsheet = workbook.getSheetAt(0);
 			Iterator<Row> rowIterator = spreadsheet.iterator();
@@ -1088,12 +1138,12 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			Iterator<Cell> HeadingcellIterator = row.cellIterator();
 			String[] validate = { "type", "statement", "technology", "title", "difficulty", "experience", "topic",
 					"expectedTime", "JunitText", "methodName" };
-			int noOfColumns = spreadsheet.getRow(0).getPhysicalNumberOfCells();    
-			if(noOfColumns!=validate.length) {
+			int noOfColumns = spreadsheet.getRow(0).getPhysicalNumberOfCells();
+			if (noOfColumns != validate.length) {
 				throw new InvalidQuestionTypeExceptoin("There was error in heading");
 			}
-			 
-				for (int i = 0; i < validate.length; i++) {
+
+			for (int i = 0; i < validate.length; i++) {
 				System.out.println(validate[i]);
 				String cell = HeadingcellIterator.next().getStringCellValue();
 				System.out.println(cell);
@@ -1103,7 +1153,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 				} else {
 					throw new InvalidQuestionTypeExceptoin("There was error in heading");
-						
+
 				}
 			}
 			while (rowIterator.hasNext()) {
@@ -1128,8 +1178,9 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 					String difficulty = cell5.getStringCellValue();
 					// System.out.println(difficulty);
 					Cell cell6 = cellIterator.next();
-					String experience =  cell6.getStringCellValue();
-					//String.valueOf((int) cell6.getNumericCellValue());// System.out.println(experience);
+					String experience = cell6.getStringCellValue();
+					// String.valueOf((int) cell6.getNumericCellValue());//
+					// System.out.println(experience);
 					Cell cell7 = cellIterator.next();
 					String topic = cell7.getStringCellValue();
 					// System.out.println(topic);
@@ -1157,10 +1208,9 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 			}
 		}
 
-
 		return qt;
- 
- }
+
+	}
 
 	@Override
 	public List<QuestionTemplate> getFilteredTemplates(String tech, String difficulty, String experience) {
@@ -1250,6 +1300,5 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 		return questTemplateData;
 	}
-
 
 }
