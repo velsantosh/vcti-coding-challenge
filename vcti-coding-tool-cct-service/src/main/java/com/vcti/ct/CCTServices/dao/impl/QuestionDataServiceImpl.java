@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -955,12 +956,35 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 	 FileInputStream fis = null;
 		BufferedReader br = null;
 		XSSFRow row;
+		SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		String currentTime = sdf.format(timestamp);
+		String userDir =   currentTime;
+		String path = "C:\\takeTest\\" + userDir + "\\"+file.getOriginalFilename();
+		Path pathDir = Paths.get(path);
+
+		try {
+			if (!Files.exists(pathDir)) {
+				Files.createDirectories(pathDir);
+				System.out.println("Directory created");
+			} else {
+				System.out.println("Directory already exists");
+			}
+			//path = path + fileName + fileExtension;
+			// Java 7
+			//Files.write(Paths.get(path), prog.getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		Question qt=null;
 		QuestionBase newQues = new QuestionBase();
 		try {
-			File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
-			file.transferTo(fileToSave);
-			String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
+			//File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
+			//file.transferTo(fileToSave);
+			file.transferTo(pathDir.toFile());
+			//String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
+		    String csvFile = pathDir.toString();
+			
 			String[] validate = { "type", "statement", "option1", "option2", "option3", "option4", "correctOption",
 					"technology","difficulty", "experience", "Title","topic", "expectedTime" };
 			fis = new FileInputStream(new File(csvFile));
@@ -996,7 +1020,7 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 				   ArrayList al =new ArrayList();
 					Cell cell1 = cellIterator.next();
 					String type = cell1.getStringCellValue();
-					// System.out.println(type);
+					 System.out.println(type);
 					Cell cell2 = cellIterator.next();
 					String statement = cell2.getStringCellValue();
 					// System.out.println(statement);
@@ -1065,13 +1089,36 @@ public class QuestionDataServiceImpl implements QuestionDataService, CCTConstant
 
 		XSSFRow row;
 		BufferedReader br = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		String currentTime = sdf.format(timestamp);
+		String userDir =   currentTime;
+		String path = "C:\\takeTest\\" + userDir + "\\"+file.getOriginalFilename();
+		Path pathDir = Paths.get(path);
+
+		try {
+			if (!Files.exists(pathDir)) {
+				Files.createDirectories(pathDir);
+				System.out.println("Directory created");
+			} else {
+				System.out.println("Directory already exists");
+			}
+			//path = path + fileName + fileExtension;
+			// Java 7
+			//Files.write(Paths.get(path), prog.getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		Question qt = null;
 		QuestionBase newQues = new QuestionBase();
 		try {
-			File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
-			file.transferTo(fileToSave);
-			String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
-			System.out.println(csvFile);
+			//File fileToSave = new File("D:\\TEST\\" + file.getOriginalFilename());
+			//file.transferTo(fileToSave);
+			file.transferTo(pathDir.toFile());
+			String csvFile = pathDir.toString();
+			//String csvFile = "D:\\TEST\\" + file.getOriginalFilename();
+			
+			//System.out.println(csvFile);
 
 			fis = new FileInputStream(new File(csvFile));
          
