@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
  * @author Santosh Verma
  *
  */
-@CrossOrigin(origins = { "http://cct:8089" })
+@CrossOrigin(origins = { "http://vcti.com","http://localhost:3000" })
 @RestController
 public class MailServiceController {
 
@@ -130,7 +130,7 @@ public class MailServiceController {
 				(userDetails.getMailSubject() != null ? userDetails.getMailSubject() : "Test Eamil from CCT Mail API"));
 		refUserDetails.setUserName(userDetails.getUserName() != null ? userDetails.getUserName() : "testCCTUser");
 		refUserDetails.setToEmailAddress(userDetails.getToEmailAddress() != null ? userDetails.getToEmailAddress()
-				: "santosh.verma.vcti@gmail.com");
+				: "afser.basha@velankani.com");
 		refUserDetails.setMessageText(userDetails.getMessageText() != null ? userDetails.getMessageText()
 				: "Welcome email from VCTI CCT Tool");
 		refUserDetails.setAttachement(userDetails.getAttachement());

@@ -69,6 +69,7 @@ import com.vcti.ct.SRVServices.repository.ScheduleRequestRepository;
 import com.vcti.ct.SRVServices.repository.SubjResultRepository;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -113,6 +114,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 
 	private String testLinkEmailMsg;
 	private String reportToInterviewerMsg;
+	private JasperReport resultReport;
 
 	private final long millSecFor24Hours = 24 * 60 * 60 * 1000;
 
@@ -150,6 +152,15 @@ public class SRVDataServiceImpl implements SRVDataService {
 			System.out.println(e.getMessage());
 		}
 
+		try {
+
+			ClassPathResource reportResource = new ClassPathResource("Report.jrxml");
+			resultReport = JasperCompileManager.compileReport(reportResource.getInputStream());
+			System.out.println("Loaded candidate result reportFile");
+		} catch (IOException | JRException e) {
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+		}
 	}
 
 	@Override
@@ -1108,8 +1119,19 @@ public class SRVDataServiceImpl implements SRVDataService {
 			}
 
 			for (ObjQuestionResult objResult : filteredObjQList) {
+
 				String url = cctServiceHostPort + "question/";
+
+				String osName = System.getProperty("os.name");
+				System.out.println("os osName :" + osName);
+
+				if ("Linux".equals(osName)) {
+					url = "http://vcti.com:8765/cctservice/question/";
+				}
+
 				url = url + objResult.getKey().getQid();
+				System.out.println("url---->" + url);
+
 				QuestionBase objQuestions = null;
 				try {
 					objQuestions = restTemplate.getForObject(url, QuestionBase.class);
@@ -1120,7 +1142,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 				// objquestion=objQuestionRepository.findByqId(objResult.getKey().getQid());
 
 				noOfObjQ++;
-				if (objResult != null && objResult.getSelectedoption() != null) {
+				if (objResult != null && objResult.getSelectedoption() != null && objQuestions != null) {
 					if (objResult.getSelectedoption().equals(objQuestions.getCorrectOption())) {
 						correctAns++;
 					}
@@ -1322,20 +1344,23 @@ public class SRVDataServiceImpl implements SRVDataService {
 		 */
 		byte arr[] = {};
 		try {
-			File file = ResourceUtils.getFile("classpath:Report.jrxml");
-			JasperReport report = JasperCompileManager.compileReport(file.getAbsolutePath());
+
 			Map<String, Object> parameters = new HashMap<String, Object>();
 
 			parameters.put("subjRepoDataSource", subjReport);
 			parameters.put("objRepoDataSource", objReports);
 			parameters.put("userRepoDataSource", userlist);
 
-			JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource(1));
+			JasperPrint print = JasperFillManager.fillReport(resultReport, parameters, new JREmptyDataSource(1));
+
+			System.out.println("Loaded candidate result reportFile--->");
 
 			arr = JasperExportManager.exportReportToPdf(print);
 			// JasperExportManager.exportReportToPdfFile(print,
 			// destFileName+"\\candidate.pdf");
 		} catch (Exception e) {
+
+			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 

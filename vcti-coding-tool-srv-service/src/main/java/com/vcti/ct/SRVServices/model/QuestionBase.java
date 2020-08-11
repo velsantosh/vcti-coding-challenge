@@ -31,8 +31,8 @@ public class QuestionBase {
 	private @NonNull String methodName;
 	private @NonNull ByteBuffer junitObj;
 	private @NonNull String title;
-	private @NonNull String difficulty;
-	private @NonNull String expectedTime;
+	private String difficulty;
+	private String expectedTime;
 	private @NonNull String technologyId;
 	private @NonNull String technology;
 	private @NonNull String topic;
@@ -60,7 +60,7 @@ public class QuestionBase {
 	public QuestionBase(@NonNull String id, @NonNull String type, @NonNull String experience,
 			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
 			@NonNull String correctOption, @NonNull String methodName, ByteBuffer junitObj,
-			@NonNull String title, @NonNull String difficulty, @NonNull String expectedTime, @NonNull String technologyId,
+			@NonNull String title, String difficulty, String expectedTime, @NonNull String technologyId,
 			@NonNull String technology, @NonNull String topic, String junitText) {
 		super();
 		this.id = id;

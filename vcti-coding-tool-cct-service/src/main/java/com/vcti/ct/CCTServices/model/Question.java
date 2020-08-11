@@ -15,16 +15,16 @@ public class Question {
 	@PrimaryKey
 	private @NonNull String id;
 	private @NonNull String type;
-	private @NonNull String experience;
+	private String experience;
 	private @NonNull String createdUserid;
 	private @NonNull String title;
-	private @NonNull String difficulty;
+	private String difficulty;
 	private @NonNull String technologyId;
 
 	public Question() {
 		
 	}
-	public Question(@NonNull String id, @NonNull String type, @NonNull String experience,
+	public Question(@NonNull String id, @NonNull String type, String experience,
 			@NonNull String createdUserid) {
 		super();
 		this.id = id;
@@ -33,8 +33,8 @@ public class Question {
 		this.createdUserid = createdUserid;
 	}
 	
-	public Question(@NonNull String id, @NonNull String type, @NonNull String experience,
-			@NonNull String createdUserid, @NonNull String title, @NonNull String difficulty, @NonNull String technologyId) {
+	public Question(@NonNull String id, @NonNull String type, String experience,
+			@NonNull String createdUserid, @NonNull String title, String difficulty, @NonNull String technologyId) {
 		super();
 		this.id = id;
 		this.type = type;

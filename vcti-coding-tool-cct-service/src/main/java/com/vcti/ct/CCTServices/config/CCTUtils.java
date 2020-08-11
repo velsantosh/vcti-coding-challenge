@@ -12,9 +12,24 @@ import java.util.Map;
 
 public class CCTUtils {
 
+	private static String userHome = System.getProperty("user.home");
+	private static String osName = System.getProperty("os.name");
+	private static String userDirectory = System.getProperty("user.dir");
+
 	public static String writeProgInFile(String prog, String fileName, String userDir, String fileExtension) {
 
+		System.out.println("userDirectory :" + userDirectory);
+		System.out.println("userHome : " + userHome);
+		System.out.println("os osName :" + osName);
+
 		String path = "C:\\takeTest\\" + userDir + "\\";
+
+		if ("Linux".equals(osName)) {
+			path = "/home/velankani/test" + "/" + userDir + "/";
+		}
+		
+		System.out.println("path :" + path);
+
 		Path pathDir = Paths.get(path);
 
 		try {
@@ -39,10 +54,16 @@ public class CCTUtils {
 		Map<String, String> compilationStatus = null;
 		System.out.println("***JAVA COMPILE PROGRAM*******");
 		try {
-			compilationStatus = runProcess(
-					"javac -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest;\" "
-							+ path);
-			System.out.println("***Compilation Completed*******");
+
+			if ("Linux".equals(osName)) {
+				compilationStatus = runProcess("javac -cp .:" + "/home/velankani/lib/hamcrest-core-1.3.jar:"
+						+ "/home/velankani/lib/junit.jar:/home/velankani/test: " + path);
+			} else {
+
+				compilationStatus = runProcess(
+						"javac -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest;\" "
+								+ path);
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -53,11 +74,22 @@ public class CCTUtils {
 	public static Map<String, String> compileJavaProgram(String path, String cp) {
 
 		Map<String, String> compilationStatus = null;
-		System.out.println("***JAVA COMPILE PROGRAM*******");
+		System.out.println("***JAVA COMPILE PROGRAM******* with path and cp");
 		try {
-			compilationStatus = runProcess(
-					"javac -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest\\"
-							+ cp + ";\" " + path);
+
+			if ("Linux".equals(osName)) {
+				
+				cp = cp.substring(0, cp.length() - 1);
+				compilationStatus = runProcess("javac -cp .:" + "/home/velankani/lib/hamcrest-core-1.3.jar:"
+						+ "/home/velankani/lib/junit.jar:/home/velankani/test/"+cp+ ": " + path);	
+				
+			} else {
+
+				compilationStatus = runProcess(
+						"javac -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest\\"
+								+ cp + ";\" " + path);
+			}
+
 			System.out.println("***Compilation Completed*******");
 
 		} catch (Exception e) {
@@ -71,9 +103,15 @@ public class CCTUtils {
 		System.out.println("***JAVA RUN PROGRAM*******");
 		Map<String, String> runStatusMap = null;
 		try {
-			runStatusMap = runProcess(
-					"java -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest\\"
-							+ path + ";\" " + fileName);
+			if ("Linux".equals(osName)) {
+				runStatusMap = runProcess("java -cp \".:/home/velankani/lib/hamcrest-core-1.3.jar:"
+						+ "/home/velankani/lib/junit.jar:/home/velankani/test/" + path + ":\" " + fileName);
+
+			} else {
+				runStatusMap = runProcess(
+						"java -cp \".;C:\\takeTest\\lib\\hamcrest-core-1.3.jar;C:\\takeTest\\lib\\junit.jar;C:\\takeTest\\"
+								+ path + ";\" " + fileName);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

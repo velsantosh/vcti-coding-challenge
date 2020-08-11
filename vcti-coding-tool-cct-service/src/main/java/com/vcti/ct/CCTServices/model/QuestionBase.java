@@ -23,7 +23,7 @@ public class QuestionBase {
 	@PrimaryKey
 	private @NonNull String id;
 	private @NonNull String type;
-	private @NonNull String experience;
+	private String experience;
 	private @NonNull String createdUserid;
 	private @NonNull String statement;
 	private @NonNull List<String> options;
@@ -31,7 +31,7 @@ public class QuestionBase {
 	private @NonNull String methodName;
 	private ByteBuffer junitObj;
 	private @NonNull String title;
-	private @NonNull String difficulty;
+	private String difficulty;
 	private @NonNull String expectedTime;
 	private @NonNull String technologyId;
 	private @NonNull String technology;
@@ -43,8 +43,8 @@ public class QuestionBase {
 	}
 
 	public QuestionBase(@NonNull String type, @NonNull String statement, @NonNull List<String> options,
-			@NonNull String correctOption, @NonNull String technology, @NonNull String difficulty,
-			@NonNull String experience, @NonNull String title, @NonNull String topic,
+			@NonNull String correctOption, @NonNull String technology, String difficulty,
+			 String experience, @NonNull String title, @NonNull String topic,
 			@NonNull String expectedTime) {
 		super();
 		this.type = type;
@@ -60,7 +60,7 @@ public class QuestionBase {
 	}
 
 	public QuestionBase(@NonNull String type, @NonNull String statement, @NonNull String technology,
-			@NonNull String title, @NonNull String difficulty, @NonNull String experience, @NonNull String topic,
+			@NonNull String title, String difficulty,  String experience, @NonNull String topic,
 			@NonNull String expectedTime, String junitText, @NonNull String methodName) {
 		super();
 		this.type = type;
@@ -75,9 +75,9 @@ public class QuestionBase {
 		this.methodName = methodName;
 	}
 
-	public QuestionBase(@NonNull String id, @NonNull String type, @NonNull String experience,
+	public QuestionBase(@NonNull String id, @NonNull String type,  String experience,
 			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
-			@NonNull String correctOption, @NonNull String methodName, @NonNull ByteBuffer junitObj) {
+			@NonNull String correctOption, @NonNull String methodName,  ByteBuffer junitObj) {
 		super();
 		this.id = id;
 		this.type = type;
@@ -90,10 +90,10 @@ public class QuestionBase {
 		this.junitObj = junitObj;
 	}
 
-	public QuestionBase(@NonNull String id, @NonNull String type, @NonNull String experience,
+	public QuestionBase(@NonNull String id, @NonNull String type,  String experience,
 			@NonNull String createdUserid, @NonNull String statement, @NonNull List<String> options,
 			@NonNull String correctOption, @NonNull String methodName, ByteBuffer junitObj, @NonNull String title,
-			@NonNull String difficulty, @NonNull String expectedTime, @NonNull String technologyId,
+			String difficulty, @NonNull String expectedTime, @NonNull String technologyId,
 			@NonNull String technology, @NonNull String topic, String junitText) {
 		super();
 		this.id = id;
@@ -182,7 +182,7 @@ public class QuestionBase {
 		return junitObj;
 	}
 
-	public void setJunitObj(@NonNull ByteBuffer junitObj) {
+	public void setJunitObj(ByteBuffer junitObj) {
 		this.junitObj = junitObj;
 	}
 

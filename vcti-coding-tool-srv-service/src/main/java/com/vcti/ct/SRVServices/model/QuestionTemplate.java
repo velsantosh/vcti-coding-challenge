@@ -26,10 +26,10 @@ public class QuestionTemplate {
 	private  String technology;
 	private @NonNull String questionList;
 	private @NonNull String experience;
-	private @NonNull String difficulty;
+	private String difficulty;
 	
 	public QuestionTemplate(@NonNull String id, @NonNull String templateName, String technology,
-			@NonNull String questionList, @NonNull String experience, @NonNull String difficulty) {
+			@NonNull String questionList, @NonNull String experience, String difficulty) {
 		super();
 		this.id = id;
 		this.templateName = templateName;

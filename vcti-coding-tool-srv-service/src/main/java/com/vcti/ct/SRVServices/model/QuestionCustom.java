@@ -17,7 +17,7 @@ import lombok.Setter;
 @JsonInclude(value = Include.NON_EMPTY, content = Include.NON_NULL)
 public class QuestionCustom {
 	@PrimaryKey
-	private @NonNull String id;
+	private String id;
 	private @NonNull String type;
 	private @NonNull String statement;
 	private List<String> options;
@@ -27,8 +27,8 @@ public class QuestionCustom {
 	private @NonNull String createdUserid;
 	private ByteBuffer junitObj;
 	private @NonNull String title;
-	private @NonNull String difficulty;
-	private @NonNull String expectedTime;
+	private String difficulty;
+	private String expectedTime;
 	private @NonNull String technologyId;
 	private @NonNull String technology;
 	private @NonNull String topic;
@@ -51,8 +51,8 @@ public class QuestionCustom {
 
 	public QuestionCustom(@NonNull String id, @NonNull String type, @NonNull String statement, List<String> options,
 			String correct_option, String methodName, String experience, @NonNull String createdUserid,
-			ByteBuffer junitObj, @NonNull String title, @NonNull String difficulty,
-			@NonNull String expectedTime, @NonNull String technologyId, @NonNull String technology,
+			ByteBuffer junitObj, @NonNull String title, String difficulty,
+			String expectedTime, @NonNull String technologyId, @NonNull String technology,
 			@NonNull String topic, String junitText) {
 		super();
 		this.id = id;

@@ -17,7 +17,7 @@ public class SubjQuestion {
 	private @NonNull String qId;
 	private @NonNull String statement;
 	private @NonNull String methodName;
-	private @NonNull String expectedTime;
+	private String expectedTime;
 	private ByteBuffer junit;
 	private String junitText;
 
@@ -33,7 +33,7 @@ public class SubjQuestion {
 		this.junit = junit;
 	}
 	
-	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName, ByteBuffer junit, @NonNull String expectedTime, String junitText) {
+	public SubjQuestion(@NonNull String qId, @NonNull String statement, @NonNull String methodName, ByteBuffer junit, String expectedTime, String junitText) {
 		super();
 		this.qId = qId;
 		this.statement = statement;

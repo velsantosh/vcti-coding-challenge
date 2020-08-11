@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.12.2.final using JasperReports Library version 6.12.2-75c5e90a222ab406e416cbf590a5397028a52de3  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blue_Table_Based" pageWidth="1000" pageHeight="1500" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d4a1d5eb-82dd-412f-a620-202e4bdf9dba">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blue_Table_Based" pageWidth="1000" pageHeight="1600" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d4a1d5eb-82dd-412f-a620-202e4bdf9dba">
 	<property name="template.engine" value="tabular_template"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Sample DB"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -79,7 +79,7 @@
 		</band>
 	</title>
 	<detail>
-		<band height="1030" splitType="Stretch">
+		<band height="767" splitType="Stretch">
 			<property name="local_mesure_unitheight" value="pixel"/>
 			<componentElement>
 				<reportElement x="0" y="10" width="810" height="180" isPrintInFirstWholeBand="true" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
@@ -280,7 +280,7 @@
 				</jr:table>
 			</componentElement>
 			<componentElement>
-				<reportElement positionType="Float" stretchType="ElementGroupHeight" x="0" y="220" width="810" height="270" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
+				<reportElement positionType="Float" stretchType="ElementGroupHeight" x="0" y="220" width="810" height="250" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
 					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
@@ -303,7 +303,7 @@
 								<textFieldExpression><![CDATA["Objective Question Summary"]]></textFieldExpression>
 							</textField>
 						</jr:tableHeader>
-						<jr:detailCell style="Table_TD" height="220">
+						<jr:detailCell style="Table_TD" height="210">
 							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 							<frame>
 								<reportElement positionType="Float" x="10" y="10" width="800" height="40" uuid="194ad461-2128-4eb4-a274-876de66918cc"/>
@@ -366,7 +366,7 @@
 									<textElement>
 										<font fontName="Arial" size="14"/>
 									</textElement>
-									<textFieldExpression><![CDATA[$F{options}.get( 0 )+"\n"+$F{options}.get( 1 )+"\n"+$F{options}.get( 2 )+"\n"+$F{options}.get( 3 )]]></textFieldExpression>
+									<textFieldExpression><![CDATA["#"+ $F{options}.get( 0 )+"\n"+"#"+$F{options}.get( 1 )+"\n"+"#"+$F{options}.get( 2 )+"\n"+"#"+$F{options}.get( 3 )]]></textFieldExpression>
 								</textField>
 							</frame>
 							<frame>
@@ -437,7 +437,7 @@
 				</jr:table>
 			</componentElement>
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="730" width="810" height="300" isPrintWhenDetailOverflows="true" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
+				<reportElement positionType="Float" x="0" y="500" width="810" height="260" isPrintWhenDetailOverflows="true" uuid="17a02d5c-e799-4669-a2f3-9a70c1ffb012">
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
 					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
@@ -458,7 +458,7 @@
 								<textFieldExpression><![CDATA["Subjective Quesion Summary"]]></textFieldExpression>
 							</textField>
 						</jr:tableHeader>
-						<jr:detailCell style="Table_TD" height="260">
+						<jr:detailCell style="Table_TD" height="220">
 							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 							<frame>
 								<reportElement positionType="Float" x="10" y="10" width="800" height="50" uuid="ebb57e55-6105-40d4-b7e0-62dae2ac203c">
@@ -478,7 +478,7 @@
 									<textFieldExpression><![CDATA["Program"]]></textFieldExpression>
 								</textField>
 								<textField textAdjust="StretchHeight">
-									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="194" y="0" width="599" height="50" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true" uuid="b9d1f5eb-b1a3-4aa1-9388-eb3214099c9d"/>
+									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="194" y="0" width="596" height="50" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true" uuid="b9d1f5eb-b1a3-4aa1-9388-eb3214099c9d"/>
 									<box leftPadding="2">
 										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -492,11 +492,11 @@
 								</textField>
 							</frame>
 							<frame>
-								<reportElement positionType="Float" x="10" y="60" width="800" height="80" uuid="10690ddd-b911-499e-bd48-847eee2981fe">
+								<reportElement positionType="Float" x="10" y="60" width="800" height="50" uuid="10690ddd-b911-499e-bd48-847eee2981fe">
 									<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								</reportElement>
 								<textField textAdjust="StretchHeight">
-									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="194" height="80" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="b4886f31-a81e-4408-bd4b-70965b1f2ed7"/>
+									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="194" height="50" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="b4886f31-a81e-4408-bd4b-70965b1f2ed7"/>
 									<box leftPadding="2">
 										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -509,7 +509,7 @@
 									<textFieldExpression><![CDATA["Solution"]]></textFieldExpression>
 								</textField>
 								<textField textAdjust="StretchHeight">
-									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="194" y="0" width="599" height="80" isPrintWhenDetailOverflows="true" uuid="6a4b1216-70ac-4981-9aa2-4a0851ffa4f7"/>
+									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="194" y="0" width="596" height="50" isPrintWhenDetailOverflows="true" uuid="6a4b1216-70ac-4981-9aa2-4a0851ffa4f7"/>
 									<box leftPadding="2">
 										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -523,9 +523,9 @@
 								</textField>
 							</frame>
 							<frame>
-								<reportElement positionType="Float" x="10" y="140" width="800" height="50" uuid="43756def-96e7-4b3a-ae7e-bc7aca423839"/>
+								<reportElement positionType="Float" x="10" y="110" width="800" height="50" uuid="43756def-96e7-4b3a-ae7e-bc7aca423839"/>
 								<textField textAdjust="StretchHeight">
-									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="194" height="50" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="3425e2bf-e73f-45a6-b1b4-01fa650fb75b"/>
+									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="193" height="50" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="3425e2bf-e73f-45a6-b1b4-01fa650fb75b"/>
 									<box leftPadding="2">
 										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -538,7 +538,7 @@
 									<textFieldExpression><![CDATA["Consolidated"]]></textFieldExpression>
 								</textField>
 								<textField textAdjust="StretchHeight">
-									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="194" y="0" width="599" height="50" isPrintWhenDetailOverflows="true" uuid="b74560e5-fdab-46de-85ce-967f5cbae8e1"/>
+									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="194" y="0" width="596" height="50" isPrintWhenDetailOverflows="true" uuid="b74560e5-fdab-46de-85ce-967f5cbae8e1"/>
 									<box leftPadding="2">
 										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -552,9 +552,9 @@
 								</textField>
 							</frame>
 							<frame>
-								<reportElement positionType="Float" x="10" y="190" width="793" height="50" uuid="3797b1b0-59f7-41fd-aa30-1ed8424866d0"/>
+								<reportElement positionType="Float" x="9" y="160" width="793" height="50" uuid="3797b1b0-59f7-41fd-aa30-1ed8424866d0"/>
 								<textField textAdjust="StretchHeight">
-									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="194" height="50" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="4224b509-0310-4c8c-ac2e-90dc8886dda1"/>
+									<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="1" y="0" width="193" height="50" isPrintWhenDetailOverflows="true" forecolor="#006699" backcolor="#E6E6E6" uuid="4224b509-0310-4c8c-ac2e-90dc8886dda1"/>
 									<box leftPadding="2">
 										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -580,7 +580,7 @@
 									<textFieldExpression><![CDATA[$F{timeTook}]]></textFieldExpression>
 								</textField>
 								<textField textAdjust="StretchHeight">
-									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="584" y="0" width="209" height="50" isPrintWhenDetailOverflows="true" uuid="c87bf325-2e6b-426a-a1e6-b62baa4f147d"/>
+									<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" x="584" y="0" width="207" height="50" isPrintWhenDetailOverflows="true" uuid="c87bf325-2e6b-426a-a1e6-b62baa4f147d"/>
 									<box leftPadding="2">
 										<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
 										<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#006699"/>
@@ -610,6 +610,9 @@
 					</jr:column>
 				</jr:table>
 			</componentElement>
+			<break>
+				<reportElement x="0" y="480" width="611" height="1" uuid="0eb6104a-fcba-4cb7-b140-def5d9f467ef"/>
+			</break>
 		</band>
 	</detail>
 </jasperReport>
