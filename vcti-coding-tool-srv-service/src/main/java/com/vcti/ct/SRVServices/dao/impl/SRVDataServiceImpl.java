@@ -1512,4 +1512,28 @@ public class SRVDataServiceImpl implements SRVDataService {
 		}
 		return "";
 	}
+
+	@Override
+	public boolean updateScheduleChallenge(String assigneduid, String videoStreamFlag) {
+		List<ScheduleChallenge> challengeIdList = scheduleChallengeRepository.findByAssigneduid(assigneduid);
+
+		if (challengeIdList != null && challengeIdList.get(0) != null) {
+
+			if ("Scheduled".equals(challengeIdList.get(0).getStatus())) {
+				challengeIdList.get(0).setVideoStream(videoStreamFlag);
+				scheduleChallengeRepository.save(challengeIdList.get(0));
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public List<ScheduleChallenge> getAllVideoStreamingCandidateData(String assigneruid) {
+
+		List<ScheduleChallenge> challengeIdList = scheduleChallengeRepository.findByAssigneruidAndStatus(assigneruid,
+				"Scheduled");
+		return challengeIdList;
+	}
+
 }

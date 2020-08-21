@@ -23,9 +23,16 @@ public class ScheduleChallenge {
 	private Date endTime;
 	private String templateId;
 	private String templateType;
+	private String videoStream;
 	
 	public ScheduleChallenge() {
 		super();
+	}
+
+	public ScheduleChallenge(@NonNull String assigneduid, String videoStream) {
+		super();
+		this.assigneduid = assigneduid;
+		this.videoStream = videoStream;
 	}
 
 	public ScheduleChallenge(@NonNull String challengeid, @NonNull String assigneduid, @NonNull String assigneruid,
@@ -112,6 +119,14 @@ public class ScheduleChallenge {
 
 	public void setTemplateType(String templateType) {
 		this.templateType = templateType;
+	}
+
+	public String getVideoStream() {
+		return videoStream;
+	}
+
+	public void setVideoStream(String videoStream) {
+		this.videoStream = videoStream;
 	}
 	
 	

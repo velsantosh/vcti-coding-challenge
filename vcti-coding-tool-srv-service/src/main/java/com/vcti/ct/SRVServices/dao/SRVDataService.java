@@ -100,4 +100,8 @@ public interface SRVDataService {
 
 	Boolean createCustomTemplate(QuestionSchedulerCustom assignBulkQ);
 
+	boolean updateScheduleChallenge(String assigneduid, String videoStreamFlag);
+
+	List<ScheduleChallenge> getAllVideoStreamingCandidateData(String assignerId);
+
 }

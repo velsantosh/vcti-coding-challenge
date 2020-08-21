@@ -122,7 +122,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 		//Schedule_Challange Table
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + scheduleChallengeTable
 				+ "(challengeid text PRIMARY KEY, assigneduid text, assigneruid text, status text, scheduleTime timestamp, "
-				+ "startTime timestamp, endTime timestamp, templateId text, templateType text)");	
+				+ "startTime timestamp, endTime timestamp, templateId text, templateType text, videostream text)");	
 		
 		//DATA: Test Report sent to interviewer
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + interviewerReportTable

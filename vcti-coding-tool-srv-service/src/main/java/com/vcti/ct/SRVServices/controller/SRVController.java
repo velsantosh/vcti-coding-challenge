@@ -27,7 +27,7 @@ import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 
-@CrossOrigin(origins = { "http://vcti.com","http://localhost:3000" })
+@CrossOrigin(origins = { "http://vcti.com", "http://localhost:3000" })
 @RestController
 public class SRVController {
 
@@ -187,6 +187,17 @@ public class SRVController {
 	@PutMapping("/reschedule/request")
 	public List<ScheduledRequest> updateScheduleRequest(@RequestBody List<ScheduledRequest> scheduleRequest) {
 		return srvDataService.rescheduleRequest(scheduleRequest);
+	}
+
+	@PutMapping("/update/scheduleddata/{assigneduid}/{videoStreamFlag}")
+	public boolean updateScheduleChallenge(@PathVariable String assigneduid, @PathVariable String videoStreamFlag) {
+		return srvDataService.updateScheduleChallenge(assigneduid, videoStreamFlag);
+		// ScheduledRequest scheduleRequest,
+	}
+
+	@GetMapping("/schedule/videostream/{assigneruid}")
+	public List<ScheduleChallenge> getAllVideoStreamingCandidateData(@PathVariable String assigneruid) {
+		return srvDataService.getAllVideoStreamingCandidateData(assigneruid);
 	}
 
 	@DeleteMapping("/cancel/schedule/request")
