@@ -59,7 +59,7 @@ public class MailServiceController {
 				(userDetails.getMailSubject() != null ? userDetails.getMailSubject() : "Test Eamil from CCT Mail API"));
 		refUserDetails.setUserName(userDetails.getUserName() != null ? userDetails.getUserName() : "testCCTUser");
 		refUserDetails.setToEmailAddress(userDetails.getToEmailAddress() != null ? userDetails.getToEmailAddress()
-				: "santosh.verma.vcti@gmail.com");
+				: "afser.basha@velankani.com");
 		refUserDetails.setMessageText(userDetails.getMessageText() != null ? userDetails.getMessageText()
 				: "Welcome email from VCTI CCT Tool");
 
@@ -97,7 +97,7 @@ public class MailServiceController {
 				(userDetails.getMailSubject() != null ? userDetails.getMailSubject() : "Test Eamil from CCT Mail API"));
 		refUserDetails.setUserName(userDetails.getUserName() != null ? userDetails.getUserName() : "testCCTUser");
 		refUserDetails.setToEmailAddress(userDetails.getToEmailAddress() != null ? userDetails.getToEmailAddress()
-				: "santosh.verma.vcti@gmail.com");
+				: "afser.basha@velankani.com");
 		refUserDetails.setMessageText(userDetails.getMessageText() != null ? userDetails.getMessageText()
 				: "Welcome email from VCTI CCT Tool");
 

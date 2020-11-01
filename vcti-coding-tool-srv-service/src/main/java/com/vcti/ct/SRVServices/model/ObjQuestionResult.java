@@ -13,30 +13,51 @@ import lombok.Setter;
 @Setter
 @Table("objresult")
 public class ObjQuestionResult {
-	@PrimaryKey
-	private ResultKey key;
-	private @NonNull String selectedoption;
-
-	public ObjQuestionResult(final ResultKey key, @NonNull String selectedoption) {
+	
+	public ObjQuestionResult() {
+		super();
+	}
+	public ObjQuestionResult(ResultKey key, @NonNull String selectedoption, @NonNull String questionContent,
+			@NonNull String selectedAnswer) {
 		super();
 		this.key = key;
 		this.selectedoption = selectedoption;
+		this.questionContent = questionContent;
+		this.selectedAnswer = selectedAnswer;
 	}
 
 	public ResultKey getKey() {
 		return key;
 	}
-
 	public void setKey(ResultKey key) {
 		this.key = key;
 	}
-
 	public String getSelectedoption() {
 		return selectedoption;
 	}
-
 	public void setSelectedoption(String selectedoption) {
 		this.selectedoption = selectedoption;
 	}
+	public String getQuestionContent() {
+		return questionContent;
+	}
+	public void setQuestionContent(String questionContent) {
+		this.questionContent = questionContent;
+	}
+	public String getSelectedAnswer() {
+		return selectedAnswer;
+	}
+	public void setSelectedAnswer(String selectedAnswer) {
+		this.selectedAnswer = selectedAnswer;
+	}
+	@PrimaryKey
+	private ResultKey key;
+	private @NonNull String selectedoption;
+	private @NonNull String questionContent;
+	private @NonNull String selectedAnswer;
+	
+
+
+	
 
 }

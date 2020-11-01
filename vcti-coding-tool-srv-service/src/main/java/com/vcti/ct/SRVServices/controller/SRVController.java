@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
 import com.vcti.ct.SRVServices.dao.SRVDataService;
 import com.vcti.ct.SRVServices.model.CandidateResult;
 import com.vcti.ct.SRVServices.model.Interviewer;
@@ -80,8 +83,8 @@ public class SRVController {
 	}
 
 	// Get Q List on User
-	@GetMapping("/schQuesByUid/{userId}")
-	public List<QuestionCustom> getAllSchQuestionsByUserId(@PathVariable String userId) {
+	@GetMapping("/schQuesByUid/")
+	public List<QuestionCustom> getAllSchQuestionsByUserId(@RequestParam (value = "userId", required = true) String userId) {
 		List<QuestionSchedView> quesIdList = srvDataService.getQuestionsByUserId(userId);
 		return getQuestionListFromCCTService(quesIdList);
 	}
@@ -128,7 +131,7 @@ public class SRVController {
 		return srvDataService.getObjQResult(objQResult);
 	}
 
-	@GetMapping("/objResByUserId/{userId}")
+	@GetMapping("/objResByUserId/{userId:.+}")
 	public List<ObjQuestionResult> getObjQResultByUserId(@PathVariable String userId) {
 		return srvDataService.getObjQResultByUserId(userId);
 	}
@@ -210,8 +213,8 @@ public class SRVController {
 		return srvDataService.getSubjObjResultReport(id, challengeid);
 	}
 
-	@GetMapping("/candidateReport/{id}")
-	public List<CandidateResult> getCandidateReports(@PathVariable String id) {
+	@GetMapping("/candidateReport/")
+	public List<CandidateResult> getCandidateReports(@RequestParam (value = "candidateId", required = true) String id) {
 		return srvDataService.getCandidateReports(id);
 	}
 
@@ -236,9 +239,11 @@ public class SRVController {
 		return srvDataService.sendEamilToCandidateForTestLink(candidateEmailList);
 	}
 
-	@GetMapping("/chlngRecByassignerId/{assignerId}")
-	public List<ScheduleChallenge> getChallengeRecByAssignerId(@PathVariable String assignerId) {
+	@GetMapping("/chlngRecByassignerId/")
+	@ResponseBody
+	public List<ScheduleChallenge> getChallengeRecByAssignerId(@RequestParam (value = "assignerId", required = true)  String assignerId) {
 		List<ScheduleChallenge> quesIdList = srvDataService.getChallengeRecByAssignerId(assignerId);
+		
 		return quesIdList;
 	}
 
@@ -291,14 +296,14 @@ public class SRVController {
 		return getQuestionListFromCCTService(quesIdList);
 	}
 
-	@GetMapping("/schQuesByCandidate/{candidateId}")
-	public List<QuestionCustom> getAllSchQuestionsByCandidate(@PathVariable String candidateId) {
+	@GetMapping("/schQuesByCandidate/")
+	public List<QuestionCustom> getAllSchQuestionsByCandidate(@RequestParam (value = "userId", required = true) String candidateId) {
 		List<QuestionScheduler> quesIdList = srvDataService.getQuestionsByCandidateId(candidateId);
 		return getQuestionListFromCCT(quesIdList);
 	}
 
-	@PutMapping("/updateChallengeStatus/{candidateId}")
-	public boolean updateChallengeStatus(@PathVariable String candidateId) {
+	@PutMapping("/updateChallengeStatus/")
+	public boolean updateChallengeStatus(@RequestParam (value = "candidateId", required = true) String candidateId) {
 		return srvDataService.updateChallengeStatus(candidateId);
 	}
 
