@@ -4,17 +4,19 @@ package com.vcti.ct.SRVServices.model;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-
 @Getter
 @Setter
+@Table("subjresult")
 public class SubjQuestionResultPojo {
 	@PrimaryKey
 	private ResultKey key;
+	
+
+
 	private @NonNull String program;
 	private @NonNull String consolidatedoutput;
 	private String compilationStatus;
@@ -55,14 +57,18 @@ public class SubjQuestionResultPojo {
 		this.compilationStatus = compilationStatus;
 	}
 
+	public SubjQuestionResultPojo() {
+		
+	}
 	public SubjQuestionResultPojo(final ResultKey key, @NonNull String program, @NonNull String consolidatedoutput,
 			String compilationStatus,String className, String clicksonRunTest) {
 		super();
 		this.key = key;
 		this.program = program;
 		this.consolidatedoutput = consolidatedoutput;
-		this.compilationStatus=compilationStatus;
-		this.className=className;
+		this.compilationStatus = compilationStatus;
+		this.className = className;
+		this.timeTook = timeTook;
 		this.clicksonRunTest = clicksonRunTest;
 
 	}

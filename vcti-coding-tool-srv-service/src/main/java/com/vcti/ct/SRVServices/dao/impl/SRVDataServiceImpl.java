@@ -934,8 +934,12 @@ public class SRVDataServiceImpl implements SRVDataService {
 			msgBody = msgBody.replace("${name}", user.getName());
 		}
 
-		subject = (null != interviewer && null != interviewer.getSubject()) ? subject = interviewer.getSubject()
-				: reportEmailSubject;
+		/*
+		 * subject = (null != interviewer && null != interviewer.getSubject()) ? subject
+		 * = interviewer.getSubject() : reportEmailSubject;
+		 */		
+		subject = "Coding Challenge Report of "+candidateName;
+		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("userName", user.getName());
 		map.put("mailSubject", subject);
