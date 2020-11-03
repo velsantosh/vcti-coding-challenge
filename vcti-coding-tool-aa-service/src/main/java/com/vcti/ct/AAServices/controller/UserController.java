@@ -20,7 +20,7 @@ import com.vcti.ct.AAServices.dao.UserDataService;
 import com.vcti.ct.AAServices.model.PermissionDTO;
 import com.vcti.ct.AAServices.model.User;
 
-@CrossOrigin(origins = { "http://vcti.com","http://localhost:3000" })
+@CrossOrigin(origins = { "*","http://vcti.com","http://localhost:3000" })
 @RestController
 public class UserController {
 

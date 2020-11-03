@@ -1096,7 +1096,10 @@ public class SRVDataServiceImpl implements SRVDataService {
 			for (InterviewerReport reportData : reportDataList) {
 				ScheduleChallenge challengeRecord = scheduleChallengeRepository
 						.findByChallengeid(reportData.getChallengeid());
-				challengeList.add(challengeRecord);
+				
+				if(challengeRecord != null) {				
+					challengeList.add(challengeRecord);
+				}
 			}
 		}
 

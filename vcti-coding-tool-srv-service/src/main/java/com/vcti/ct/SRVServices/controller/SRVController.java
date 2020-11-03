@@ -30,7 +30,7 @@ import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 
-@CrossOrigin(origins = { "http://vcti.com", "http://localhost:3000" })
+@CrossOrigin(origins = { "*", "http://localhost:3000" })
 @RestController
 public class SRVController {
 
