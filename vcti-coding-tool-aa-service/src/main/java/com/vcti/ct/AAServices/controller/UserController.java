@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vcti.ct.AAServices.dao.UserDataService;
 import com.vcti.ct.AAServices.model.PermissionDTO;
 import com.vcti.ct.AAServices.model.User;
 
-@CrossOrigin(origins = { "*","http://vcti.com","http://localhost:3000" })
+@CrossOrigin(origins = { "http://vcct.blr.velankani.com:3000","http://vcti.com","http://localhost:3000" })
 @RestController
 public class UserController {
 
@@ -83,8 +84,8 @@ public class UserController {
 		return userDataService.getPermissionsById(id);
 	}
 
-	@GetMapping("/permByUserId/{userId}")
-	public List<String> getPermissionsByUserId(@PathVariable String userId) {
+	@GetMapping("/permByUserId/")
+	public List<String> getPermissionsByUserId(@RequestParam (value = "userId", required = true) String userId) {
 		LOG.debug("Calling getPermissionsByUserId method");
 		return userDataService.getPermissionsByUserId(userId);
 	}
