@@ -30,7 +30,7 @@ import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 
-@CrossOrigin(origins = { "*", "http://localhost:3000" })
+@CrossOrigin(origins = { "https://vcct.blr.velankani.com:3000", "http://localhost:3000" })
 @RestController
 public class SRVController {
 
@@ -198,8 +198,8 @@ public class SRVController {
 		// ScheduledRequest scheduleRequest,
 	}
 
-	@GetMapping("/schedule/videostream/{assigneruid}")
-	public List<ScheduleChallenge> getAllVideoStreamingCandidateData(@PathVariable String assigneruid) {
+	@GetMapping("/schedule/videostream/")
+	public List<ScheduleChallenge> getAllVideoStreamingCandidateData(@RequestParam (value = "userId", required = true) String assigneruid) {
 		return srvDataService.getAllVideoStreamingCandidateData(assigneruid);
 	}
 

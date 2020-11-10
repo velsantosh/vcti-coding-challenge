@@ -104,7 +104,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration implements A
 	private List<String> getListOfCreateQuery() {
 		List<String> createQueryList = new ArrayList<String>();
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + userTable
-				+ "(id text, name text, userid text PRIMARY KEY, password text, roleid text, experience int)");
+				+ "(id text, name text, userId text PRIMARY KEY, password text, roleid text, experience int)");
 
 		createQueryList.add("CREATE TABLE IF NOT EXISTS " + getKeyspaceName() + "." + roleTable
 				+ "(id text PRIMARY KEY, rolename text)");
@@ -125,7 +125,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration implements A
 		populateRolePerMappingTable(insertQueryList);
 		
 		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + userTable
-				+ "(id, name, userid, password, roleid, experience) VALUES ('1','ADMIN','Admin@vspl.com','Admin@123','1',0)");
+				+ "(id, name, userId, password, roleid, experience) VALUES ('1','ADMIN','Admin@vspl.com','Admin@123','1',0)");
 
 		return insertQueryList;
 	}
