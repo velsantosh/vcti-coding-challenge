@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
  * @author sandeepkumar.yadav
  *
  */
-@CrossOrigin(origins = { "http://vcti.com","http://localhost:3000" })
+@CrossOrigin(origins = { "*", "http://vcti.com","http://localhost:3000" })
 @RestController
 public class DBController {
 

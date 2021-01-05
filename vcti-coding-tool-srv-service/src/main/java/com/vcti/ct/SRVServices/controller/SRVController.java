@@ -30,7 +30,7 @@ import com.vcti.ct.SRVServices.model.ScheduledRequest;
 import com.vcti.ct.SRVServices.model.SubjQuestionResult;
 import com.vcti.ct.SRVServices.model.SubjQuestionResultPojo;
 
-@CrossOrigin(origins = { "https://vcct.blr.velankani.com:3000", "http://localhost:3000" })
+@CrossOrigin(origins = { "*","https://vcct.blr.velankani.com:3000", "http://localhost:3000" })
 @RestController
 public class SRVController {
 
@@ -99,11 +99,12 @@ public class SRVController {
 		List<QuestionCustom> questionList = new ArrayList<QuestionCustom>();
 		for (QuestionSchedView qId : quesIdList) {
 			String id = qId.getQid();
-			callCCTService(questionList, id);
+			srvDataService.callCCTService(questionList, id);
 		}
 
 		return questionList;
 	}
+
 
 	// Objective Q Result URI
 	@PostMapping(value = "/addObjRes")
@@ -260,34 +261,10 @@ public class SRVController {
 	@GetMapping("/schQuesBychallengeId/{challengeId}")
 	public List<QuestionCustom> getQuestionsByChallengeId(@PathVariable String challengeId) {
 		List<QuestionScheduler> quesIdList = srvDataService.getQuestionsByChallengeId(challengeId);
-		return getQuestionListFromCCT(quesIdList);
+		return srvDataService.getQuestionListFromCCT(quesIdList);
 	}
 
-	private List<QuestionCustom> getQuestionListFromCCT(List<QuestionScheduler> quesIdList) {
-		List<QuestionCustom> questionList = new ArrayList<QuestionCustom>();
-		for (QuestionScheduler qId : quesIdList) {
-			String id = qId.getQid();
-			// TODO move this to application.properties as connection point to CCT Service
-			callCCTService(questionList, id);
-		}
 
-		return questionList;
-	}
-
-	private void callCCTService(List<QuestionCustom> questionList, String id) {
-		// TODO move this to application.properties as connection point to CCT Service
-		final String uri = "http://localhost:8082/question/" + id;
-
-		// RestTemplate restTemplate = new RestTemplate();
-		QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
-		QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
-				result.getOptions(), result.getCorrectOption(), result.getMethodName(), result.getExperience(),
-				result.getCreatedUserid(), result.getJunitObj(), result.getTitle(), result.getDifficulty(),
-				result.getExpectedTime(), result.getTechnologyId(), result.getTechnology(), result.getTopic(),
-				result.getJunitText());
-
-		questionList.add(customObj);
-	}
 
 	@GetMapping("/schQuesNotBychallengeId/{assigneduid}/{challengeId}")
 	public List<QuestionCustom> getQuestionsNotByChallengeId(@PathVariable String assigneduid,
@@ -299,7 +276,7 @@ public class SRVController {
 	@GetMapping("/schQuesByCandidate/")
 	public List<QuestionCustom> getAllSchQuestionsByCandidate(@RequestParam (value = "userId", required = true) String candidateId) {
 		List<QuestionScheduler> quesIdList = srvDataService.getQuestionsByCandidateId(candidateId);
-		return getQuestionListFromCCT(quesIdList);
+		return srvDataService.getQuestionListFromCCT(quesIdList);
 	}
 
 	@PutMapping("/updateChallengeStatus/")

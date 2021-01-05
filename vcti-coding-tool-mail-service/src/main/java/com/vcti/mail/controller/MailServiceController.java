@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
  * @author Santosh Verma
  *
  */
-@CrossOrigin(origins = { "https://vcct.blr.velankani.com","http://localhost:3000" })
+@CrossOrigin(origins = {"*", "https://vcct.blr.velankani.com","http://localhost:3000" })
 @RestController
 public class MailServiceController {
 
