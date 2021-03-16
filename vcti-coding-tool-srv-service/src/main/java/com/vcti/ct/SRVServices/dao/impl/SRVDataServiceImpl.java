@@ -50,6 +50,7 @@ import com.vcti.ct.SRVServices.model.ObjQuestionResult;
 import com.vcti.ct.SRVServices.model.ObjectiveResultReport;
 import com.vcti.ct.SRVServices.model.QuesResponse;
 import com.vcti.ct.SRVServices.model.QuestionBase;
+import com.vcti.ct.SRVServices.model.QuestionCustom;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
@@ -850,10 +851,14 @@ public class SRVDataServiceImpl implements SRVDataService {
 	}
 
 	private User getUserDetailsFromUserTable(String userId) {
-		String url = aaServiceHostPort + "user/userid/" + userId;
+		//String url = aaServiceHostPort + "user/userid/" + userId;
+		final String url = "https://vcct.blr.velankani.com:8081/user/userid/" + userId;
+
 		ResponseEntity<User> resultJson = null;
 		try {
 			resultJson = restTemplate.getForEntity(url, User.class);
+			System.out.println(" getUserDetailsFromUserTable:" +resultJson.getBody() );
+
 			return resultJson.getBody();
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -1087,6 +1092,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 		List<ScheduleChallenge> challengeList = new ArrayList<ScheduleChallenge>();
 
 		List<ScheduleChallenge> challengeLists = scheduleChallengeRepository.findByAssigneruid(assignerId);
+		System.out.println("os challengeLists size 000:" +challengeLists.size() );
 
 		if (!challengeLists.isEmpty()) {
 			challengeList = challengeLists.stream().filter(challenge -> !"Scheduled".equals(challenge.getStatus()))
@@ -1101,9 +1107,19 @@ public class SRVDataServiceImpl implements SRVDataService {
 					challengeList.add(challengeRecord);
 				}
 			}
+			System.out.println("os challengeLists size 111:" +challengeLists.size() );
+
 		}
 
 		for (ScheduleChallenge challengeRec : challengeList) {
+			
+			if (challengeRec.getAssigneduid() == null) {
+				System.out.println("os challengeList :" +challengeList.size() );
+
+				return candidateResults;
+
+			}
+			
 			List<ObjQuestionResult> filteredObjQList = new ArrayList<ObjQuestionResult>();
 			List<SubjQuestionResult> filteredSubQList = new ArrayList<SubjQuestionResult>();
 			int noOfObjQ = 0;
@@ -1111,7 +1127,17 @@ public class SRVDataServiceImpl implements SRVDataService {
 			int finalsubjResult = 0;
 			int subjectiveQResult = 0;
 			int nofSubjectiveq = 0;
-			String candidatename = this.getUserDetailsFromUserTable(challengeRec.getAssigneduid()).getName();
+			String candidatename = null;
+					
+					User user = this.getUserDetailsFromUserTable(challengeRec.getAssigneduid());
+					if (user == null) {
+						
+						System.out.println("os user is null :");
+						System.out.println("challengeRec.getAssigneduid() :"+challengeRec.getAssigneduid());
+
+						return candidateResults;
+					}
+					candidatename = user.getName();
 			String testScheduler = this.getUserDetailsFromUserTable(assignerId).getName();
 			CandidateResult result = new CandidateResult();
 			List<QuestionScheduler> questionIdList = questionScheduleRepository
@@ -1133,7 +1159,7 @@ public class SRVDataServiceImpl implements SRVDataService {
 				System.out.println("os osName :" + osName);
 
 				if ("Linux".equals(osName)) {
-					url = "http://vcti.com:8765/cctservice/question/";
+					url = "https://vcti.com:8765/cctservice/question/";
 				}
 
 				url = url + objResult.getKey().getQid();
@@ -1541,6 +1567,43 @@ public class SRVDataServiceImpl implements SRVDataService {
 		List<ScheduleChallenge> challengeIdList = scheduleChallengeRepository.findByAssigneruidAndStatus(assigneruid,
 				"Scheduled");
 		return challengeIdList;
+	}
+	
+	
+	
+	
+	@Override
+	public List<QuestionCustom> getQuestionListFromCCT(List<QuestionScheduler> quesIdList) {
+		List<QuestionCustom> questionList = new ArrayList<QuestionCustom>();
+		for (QuestionScheduler qId : quesIdList) {
+			String id = qId.getQid();
+			// TODO move this to application.properties as connection point to CCT Service
+			callCCTService(questionList, id);
+		}
+
+		return questionList;
+	}
+
+	@Override
+	public void callCCTService(List<QuestionCustom> questionList, String id) {
+		// TODO move this to application.properties as connection point to CCT Service
+		// final String uri = "https://localhost:8082/question/" + id;
+		final String uri = "https://vcct.blr.velankani.com:8082/question/" + id;
+		try {
+			// RestTemplate restTemplate = new RestTemplate();
+			QuestionBase result = restTemplate.getForObject(uri, QuestionBase.class);
+			QuestionCustom customObj = new QuestionCustom(result.getId(), result.getType(), result.getStatement(),
+					result.getOptions(), result.getCorrectOption(), result.getMethodName(), result.getExperience(),
+					result.getCreatedUserid(), result.getJunitObj(), result.getTitle(), result.getDifficulty(),
+					result.getExpectedTime(), result.getTechnologyId(), result.getTechnology(), result.getTopic(),
+					result.getJunitText());
+
+			questionList.add(customObj);
+		} catch (Exception e) {
+			
+
+		}
+
 	}
 
 }

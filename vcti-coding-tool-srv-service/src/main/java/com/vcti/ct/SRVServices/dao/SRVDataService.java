@@ -5,6 +5,7 @@ import java.util.List;
 import com.vcti.ct.SRVServices.model.CandidateResult;
 import com.vcti.ct.SRVServices.model.Interviewer;
 import com.vcti.ct.SRVServices.model.ObjQuestionResult;
+import com.vcti.ct.SRVServices.model.QuestionCustom;
 import com.vcti.ct.SRVServices.model.QuestionSchedView;
 import com.vcti.ct.SRVServices.model.QuestionScheduler;
 import com.vcti.ct.SRVServices.model.QuestionSchedulerCustom;
@@ -103,5 +104,9 @@ public interface SRVDataService {
 	boolean updateScheduleChallenge(String assigneduid, String videoStreamFlag);
 
 	List<ScheduleChallenge> getAllVideoStreamingCandidateData(String assignerId);
+
+	List<QuestionCustom> getQuestionListFromCCT(List<QuestionScheduler> quesIdList);
+
+	void callCCTService(List<QuestionCustom> questionList, String id);
 
 }
