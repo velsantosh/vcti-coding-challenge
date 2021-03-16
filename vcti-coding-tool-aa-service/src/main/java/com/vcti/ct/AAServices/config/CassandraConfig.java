@@ -150,51 +150,44 @@ public class CassandraConfig extends AbstractCassandraConfiguration implements A
 		}
 		System.out.println("Permission Properties loaded successfully");
 		for (int permIndex = 0; permIndex < perm.getPerm().length; permIndex++) {
-			if(permIndex == 6)continue;
+			if (permIndex == 6)
+				continue;
 			insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
 					+ "(id, roleid, permissionid) VALUES ('" + mappingIndex + "','1','" + permIndex + "')");
 			mappingIndex++;
 		}
 
 		// RECRUITMENT
-		/*
-		 * insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." +
-		 * rolePermMappingTable + "(id, roleid, permissionid) VALUES ('" +
-		 * mappingIndex++ + "','2','1')"); insertQueryList.add("INSERT INTO " +
-		 * getKeyspaceName() + "." + rolePermMappingTable +
-		 * "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','2','2')");
-		 * insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." +
-		 * rolePermMappingTable + "(id, roleid, permissionid) VALUES ('" +
-		 * mappingIndex++ + "','2','3')"); insertQueryList.add("INSERT INTO " +
-		 * getKeyspaceName() + "." + rolePermMappingTable +
-		 * "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','2','4')");
-		 * insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." +
-		 * rolePermMappingTable + "(id, roleid, permissionid) VALUES ('" +
-		 * mappingIndex++ + "','2','5')"); insertQueryList.add("INSERT INTO " +
-		 * getKeyspaceName() + "." + rolePermMappingTable +
-		 * "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','2','7')");
-		 */
+
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','2','1')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','2','2')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','2','3')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','2','4')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','2','5')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','2','7')");
 
 		// CANDIDATE
 		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
 				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','6')");
 
 		// INTERVIEWER
-		/*
-		 * insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." +
-		 * rolePermMappingTable + "(id, roleid, permissionid) VALUES ('" +
-		 * mappingIndex++ + "','4','1')"); insertQueryList.add("INSERT INTO " +
-		 * getKeyspaceName() + "." + rolePermMappingTable +
-		 * "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','3')");
-		 * insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." +
-		 * rolePermMappingTable + "(id, roleid, permissionid) VALUES ('" +
-		 * mappingIndex++ + "','4','5')"); insertQueryList.add("INSERT INTO " +
-		 * getKeyspaceName() + "." + rolePermMappingTable +
-		 * "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','7')");
-		 * insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." +
-		 * rolePermMappingTable + "(id, roleid, permissionid) VALUES ('" +
-		 * mappingIndex++ + "','4','9')");
-		 */
+
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','1')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','3')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','5')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','7')");
+		insertQueryList.add("INSERT INTO " + getKeyspaceName() + "." + rolePermMappingTable
+				+ "(id, roleid, permissionid) VALUES ('" + mappingIndex++ + "','4','9')");
 
 		// GUEST
 
